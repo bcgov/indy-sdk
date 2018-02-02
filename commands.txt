@@ -1,4 +1,23 @@
-Commands
+Building and running cli
+
+cd indy-sdk/libindy
+cargo build
+cd ..
+
+Run docker nodes for indy network
+
+cd indy-node/environment/docker/pool
+./pool_build.sh
+./pool_start.sh
+docker ps
+
+
+cli Commands (setup network and nodes)
+
+cd indy-sdk/cli
+cargo build
+cargo run
+
 
 pool create sandbox gen_txn_file=docker_pool_transactions_genesis
 pool connect sandbox
@@ -25,4 +44,38 @@ did use H2aKRiDeq8aLZSydQMDbtf
 ledger attrib did=H2aKRiDeq8aLZSydQMDbtf raw={"endpoint":{"ha":"10.0.0.6:7777","pubkey":"AGBjYvyM3SFnoiDGAEzkSLHvqyzVkXeMZfKDvdpEsC2x"}}
 
 exit
+
+
+Run Alice/Faber/Acme demo
+
+Start Agents
+
+cd indy_node/indy_client/test/agent
+python faber.py  --port 5555 --network pool-network >/tmp/faber.log &
+python acme.py  --port 6666 --network pool-network >/tmp/acme.log &
+python thrift.py  --port 7777 --network pool-network >/tmp/thrift.log &
+
+tail -f /tmp/faber.log
+tail -f /tmp/acme.log
+tail -f /tmp/thrift.log
+
+
+Run ALICE Client
+
+cd indy-sdk/cli
+cargo run
+
+prompt ALICE
+pool connect sandbox
+wallet create ALICE pool_name=sandbox
+wallet open ALICE
+
+show /home/osboxes/Projects/indy-node/sample/faber-request.indy
+load /home/osboxes/Projects/indy-node/sample/faber-request.indy
+
+
+
+
+
+
 
