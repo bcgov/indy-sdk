@@ -32,3 +32,46 @@ Then run
 
 ### Example use
 For the main workflow examples check tests in demo folder: https://github.com/hyperledger/indy-sdk/tree/master/wrappers/python/tests/demo
+
+
+### Install Steps
+
+Set LD_LIBRARY_PATH:
+
+```
+sudo vi /etc/ld.so.conf.d/indy-sdk.conf
+(add path to libindy.so and save)
+sudo ldconfig
+```
+
+Pre-requisites:
+
+```
+sudo apt-get install python3.6-dev
+sudo apt-get install libgmp3-dev
+
+https://crypto.stanford.edu/pbc/download.html
+tar xvf pbc-0.5.14.tar.gz
+cd pbc-0.5.14
+sudo apt-get install flex bison
+./configure
+make
+sudo make install
+```
+
+Build project:
+
+```
+pipenv --python 3.6
+pipenv install pytest
+pipenv install anoncreds
+pipenv install indy indy-node
+```
+
+Run tests:
+
+```
+pipenv shell
+python -m pytest
+```
+

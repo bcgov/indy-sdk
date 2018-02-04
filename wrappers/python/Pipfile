@@ -17,3 +17,6 @@ python_version = "3.6"
 [packages]
 
 anoncreds = "*"
+pytest = "*"
+indy = "*"
+indy-node = "*"
