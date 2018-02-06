@@ -44,7 +44,7 @@ sudo vi /etc/ld.so.conf.d/indy-sdk.conf
 sudo ldconfig
 ```
 
-Pre-requisites:
+Install Pre-requisites:
 
 ```
 sudo apt-get install python3.6-dev
@@ -62,6 +62,7 @@ sudo make install
 Build project:
 
 ```
+cd indy-sdk/wrappers/python
 pipenv --python 3.6
 pipenv install pytest
 pipenv install anoncreds
@@ -73,5 +74,12 @@ Run tests:
 ```
 pipenv shell
 python -m pytest
+python -m pytest tests/demo
 ```
 
+Run "Getting Started" demo script:
+
+```
+cd indy-sdk/samples/python
+PYTHONPATH=.:../../wrappers/python python src/main.py
+```
