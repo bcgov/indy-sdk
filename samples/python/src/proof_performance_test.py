@@ -356,7 +356,8 @@ async def run():
         if etime > maxtime:
             maxtime = etime
         avetime = avetime + etime
-        logger.info("anoncreds.prover_get_claims_for_proof_req(" + str(i) + ") took " + str(etime) + "ms")
+        logger.info("anoncreds.prover_get_claims_for_proof_req(" + str(i) + ") took " + str(etime) + "ms, " +
+                    "max = " + str(maxtime) + ", ave = " + str(avetime / (i+1)))
         #logger.info("\"Alice\" -> returns prover_get_claims_for_proof_req() " +
         #            json.dumps(claims_for_job_application_proof_request, indent=4))
 
@@ -766,7 +767,6 @@ async def run():
     await pool.delete_pool_ledger_config(pool_name)
 
     logger.info("Getting started -> done")
-    logger.info("max time = " + str(maxtime) + ", ave time = " + str(avetime/250))
 
 
 async def onboarding(pool_handle, pool_name, _from, from_wallet, from_did, to,
