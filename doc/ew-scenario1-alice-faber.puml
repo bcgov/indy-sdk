@@ -1,0 +1,39 @@
+@startuml
+node "Alice" {
+[Alice Application]
+}
+database "Alice Wallet" {
+folder "My wallet" {
+[Identity]
+}
+}
+node "Faber" {
+[Faber Application]
+}
+database "Faber Wallet" {
+folder "Enterprise wallet" {
+[Identities]
+}
+}
+database "Enterprise DB" {
+folder "Enterprise data" {
+[Data]
+}
+}
+node "Indy Node" {
+[Ledger]
+[DID]
+[Claim Schema]
+[Claim Definition]
+}
+[Alice Application] --> [Faber Application]
+[Faber Application] --> [Alice Application]
+[Alice Application] --> [Identity]
+[Faber Application] --> [Identities]
+[Faber Application] --> [Data]
+[Alice Application] --> [Ledger]
+[Faber Application] --> [Ledger]
+[Ledger] --> [DID]
+[Ledger] --> [Claim Schema]
+[Ledger] --> [Claim Definition]
+@enduml
