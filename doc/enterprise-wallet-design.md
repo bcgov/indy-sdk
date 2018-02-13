@@ -17,7 +17,7 @@ The individual carries their claims in their personal wallet.  There is not nece
 1.	When Alice provides a proof, she can select from which claims she wants to provide the proof (the wallet gives her all the available options).
 1.	Alice can keep copies of her data in multiple wallets (if she chooses), or can switch from one wallet provider to another (if using “wallet-as-a-service”).  The service provider will be in a similar situation to TheOrgBook, or the guardianship scenario described below.
 
-![Alice/Faber Scenario](https://github.com/ianco/indy-sdk/raw/master/docs/ew-scenario1-alice-faber.svg "Alice/Faber Scenario")
+![Alice/Faber Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-scenario1-alice-faber.png "Alice/Faber Scenario")
 
 ### Wallet Use Case - TheOrgBook
 
