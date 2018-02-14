@@ -1,7 +1,9 @@
 
 # Enterprise Wallet - Proposed Design
 
-## EW Design – Use Cases
+This document describes proposed changes to the SDK Wallet to support multiple identities as required by TheOrgBook.  The document first describes usage scenarios to differentiate between TheOrgbook case, and the typical case of an individual (such as Alice).  Different options for implementing a claims search (to support constructing a proof) are described.
+
+## EW Design – Usage Scenarios
 
 There are three scenarios to consider:
 
@@ -46,8 +48,8 @@ This is the scenario of a homeless shelter or refugee camp.  An organization is 
 1.	Use proof request “predicates” as search criteria.
 1.	Implement query filters in the wallet API.
 1.	Use a hybrid approach:
-  1.	Initial search in TheOrgBook search database.
-  1.	Secondary search(es) against the wallet, based on TheOrgBook search results.
+   1.	Initial search in TheOrgBook search database.
+   1.	Secondary search(es) against the wallet, based on TheOrgBook search results.
 
 ### Wallet Query - Multiple Virtual Wallets
 

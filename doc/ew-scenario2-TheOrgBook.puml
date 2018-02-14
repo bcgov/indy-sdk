@@ -3,12 +3,8 @@ node "TheOrgBook" {
 [TheOrgBook Application]
 }
 database "TheOrgBook Wallet" {
-folder "Virtual wallet 1" {
 [Identity 1]
-}
-folder "Virtual wallet n" {
 [Identity n]
-}
 }
 database "TOB Enterprise DB" {
 folder "TOB Enterprise data" {
