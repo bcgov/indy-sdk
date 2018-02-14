@@ -82,7 +82,7 @@ Proof requests already include "predicates", which restrict attributes to specif
 
 These predicates are processed separately from the requested attributes, however it would be possible to use these as the filter criteria for the proof (for example to limit attribute selection only to those claims meeting the predicate criteria).
 
-![Predicate Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-query2-proof-req-filter.png "Predicate Query Scenario")
+![Predicate Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-query2-proof-req-predicate.png "Predicate Query Scenario")
 
 ### Wallet Query - Implement Filters in Wallet API
 
