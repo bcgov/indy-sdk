@@ -1,46 +1,46 @@
 
-# Enterprise Wallet - Propose Design
+# Enterprise Wallet - Proposed Design
 
 ## EW Design – Use Cases
 
 There are three scenarios to consider:
 
-1.	An individual – this is an example of the Alice/Faber “getting started” scenario.  
-1.	TheOrgBook case – an organization (the BC Government in this case) holds claims and provides proofs for many organizations.
-1.	“Guardians” – This is the scenario of a homeless shelter or refugee camp.
+1.	An individual holding personal claims – this is an example of the Alice/Faber “getting started” scenario.  
+1.	TheOrgBook case – an organization (the BC Government in this case) holds claims and provides proofs for many subjects.
+1.	“Guardians” – This is the scenario of a homeless shelter or refugee camp - an organization holds claims on behalf of individuals.
 
 ### Wallet Use Case - An individual
 
-The individual carries their claims in their personal wallet.  There is not necessarily any correlation between any of the claims.  They are issues by different parties, and don’t necessarily have any attributes in common.  Alice’s “sovereign identity” is defined by the set of claims she happens to carry in her wallet.  She can provide proofs as she needs to, revealing only the information she wants to reveal.
+The individual carries their claims in their personal wallet.  There is not necessarily any correlation between any of the claims in the wallet.  The claims are issued by different parties, and don’t necessarily have any attributes in common.  Alice’s “sovereign identity” is defined by the set of claims she happens to carry in her wallet.  She can provide proofs as she needs to, revealing only the information she wants to reveal.
 
 1.	Alice’s identity is defined by the set of claims she carries in her wallet.  The data in the wallet comes from many sources and is uncorrelated (the claims do not necessarily carry any of the same attributes).
-1.	When Alice provides a proof, she can select from which claims she wants to provide the proof (the wallet gives her all the available options).
-1.	Alice can keep copies of her data in multiple wallets (if she chooses), or can switch from one wallet provider to another (if using “wallet-as-a-service”).  The service provider will be in a similar situation to TheOrgBook, or the guardianship scenario described below.
+1.	When Alice provides a proof, she can select from which claims she wants to provide the proof (the wallet gives her all the available options).  A proof may include attributes from many claims.
+1.	Alice can keep copies of her data in multiple wallets (if she chooses), or can switch from one wallet provider to another (for example if using “wallet-as-a-service”).  (The service provider will be in a similar situation to TheOrgBook, or the guardianship scenario described below.)
 
 ![Alice/Faber Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-scenario1-alice-faber.png "Alice/Faber Scenario")
 
 ### Wallet Use Case - TheOrgBook
 
-An organization (the BC Government in this case) holds claims and provides proofs for many organizations (in this case millions of corporations, and tens of millions of total claims).  The information is all public.  
+An organization (the BC Government in this case) holds claims and provides proofs for many organizations (in this case millions of corporations, and tens of millions of total claims).  The claim information is all public.  
 
-The BC Government is holding the claims and providing proofs in order to bootstrap the identity network.  The government knows the identity of the subject of each of the claims.  At some point in the future, corporations may take charge of their own claims (in order that they can provide proofs directly), however TheOrgBook may continue to be a source of both claims and proofs.
+The BC Government is holding the claims and providing proofs in order to bootstrap the identity network.  The government knows the identity of the subject of each of the claims.  At some point in the future, organizations may take charge of their own claims (in order that they can provide proofs directly), however TheOrgBook may continue to be a source of both claims and proofs.
 
-1.	The data in TheOrgBook is structured – the claims are for various corporations, and the application knows which organization each claim is for.  When saving claims and providing proofs, the subject is known.  The data can be organized within the wallet by subject.
-1.	When providing a proof, the subject (corporation) and attribute will be known.  Typically the proof will be for a government “certification”, such as incorporation id, or some other government-issued certification.  There will typically be one (or a small number of) claim(s) attesting to this certification.
+1.	The data in TheOrgBook is structured – the claims are for various subjects (organizations), and the application knows which subject each claim is for.  When saving claims and providing proofs, the subject is known.  The data can be organized by subject within the wallet.
+1.	When providing a proof, the subject (organization) and attribute will be known.  Typically the proof will be for a government “certification”, such as incorporation id, or some other government-issued certification.  There will typically be one (or a small number of) claim(s) attesting to this certification.
 1.	If a corporation sets up their own wallet, they can copy all their claims and then provide their own proofs.  However the data in TheOrgBook is public, so the government will likely continue to provide a centralized repository of claims and proofs.
 
 ### Wallet Use Case - Guardianship
 
-This is the scenario of a homeless shelter or refugee camp.  An organization is managing identities of individuals on their behalf, because they are not able to.  In the future, these individuals may take charge of their own identity, and they would be “deleted” from the organization’s wallet.  This scenario is to be described.
+This is the scenario of a homeless shelter or refugee camp.  An organization is managing identities of individuals on their behalf, because they are not able to.  In the future, these individuals may take charge of their own identity, and they would be “deleted” from the organization’s wallet.
 
-1.	The data will be structured, similar to TheOrgBook case.  The managing organization will need to know who each claim is for, as well as manage a unique way of mapping to the individual (such as with biometrics).
+1.	The data will be structured, similar to TheOrgBook case.  The managing organization will need to know who each claim is for, as well as manage a unique way of mapping to the individual (for example with biometrics).
 1.	When providing a proof, the individual will need to be present, in order to provide the biometrics (or other credentials) to access their claims.
 1.	In the future, the individual may want to move all their data to a personal wallet, and delete the data in the managing organization’s wallet.
 
 
 ## EW Design – Query Scenarios
 
-1.	Multiple Virtual Wallets.
+1.	Multiple Virtual Wallets (wallet per subject).
 1.	Use proof request “predicates” as search criteria.
 1.	Implement query filters in the wallet API.
 1.	Use a hybrid approach:
@@ -49,21 +49,21 @@ This is the scenario of a homeless shelter or refugee camp.  An organization is 
 
 ### Wallet Query - Multiple Virtual Wallets
 
-In this scenario a separate virtual "wallet" would be used for claims and other data for each subject.
+In this scenario a separate "virtual wallet" would be used for claims and other data for each subject.
 
 The "Enterprise Wallet" would implement these within a single physical database, using the virtual wallet "name" to identify the subject for each wallet.  Creating a claim or creating a proof for a specific subject would involve two steps:
 
 ```
-wallet_name = derive_from_subject_name(subject_name);
+wallet_name = derive_wallet_from_subject(subject_name);
 subject_wallet = open_wallet(wallet_name);
-get_claims(subject_wallet);
+claims = get_claims(subject_wallet);
 ```
 
-Within the Enterprise Wallet, the wallet would create the filter query based on the wallet name:
+Within the Enterprise Wallet, the query filter would be based on the wallet name:
 
 ```
-subject_name = derive_from_wallet(subject_wallet);
-subject_claims = .execute("SELECT ... FROM WALLET WHERE " + derive_filter_from_name(subject_name));
+subject_name = derive_subject_from_wallet(subject_wallet);
+subject_claims = .execute("SELECT ... FROM WALLET WHERE " + derive_filter_from_subject(subject_name));
 ```
 
 This would not require any changes to the API, or code outside of the Enterprise Wallet, however would not support queries across multiple subjects, or queries for sub-sets of claims within a single subject.
