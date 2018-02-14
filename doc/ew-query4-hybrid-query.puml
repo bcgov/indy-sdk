@@ -1,0 +1,20 @@
+@startuml
+actor Client
+participant Client order 10
+participant TheOrgBook order 20
+database TOB_DB order 30
+participant AnonCreds order 40
+participant EnterpriseWallet order 50
+database Wallet order 60
+Client --> TheOrgBook: get_proof(subject_name, proof_req)
+TheOrgBook --> TOB_DB: query_for_subjects()
+TOB_DB --> TheOrgBook: subjects
+TheOrgBook --> AnonCreds: indy_prover_get_claims_for_proof_req(wallet, proof_req, subjects)
+AnonCreds --> EnterpriseWallet: get_claims(wallet, subjects)
+EnterpriseWallet --> EnterpriseWallet: build_query_filter(subjects)
+EnterpriseWallet --> Wallet: get_claims(filter)
+EnterpriseWallet --> AnonCreds: claims
+AnonCreds --> AnonCreds: build_proof(proof_req, claims)
+AnonCreds --> TheOrgBook: proof
+TheOrgBook --> Client: proof
+@enduml

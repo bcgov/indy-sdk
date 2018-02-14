@@ -82,9 +82,13 @@ Proof requests already include "predicates", which restrict attributes to specif
 
 These predicates are processed separately from the requested attributes, however it would be possible to use these as the filter criteria for the proof (for example to limit attribute selection only to those claims meeting the predicate criteria).
 
+![Predicate Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-query2-proof-req-filter.png "Predicate Query Scenario")
+
 ### Wallet Query - Implement Filters in Wallet API
 
 An example is described in the JIRA ticket [https://jira.hyperledger.org/browse/IS-486]
+
+The sequence diagram is similar to the previous case, except that the filter criteria is passed from the Client (or TheOrgBook) rather than constructed from the predicates.
 
 ### Wallet Query - Hybrid Approach
 
@@ -101,6 +105,8 @@ For example, with the Virtual Wallet approach:
 * The initial TheOrgBook search would produce a list of subjects
 * A secondary wallet search would be performed for each subject
 * The proof would be derived based on the total set of returned claims
+
+![Hybrid Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-query4-hybrid-query.png "Hybrid Query Scenario")
 
 ## EW Design – Other Factors
 

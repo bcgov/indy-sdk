@@ -19,4 +19,5 @@ EnterpriseWallet --> VirtualWallet: get_claims()
 EnterpriseWallet --> AnonCreds: claims
 AnonCreds --> AnonCreds: build_proof(proof_req, claims)
 AnonCreds --> TheOrgBook: proof
+TheOrgBook --> Client: proof
 @enduml
