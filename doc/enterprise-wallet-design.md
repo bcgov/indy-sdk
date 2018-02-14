@@ -29,6 +29,8 @@ The BC Government is holding the claims and providing proofs in order to bootstr
 1.	When providing a proof, the subject (organization) and attribute will be known.  Typically the proof will be for a government “certification”, such as incorporation id, or some other government-issued certification.  There will typically be one (or a small number of) claim(s) attesting to this certification.
 1.	If a corporation sets up their own wallet, they can copy all their claims and then provide their own proofs.  However the data in TheOrgBook is public, so the government will likely continue to provide a centralized repository of claims and proofs.
 
+![TheOrgBook Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-scenario2-TheOrgBook.png "TheOrgBook Scenario")
+
 ### Wallet Use Case - Guardianship
 
 This is the scenario of a homeless shelter or refugee camp.  An organization is managing identities of individuals on their behalf, because they are not able to.  In the future, these individuals may take charge of their own identity, and they would be “deleted” from the organization’s wallet.
