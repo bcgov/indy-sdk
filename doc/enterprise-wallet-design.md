@@ -68,6 +68,8 @@ subject_claims = .execute("SELECT ... FROM WALLET WHERE " + derive_filter_from_s
 
 This would not require any changes to the API, or code outside of the Enterprise Wallet, however would not support queries across multiple subjects, or queries for sub-sets of claims within a single subject.
 
+![Virtual Wallet Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-query1-virtual-wallet.png "Virtual Wallet Query Scenario")
+
 ### Wallet Query - Use "Predicates" as Query filters
 
 Proof requests already include "predicates", which restrict attributes to specific sub-sets of data, for example:
