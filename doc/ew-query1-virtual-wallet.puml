@@ -3,8 +3,9 @@ actor Client
 participant Client order 10
 participant TheOrgBook order 20
 participant AnonCreds order 30
-participant EnterpriseWallet order 40
-database VirtualWallet order 50
+participant WalletAPI order 40
+participant EnterpriseWallet order 50
+database VirtualWallet order 60
 Client --> TheOrgBook: get_proof(subject_name, proof_req)
 TheOrgBook --> WalletAPI: set_wallet(subject_name)
 WalletAPI --> EnterpriseWallet: set_wallet(subject_name)
