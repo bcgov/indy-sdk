@@ -1,0 +1,23 @@
+@startuml
+actor Client
+participant Client order 10
+participant TheOrgBook order 20
+participant AnonCreds order 30
+participant WalletAPI order 40
+participant EnterpriseWallet order 50
+database VirtualWallet order 60
+Client --> TheOrgBook: get_proof(subject_name, proof_req)
+TheOrgBook --> WalletAPI: set_wallet(subject_name)
+WalletAPI --> EnterpriseWallet: set_wallet(subject_name)
+EnterpriseWallet --> EnterpriseWallet: get_wallet_from_subject(subect_name)
+EnterpriseWallet --> WalletAPI: wallet
+WalletAPI --> TheOrgBook: wallet
+TheOrgBook --> AnonCreds: indy_prover_get_claims_for_proof_req(wallet, proof_req)
+AnonCreds --> EnterpriseWallet: get_claims(wallet)
+EnterpriseWallet --> EnterpriseWallet: get_subject_from_wallet(wallet)
+EnterpriseWallet --> VirtualWallet: get_claims()
+EnterpriseWallet --> AnonCreds: claims
+AnonCreds --> AnonCreds: build_proof(proof_req, claims)
+AnonCreds --> TheOrgBook: proof
+TheOrgBook --> Client: proof
+@enduml
