@@ -2,9 +2,11 @@ extern crate libc;
 extern crate indy_crypto;
 
 mod default;
+mod enterprise;
 mod plugged;
 
 use self::default::DefaultWalletType;
+use self::enterprise::EnterpriseWalletType;
 use self::plugged::PluggedWalletType;
 
 use api::ErrorCode;
@@ -90,6 +92,7 @@ impl WalletService {
     pub fn new() -> WalletService {
         let mut types: HashMap<String, Box<WalletType>> = HashMap::new();
         types.insert("default".to_string(), Box::new(DefaultWalletType::new()));
+        types.insert("enterprise".to_string(),  Box::new(EnterpriseWalletType::new()));
 
         WalletService {
             types: RefCell::new(types),
@@ -376,6 +379,16 @@ mod tests {
 
         let wallet_service = WalletService::new();
         wallet_service.create("pool1", Some("default"), "wallet1", None, None).unwrap();
+
+        TestUtils::cleanup_indy_home();
+    }
+
+    #[test]
+    fn wallet_service_create_works_for_enterprise() {
+        TestUtils::cleanup_indy_home();
+
+        let wallet_service = WalletService::new();
+        wallet_service.create("pool1", Some("enterprise"), "wallet1", None, None).unwrap();
 
         TestUtils::cleanup_indy_home();
     }
