@@ -28,7 +28,7 @@ An organization (the BC Government in this case) holds claims and provides proof
 The BC Government is holding the claims and providing proofs in order to bootstrap the identity network.  The government knows the identity of the subject of each of the claims.  At some point in the future, organizations may take charge of their own claims (in order that they can provide proofs directly), however TheOrgBook may continue to be a source of both claims and proofs.
 
 1.	The data in TheOrgBook is structured – the claims are for various subjects (organizations), and the application knows which subject each claim is for.  When saving claims and providing proofs, the subject is known.  The data can be organized by subject within the wallet.
-1.	When providing a proof, the subject (organization) and attribute will be known.  Typically the proof will be for a government “certification”, such as incorporation id, or some other government-issued certification.  There will typically be one (or a small number of) claim(s) attesting to this certification.
+1.	When providing a proof, the subject (organization) will be known.  TheOrgBook wil provide an automated reply (there is no human intervention) so the requester must provide enough information to identify the claim(s) required to attest to this certification.
 1.	If a corporation sets up their own wallet, they can copy all their claims and then provide their own proofs.  However the data in TheOrgBook is public, so the government will likely continue to provide a centralized repository of claims and proofs.
 
 ![TheOrgBook Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-scenario2-TheOrgBook.png "TheOrgBook Scenario")
@@ -112,7 +112,7 @@ For example, with the Virtual Wallet approach:
 
 ## EW Design – Other Factors
 
-These design factors will be considered once the query filter approach is determined.
+These design factors will be considered once the approach to incorporating claims filtering into proof requests is determined.
 
 1.	Enterprise Database – SQL vs NoSQL vs LDAP vs Graph vs Other
 1.	Storage of crypto credentials
