@@ -53,6 +53,15 @@ mod high_cases {
         }
 
         #[test]
+        fn indy_create_virtual_wallet_works() {
+            TestUtils::cleanup_storage();
+
+            WalletUtils::create_wallet(POOL, WALLET, Some(EW_TYPE), None, None).unwrap();
+
+            TestUtils::cleanup_storage();
+        }
+
+        #[test]
         fn indy_create_wallet_works_for_plugged() {
             TestUtils::cleanup_storage();
             InmemWallet::cleanup();
