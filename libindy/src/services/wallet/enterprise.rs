@@ -16,8 +16,34 @@ use std::fs;
 use std::path::PathBuf;
 use std::ops::Sub;
 
-
 use self::indy_crypto::utils::json::JsonDecodable;
+
+/*
+ * Implementation of an enterprise virtual wallet store.
+ * 
+ * This wallet can store claims and other information for multiple subjects, and is
+ * intended to support the use case where an organization has to manage claims an other
+ * data for a large number of organizations or subjects.
+ * 
+ * This wallet supports a "root" wallet (for credentials and other info shared across
+ * all subjects, or referring to the managing organization), and multiple "virtual" 
+ * wallets, one per subject.
+ * 
+ * The wallet name is specifid in two parts:  "root::child", were the first part specifies
+ * the name of the root wallet (and used as the overall wallet name), and the second
+ * part identified the virtual "child" wallet.  If the child is not specified then the
+ * root is used as the virtual wallet.
+ * 
+ * For example:
+ *      "TheOrgBook" => The root and virtual wallets are both "TheOrgBook"
+ *      "TheOrgBook::Client1" => The root is "TheOrgBook" and the virtual is "Client1"
+ * 
+ * This code is cloned from "default.rs" and an additional database column added to the
+ * wallet database to specify the virtual wallet.
+ * 
+ * Key names can be duplicated across virtual wallets.
+ */
+
 
 #[derive(Deserialize)]
 struct EnterpriseWalletRuntimeConfig {
@@ -59,6 +85,8 @@ struct EnterpriseWallet {
     credentials: EnterpriseWalletCredentials
 }
 
+// Note the wallet name can specify a virtual wallet, as described above
+// e.g. "TheOrgBook::Client1"
 impl EnterpriseWallet {
     fn new(name: &str,
            pool_name: &str,
@@ -73,6 +101,7 @@ impl EnterpriseWallet {
     }
 }
 
+// Extract the root name from the overall wallet name
 fn root_wallet_name(wallet_name: &str) -> String {
     let v: Vec<&str> = wallet_name.split("::").collect();
     match v.get(0) {
@@ -81,6 +110,8 @@ fn root_wallet_name(wallet_name: &str) -> String {
     }
 }
 
+// Extract the virtual wallet name from the overall wallet name
+// If the virtual wallet is not specified then the root is used as the virtual
 fn virtual_wallet_name(wallet_name: &str) -> String {
     let v: Vec<&str> = wallet_name.split("::").collect();
     match v.get(1) {
@@ -216,6 +247,8 @@ impl WalletType for EnterpriseWalletType {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
 
+        // note the addition of an extra database column to specify the virtual wallet
+        // this can also be the root (if no virtual is specified)
         _open_connection(&root_name, &runtime_auth).map_err(map_err_trace!())?
             .execute("CREATE TABLE wallet 
             (
@@ -339,7 +372,7 @@ fn _export_unencrypted_to_encrypted(conn: Connection, name: &str, key: &str) -> 
         Ok(new)
     }
 }
-/*
+/* TODO this code is duplicated from default.rs and causes a compile error
 impl From<rusqlcipher::Error> for WalletError {
     fn from(err: rusqlcipher::Error) -> WalletError {
         match err {
@@ -639,6 +672,67 @@ mod tests {
     }
 
     #[test]
+    fn enterprise_virtual_wallet_list_works() {
+        TestUtils::cleanup_indy_home();
+
+        let wallet_type = EnterpriseWalletType::new();
+        wallet_type.create("wallet1", None, None).unwrap();
+
+        {
+            let wallet = wallet_type.open("wallet1::client1", "pool1", None, None, None).unwrap();
+
+            wallet.set("key1::subkey1", "value1").unwrap();
+            wallet.set("key1::subkey2", "value2").unwrap();
+        }
+
+        {
+            let wallet = wallet_type.open("wallet1::client2", "pool1", None, None, None).unwrap();
+
+            wallet.set("key1::subkey1", "value3").unwrap();
+            wallet.set("key1::subkey2", "value4").unwrap();
+            wallet.set("key1::subkey3", "value5").unwrap();
+        }
+
+        {
+            let wallet = wallet_type.open("wallet1::client1", "pool1", None, None, None).unwrap();
+
+            let mut key_values = wallet.list("key1::").unwrap();
+            key_values.sort();
+            assert_eq!(2, key_values.len());
+
+            let (key, value) = key_values.pop().unwrap();
+            assert_eq!("key1::subkey2", key);
+            assert_eq!("value2", value);
+
+            let (key, value) = key_values.pop().unwrap();
+            assert_eq!("key1::subkey1", key);
+            assert_eq!("value1", value);
+        }
+
+        {
+            let wallet = wallet_type.open("wallet1::client2", "pool1", None, None, None).unwrap();
+
+            let mut key_values = wallet.list("key1::").unwrap();
+            key_values.sort();
+            assert_eq!(3, key_values.len());
+
+            let (key, value) = key_values.pop().unwrap();
+            assert_eq!("key1::subkey3", key);
+            assert_eq!("value5", value);
+
+            let (key, value) = key_values.pop().unwrap();
+            assert_eq!("key1::subkey2", key);
+            assert_eq!("value4", value);
+
+            let (key, value) = key_values.pop().unwrap();
+            assert_eq!("key1::subkey1", key);
+            assert_eq!("value3", value);
+        }
+
+        TestUtils::cleanup_indy_home();
+    }
+
+    #[test]
     fn enterprise_wallet_get_pool_name_works() {
         TestUtils::cleanup_indy_home();
 
@@ -785,7 +879,7 @@ mod tests {
 
         TestUtils::cleanup_indy_home();
     }
-/*
+/* TODO this is causing a compile error, fix later ...
     #[test]
     fn enterprise_wallet_create_encrypted() {
         TestUtils::cleanup_indy_home();
