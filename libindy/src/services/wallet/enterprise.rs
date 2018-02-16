@@ -53,7 +53,7 @@ struct EnterpriseWalletRecord {
 }
 
 struct EnterpriseWallet {
-    name: String,
+    wallet_name: String,
     pool_name: String,
     config: EnterpriseWalletRuntimeConfig,
     credentials: EnterpriseWalletCredentials
@@ -65,10 +65,29 @@ impl EnterpriseWallet {
            config: EnterpriseWalletRuntimeConfig,
            credentials: EnterpriseWalletCredentials) -> EnterpriseWallet {
         EnterpriseWallet {
-            name: name.to_string(),
+            wallet_name: name.to_string(),
             pool_name: pool_name.to_string(),
             config: config,
             credentials: credentials
+        }
+    }
+}
+
+fn root_wallet_name(wallet_name: &str) -> String {
+    let v: Vec<&str> = wallet_name.split("::").collect();
+    match v.get(0) {
+        Some(s) => s.to_string(),
+        None => panic!("Failed to read root wallet name"),
+    }
+}
+
+fn virtual_wallet_name(wallet_name: &str) -> String {
+    let v: Vec<&str> = wallet_name.split("::").collect();
+    match v.get(1) {
+        Some(s) => s.to_string(),
+        None => match v.get(0) {
+            Some(s) => s.to_string(),
+            None => panic!("Failed to read virtual wallet name"),
         }
     }
 }
@@ -79,10 +98,13 @@ impl Wallet for EnterpriseWallet {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
         
-        _open_connection(self.name.as_str(), &self.credentials)?
+        _open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?
             .execute(
-                "INSERT OR REPLACE INTO wallet (key, value, time_created) VALUES (?1, ?2, ?3)",
-                &[&key.to_string(), &value.to_string(), &time::get_time()])?;
+                "INSERT OR REPLACE INTO wallet 
+                (virtual_wallet, key, value, time_created) 
+                VALUES 
+                (?1, ?2, ?3, ?4)",
+                &[&virtual_wallet_name(&self.wallet_name).as_str(), &key.to_string(), &value.to_string(), &time::get_time()])?;
         Ok(())
     }
 
@@ -91,10 +113,11 @@ impl Wallet for EnterpriseWallet {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
 
-        let record = _open_connection(self.name.as_str(), &self.credentials)?
+        let record = _open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?
             .query_row(
-                "SELECT key, value, time_created FROM wallet WHERE key = ?1 LIMIT 1",
-                &[&key.to_string()], |row| {
+                "SELECT key, value, time_created FROM wallet 
+                WHERE virtual_wallet = ?1 AND key = ?2 LIMIT 1",
+                &[&virtual_wallet_name(&self.wallet_name).as_str(), &key.to_string()], |row| {
                     EnterpriseWalletRecord {
                         key: row.get(0),
                         value: row.get(1),
@@ -109,9 +132,10 @@ impl Wallet for EnterpriseWallet {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
 
-        let connection = _open_connection(self.name.as_str(), &self.credentials)?;
-        let mut stmt = connection.prepare("SELECT key, value, time_created FROM wallet WHERE key like ?1 order by key")?;
-        let records = stmt.query_map(&[&format!("{}%", key_prefix)], |row| {
+        let connection = _open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?;
+        let mut stmt = connection.prepare("SELECT key, value, time_created 
+                FROM wallet WHERE virtual_wallet = ?1 AND key like ?2 order by key")?;
+        let records = stmt.query_map(&[&virtual_wallet_name(&self.wallet_name).as_str(), &format!("{}%", key_prefix)], |row| {
             EnterpriseWalletRecord {
                 key: row.get(0),
                 value: row.get(1),
@@ -134,10 +158,11 @@ impl Wallet for EnterpriseWallet {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
 
-        let record = _open_connection(self.name.as_str(), &self.credentials)?
+        let record = _open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?
             .query_row(
-                "SELECT key, value, time_created FROM wallet WHERE key = ?1 LIMIT 1",
-                &[&key.to_string()], |row| {
+                "SELECT key, value, time_created 
+                FROM wallet WHERE virtual_wallet = ?1 AND key = ?2 LIMIT 1",
+                &[&virtual_wallet_name(&self.wallet_name).as_str(), &key.to_string()], |row| {
                     EnterpriseWalletRecord {
                         key: row.get(0),
                         value: row.get(1),
@@ -160,7 +185,7 @@ impl Wallet for EnterpriseWallet {
     }
 
     fn get_name(&self) -> String {
-        self.name.clone()
+        self.wallet_name.clone()
     }
 }
 
@@ -175,10 +200,11 @@ impl EnterpriseWalletType {
 impl WalletType for EnterpriseWalletType {
     fn create(&self, name: &str, config: Option<&str>, credentials: Option<&str>) -> Result<(), WalletError> {
         trace!("EnterpriseWalletType.create >> {}, with config {:?} and credentials {:?}", name, config, credentials);
-        let path = _db_path(name);
+        let root_name = root_wallet_name(&name);
+        let path = _db_path(&root_name);
         if path.exists() {
             trace!("EnterpriseWalletType.create << path exists");
-            return Err(WalletError::AlreadyExists(name.to_string()));
+            return Err(WalletError::AlreadyExists(root_name.to_string()));
         }
 
         let runtime_auth = match credentials {
@@ -190,8 +216,15 @@ impl WalletType for EnterpriseWalletType {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
 
-        _open_connection(name, &runtime_auth).map_err(map_err_trace!())?
-            .execute("CREATE TABLE wallet (key TEXT CONSTRAINT constraint_name PRIMARY KEY, value TEXT NOT NULL, time_created TEXT NOT_NULL)", &[])
+        _open_connection(&root_name, &runtime_auth).map_err(map_err_trace!())?
+            .execute("CREATE TABLE wallet 
+            (
+                virtual_wallet TEXT NOT NULL,
+                key TEXT NOT NULL, 
+                value TEXT NOT NULL, 
+                time_created TEXT NOT NULL,
+                PRIMARY KEY (virtual_wallet, key)
+            )", &[])
             .map_err(map_err_trace!())?;
         trace!("EnterpriseWalletType.create <<");
         Ok(())
@@ -200,7 +233,8 @@ impl WalletType for EnterpriseWalletType {
     fn delete(&self, name: &str, config: Option<&str>, credentials: Option<&str>) -> Result<(), WalletError> {
         trace!("EnterpriseWalletType.delete {}, with config {:?} and credentials {:?}", name, config, credentials);
         // FIXME: parse and implement credentials!!!
-        Ok(fs::remove_file(_db_path(name)).map_err(map_err_trace!())?)
+        let root_name = root_wallet_name(&name);
+        Ok(fs::remove_file(_db_path(&root_name)).map_err(map_err_trace!())?)
     }
 
     fn open(&self, name: &str, pool_name: &str, config: Option<&str>, runtime_config: Option<&str>, credentials: Option<&str>) -> Result<Box<Wallet>, WalletError> {
@@ -214,7 +248,8 @@ impl WalletType for EnterpriseWalletType {
             None => EnterpriseWalletCredentials::default()
         };
 
-        _open_connection(name, &runtime_auth).map_err(map_err_trace!())?
+        let root_name = root_wallet_name(&name);
+        _open_connection(&root_name, &runtime_auth).map_err(map_err_trace!())?
             .query_row("SELECT sql FROM sqlite_master", &[], |_| {})
             .map_err(map_err_trace!())?;
 
@@ -330,6 +365,21 @@ mod tests {
     use std::thread;
 
     #[test]
+    fn virtual_wallet_name_works() {
+        let w1 = root_wallet_name("root::virtual");
+        assert_eq!("root", w1);
+        
+        let w2 = virtual_wallet_name("root::virtual");
+        assert_eq!("virtual", w2);
+        
+        let w3 = root_wallet_name("root");
+        assert_eq!("root", w3);
+        
+        let w4 = virtual_wallet_name("root");
+        assert_eq!("root", w4);
+    }
+
+    #[test]
     fn enterprise_wallet_type_new_works() {
         EnterpriseWalletType::new();
     }
@@ -340,6 +390,16 @@ mod tests {
 
         let wallet_type = EnterpriseWalletType::new();
         wallet_type.create("wallet1", None, None).unwrap();
+
+        TestUtils::cleanup_indy_home();
+    }
+
+    #[test]
+    fn enterprise_virtual_wallet_type_create_works() {
+        TestUtils::cleanup_indy_home();
+
+        let wallet_type = EnterpriseWalletType::new();
+        wallet_type.create("wallet1::somename", None, None).unwrap();
 
         TestUtils::cleanup_indy_home();
     }
@@ -358,6 +418,19 @@ mod tests {
     }
 
     #[test]
+    fn enterprise_virtual_wallet_type_create_works_for_twice() {
+        TestUtils::cleanup_indy_home();
+
+        let wallet_type = EnterpriseWalletType::new();
+        wallet_type.create("wallet1::some1", None, None).unwrap();
+
+        let res = wallet_type.create("wallet1::some2", None, None);
+        assert_match!(Err(WalletError::AlreadyExists(_)), res);
+
+        TestUtils::cleanup_indy_home();
+    }
+
+    #[test]
     fn enterprise_wallet_type_delete_works() {
         TestUtils::cleanup_indy_home();
 
@@ -365,6 +438,18 @@ mod tests {
         wallet_type.create("wallet1", None, None).unwrap();
         wallet_type.delete("wallet1", None, None).unwrap();
         wallet_type.create("wallet1", None, None).unwrap();
+
+        TestUtils::cleanup_indy_home();
+    }
+
+    #[test]
+    fn enterprise_virtual_wallet_type_delete_works() {
+        TestUtils::cleanup_indy_home();
+
+        let wallet_type = EnterpriseWalletType::new();
+        wallet_type.create("wallet1::some1", None, None).unwrap();
+        wallet_type.delete("wallet1::some2", None, None).unwrap();
+        wallet_type.create("wallet1::some3", None, None).unwrap();
 
         TestUtils::cleanup_indy_home();
     }
@@ -381,6 +466,19 @@ mod tests {
     }
 
     #[test]
+    fn enterprise_virtual_wallet_type_open_works() {
+        TestUtils::cleanup_indy_home();
+
+        let wallet_type = EnterpriseWalletType::new();
+        wallet_type.create("wallet1", None, None).unwrap();
+        wallet_type.open("wallet1::some1", "pool1", None, None, None).unwrap();
+        wallet_type.open("wallet1::some2", "pool1", None, None, None).unwrap();
+        wallet_type.open("wallet1::some3", "pool1", None, None, None).unwrap();
+
+        TestUtils::cleanup_indy_home();
+    }
+
+    #[test]
     fn enterprise_wallet_set_get_works() {
         TestUtils::cleanup_indy_home();
 
@@ -391,6 +489,55 @@ mod tests {
         wallet.set("key1", "value1").unwrap();
         let value = wallet.get("key1").unwrap();
         assert_eq!("value1", value);
+
+        TestUtils::cleanup_indy_home();
+    }
+
+    #[test]
+    fn enterprise_virtual_wallet_set_get_works() {
+        TestUtils::cleanup_indy_home();
+
+        let wallet_type = EnterpriseWalletType::new();
+        wallet_type.create("wallet1", None, None).unwrap();
+
+        {
+            let wallet1 = wallet_type.open("wallet1::some1", "pool1", None, None, None).unwrap();
+            wallet1.set("key1", "value1").unwrap();
+            let value1 = wallet1.get("key1").unwrap();
+            assert_eq!("value1", value1);
+        }
+
+        {
+            let wallet2 = wallet_type.open("wallet1::some2", "pool1", None, None, None).unwrap();
+            wallet2.set("key1", "value2").unwrap();
+            let value2 = wallet2.get("key1").unwrap();
+            assert_eq!("value2", value2);
+        }
+
+        {
+            let wallet3 = wallet_type.open("wallet1::some1", "pool1", None, None, None).unwrap();
+            let value3 = wallet3.get("key1").unwrap();
+            assert_eq!("value1", value3);
+        }
+
+        {
+            let wallet4 = wallet_type.open("wallet1", "pool1", None, None, None).unwrap();
+            wallet4.set("key1", "value_root").unwrap();
+            let value4 = wallet4.get("key1").unwrap();
+            assert_eq!("value_root", value4);
+        }
+
+        {
+            let wallet5 = wallet_type.open("wallet1::some2", "pool1", None, None, None).unwrap();
+            let value5 = wallet5.get("key1").unwrap();
+            assert_eq!("value2", value5);
+        }
+
+        {
+            let wallet6 = wallet_type.open("wallet1", "pool1", None, None, None).unwrap();
+            let value6 = wallet6.get("key1").unwrap();
+            assert_eq!("value_root", value6);
+        }
 
         TestUtils::cleanup_indy_home();
     }
