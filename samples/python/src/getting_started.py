@@ -141,11 +141,13 @@ async def run():
 
     logger.info("\"Faber\" -> Get \"Transcript\" Schema from Ledger")
     transcript_schema = await get_schema(pool_handle, faber_issuer_did, transcript_schema_key)
+    logger.info(transcript_schema)
 
     logger.info("\"Faber\" -> Create and store in Wallet \"Faber Transcript\" Claim Definition")
     faber_transcript_claim_def_json = \
         await anoncreds.issuer_create_and_store_claim_def(faber_wallet, faber_issuer_did,
                                                           json.dumps(transcript_schema), 'CL', False)
+    logger.info(faber_transcript_claim_def_json)
 
     logger.info("\"Faber\" -> Send ClaimDef to Ledger for \"Faber Transcript\" Claim Definition")
     await send_claim_def(pool_handle, faber_wallet, faber_issuer_did, faber_transcript_claim_def_json)
@@ -188,6 +190,7 @@ async def run():
     transcript_claim_offer_json = \
         await anoncreds.issuer_create_claim_offer(faber_wallet, json.dumps(transcript_schema),
                                                   faber_issuer_did, alice_faber_did)
+    logger.info(transcript_claim_offer_json)
 
     logger.info("\"Faber\" -> Get key for Alice did")
     alice_faber_verkey = await did.key_for_did(pool_handle, acme_wallet, faber_alice_connection_response['did'])
@@ -849,6 +852,8 @@ async def get_entities_from_ledger(pool_handle, _did, identifiers, actor):
 
 async def auth_decrypt(wallet_handle, key, message):
     from_verkey, decrypted_message_json = await crypto.auth_decrypt(wallet_handle, key, message)
+    logger.info(decrypted_message_json)
     decrypted_message_json = decrypted_message_json.decode("utf-8")
+    logger.info(decrypted_message_json)
     decrypted_message = json.loads(decrypted_message_json)
     return from_verkey, decrypted_message_json, decrypted_message

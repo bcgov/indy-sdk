@@ -123,6 +123,25 @@ fn virtual_wallet_name(wallet_name: &str) -> String {
     }
 }
 
+fn call_get_internal(root_wallet_name: &str, wallet_name: &str,
+                    credentials: &EnterpriseWalletCredentials, key: &str) -> Result<String, WalletError> {
+    let db = _open_connection(root_wallet_name, credentials)?;
+    let result = db.query_row(
+            "SELECT key, value, time_created FROM wallet 
+            WHERE virtual_wallet = ?1 AND key = ?2 LIMIT 1",
+            &[&wallet_name.to_string(), &key.to_string()], |row| {
+                EnterpriseWalletRecord {
+                    key: row.get(0),
+                    value: row.get(1),
+                    time_created: row.get(2)
+                }
+            });
+        match result {
+            Ok(record) => Ok(record.value),
+            Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
+        }
+} 
+
 impl Wallet for EnterpriseWallet {
     fn set(&self, key: &str, value: &str) -> Result<(), WalletError> {
         if self.credentials.rekey.is_some() {
@@ -139,25 +158,32 @@ impl Wallet for EnterpriseWallet {
         Ok(())
     }
 
+    // get will first check the selected wallet, and if the key is not found, 
+    // will *also* check the root wallet
+    // keys shared between all virtual wallets can be stored once in the root
     fn get(&self, key: &str) -> Result<String, WalletError> {
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
 
-        let record = _open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?
-            .query_row(
-                "SELECT key, value, time_created FROM wallet 
-                WHERE virtual_wallet = ?1 AND key = ?2 LIMIT 1",
-                &[&virtual_wallet_name(&self.wallet_name).as_str(), &key.to_string()], |row| {
-                    EnterpriseWalletRecord {
-                        key: row.get(0),
-                        value: row.get(1),
-                        time_created: row.get(2)
-                    }
-                })?;
-        Ok(record.value)
+        let result = call_get_internal(&root_wallet_name(&self.wallet_name), 
+                                        &virtual_wallet_name(&self.wallet_name),
+                                        &self.credentials, key);
+        match result {
+            Ok(record) => Ok(record),
+            Err(why) => {
+                let result2 = call_get_internal(&root_wallet_name(&self.wallet_name), 
+                                                &root_wallet_name(&self.wallet_name),
+                                                &self.credentials, key);
+                match result2 {
+                    Ok(record2) => Ok(record2),
+                    Err(why2) => Err(WalletError::NotFound(format!("{:?}", why2)))
+                }
+            }
+        }
     }
 
+    // list will return records only from the selected wallet (root or virtual)
     fn list(&self, key_prefix: &str) -> Result<Vec<(String, String)>, WalletError> {
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
@@ -184,6 +210,9 @@ impl Wallet for EnterpriseWallet {
         Ok(key_values)
     }
 
+    // TODO get_not_expired will first check the selected wallet, and if the key is not found, 
+    // will *also* check the root wallet
+    // keys shared between all virtual wallets can be stored once in the root
     fn get_not_expired(&self, key: &str) -> Result<String, WalletError> {
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
@@ -570,6 +599,19 @@ mod tests {
             let wallet6 = wallet_type.open("wallet1", "pool1", None, None, None).unwrap();
             let value6 = wallet6.get("key1").unwrap();
             assert_eq!("value_root", value6);
+        }
+
+        // create key in root and fetch in virtual wallet
+        {
+            let wallet7 = wallet_type.open("wallet1", "pool1", None, None, None).unwrap();
+            wallet7.set("root_only_key", "value_root_only").unwrap();
+            let value7 = wallet7.get("root_only_key").unwrap();
+            assert_eq!("value_root_only", value7);
+        }
+        {
+            let wallet8 = wallet_type.open("wallet1::some2", "pool1", None, None, None).unwrap();
+            let value8 = wallet8.get("root_only_key").unwrap();
+            assert_eq!("value_root_only", value8);
         }
 
         TestUtils::cleanup_indy_home();

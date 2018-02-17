@@ -218,7 +218,10 @@ impl WalletService {
     pub fn open(&self, name: &str, runtime_config: Option<&str>, credentials: Option<&str>) -> Result<i32, WalletError> {
         let mut descriptor_json = String::new();
         let descriptor: WalletDescriptor = WalletDescriptor::from_json({
-            let mut file = File::open(_wallet_descriptor_path(name))?; // FIXME: Better error!
+            // TODO hack for now, if it's an enterprise wallet take the root name
+            let v: Vec<&str> = name.split("::").collect();
+            let root_name = v.get(0).unwrap();
+            let mut file = File::open(_wallet_descriptor_path(root_name))?; // FIXME: Better error!
             file.read_to_string(&mut descriptor_json)?;
             descriptor_json.as_str()
         })?;

@@ -11,8 +11,9 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-async def run():
+async def run(wallet_type):
     logger.info("Getting started -> started")
+    logger.info("Wallet Type --> " + wallet_type)
 
     logger.info("Open Pool Ledger")
     pool_name = 'pool1'
@@ -40,7 +41,7 @@ async def run():
 
     government_wallet, government_wallet_name, steward_government_key, government_steward_did, government_steward_key, _ \
         = await onboarding(pool_handle, pool_name, "Sovrin Steward", steward_wallet,
-                           steward_did, "Government", None, 'government_wallet')
+                           steward_did, "Government", None, 'government_wallet', wallet_type)
 
     logger.info("==============================")
     logger.info("== Getting Trust Anchor credentials - Government getting Verinym  ==")
@@ -55,7 +56,7 @@ async def run():
     logger.info("------------------------------")
     faber_wallet, faber_wallet_name, steward_faber_key, faber_steward_did, faber_steward_key, _ = \
         await onboarding(pool_handle, pool_name, "Sovrin Steward", steward_wallet, steward_did,
-                         "Faber", None, 'faber_wallet')
+                         "Faber", None, 'faber_wallet', wallet_type)
 
     logger.info("==============================")
     logger.info("== Getting Trust Anchor credentials - Faber getting Verinym  ==")
@@ -70,7 +71,7 @@ async def run():
 
     acme_wallet, acme_wallet_name, steward_acme_key, acme_steward_did, acme_steward_key, _ = \
         await onboarding(pool_handle, pool_name, "Sovrin Steward", steward_wallet, steward_did,
-                         "Acme", None, 'acme_wallet')
+                         "Acme", None, 'acme_wallet', wallet_type)
 
     logger.info("==============================")
     logger.info("== Getting Trust Anchor credentials - Acme getting Verinym  ==")
@@ -85,7 +86,7 @@ async def run():
 
     thrift_wallet, thrift_wallet_name, steward_thrift_key, thrift_steward_did, thrift_steward_key, _ = \
         await onboarding(pool_handle, pool_name, "Sovrin Steward", steward_wallet, steward_did,
-                         "Thrift", None, ' thrift_wallet')
+                         "Thrift", None, ' thrift_wallet', wallet_type)
 
     logger.info("==============================")
     logger.info("== Getting Trust Anchor credentials - Thrift getting Verinym  ==")
@@ -179,36 +180,51 @@ async def run():
     logger.info("------------------------------")
 
     alice_wallet, alice_wallet_name, faber_alice_key, alice_faber_did, alice_faber_key, faber_alice_connection_response \
-        = await onboarding(pool_handle, pool_name, "Faber", faber_wallet, faber_did, "Alice", None, ' alice_wallet')
+        = await onboarding(pool_handle, pool_name, "Faber", faber_wallet, faber_did, "Alice", None, ' alice_wallet', wallet_type)
+    alice_root_wallet = alice_wallet_name
+
+    if wallet_type == "enterprise":
+        # we will open a virtual wallet per transcript
+        await wallet.close_wallet(alice_wallet)
 
     # TODO START LOOP
     # Alice get multiple claims from FABER; submit multiple applications to ACME
     maxtime = 0
     avetime = 0
-    for i in range(250):
+    for i in range(10):
         logger.info("==============================")
         logger.info("== Getting Transcript with Faber - Getting Transcript Claim ==")
         logger.info("== Loop iteration " + str(i) + " ==")
         logger.info("------------------------------")
 
+        # for enterprise wallet scenario, open a virtual wallet for each transcript
+        if wallet_type == "enterprise":
+            alice_wallet_name = alice_root_wallet + "::" + str(i)
+            logger.info("Opening Alice Virtual Wallet --> " + alice_wallet_name)
+            alice_wallet = await wallet.open_wallet(alice_wallet_name, None, None)
+
         logger.info("\"Faber\" -> Create \"Transcript\" Claim Offer for Alice")
-        transcript_claim_offer = {
-            'issuer_did': faber_issuer_did,
-            'schema_key': transcript_schema_key
-        }
+        transcript_claim_offer_json = \
+            await anoncreds.issuer_create_claim_offer(faber_wallet, json.dumps(transcript_schema),
+                                                      faber_issuer_did, alice_faber_did)
 
         logger.info("\"Faber\" -> Get key for Alice did")
         alice_faber_verkey = await did.key_for_did(pool_handle, acme_wallet, faber_alice_connection_response['did'])
 
         logger.info("\"Faber\" -> Authcrypt \"Transcript\" Claim Offer for Alice")
         authcrypted_transcript_claim_offer = await crypto.auth_crypt(faber_wallet, faber_alice_key, alice_faber_verkey,
-                                                                     json.dumps(transcript_claim_offer).encode('utf-8'))
+                                                                     transcript_claim_offer_json)
 
         logger.info("\"Faber\" -> Send authcrypted \"Transcript\" Claim Offer to Alice")
 
         logger.info("\"Alice\" -> Authdecrypted \"Transcript\" Claim Offer from Faber")
-        faber_alice_verkey, authdecrypted_transcript_claim_offer_json, authdecrypted_transcript_claim_offer = \
-            await auth_decrypt(alice_wallet, alice_faber_key, authcrypted_transcript_claim_offer)
+        # TODO this is croaking right now
+        # faber_alice_verkey, authdecrypted_transcript_claim_offer_json, authdecrypted_transcript_claim_offer = \
+        #     await auth_decrypt(alice_wallet, alice_faber_key, authcrypted_transcript_claim_offer)
+        faber_alice_verkey, _ = await crypto.auth_decrypt(alice_wallet, alice_faber_key, authcrypted_transcript_claim_offer)
+        authdecrypted_transcript_claim_offer_json = transcript_claim_offer_json
+        authdecrypted_transcript_claim_offer = json.loads(authdecrypted_transcript_claim_offer_json)
+        # end TODO
 
         logger.info("\"Alice\" -> Store \"Transcript\" Claim Offer in Wallet from Faber")
         await anoncreds.prover_store_claim_offer(alice_wallet, authdecrypted_transcript_claim_offer_json)
@@ -278,7 +294,7 @@ async def run():
         logger.info("------------------------------")
 
         alice_wallet, alice_wallet_name, acme_alice_key, alice_acme_did, alice_acme_key, acme_alice_connection_response = \
-            await onboarding(pool_handle, pool_name, "Acme", acme_wallet, acme_did, "Alice", alice_wallet, ' alice_wallet')
+            await onboarding(pool_handle, pool_name, "Acme", acme_wallet, acme_did, "Alice", alice_wallet, ' alice_wallet', wallet_type)
 
         logger.info("==============================")
         logger.info("== Apply for the job with Acme - Transcript proving ==")
@@ -349,15 +365,18 @@ async def run():
         #logger.info("\"Alice\" -> call prover_get_claims_for_proof_req() " +
         #            authdecrypted_job_application_proof_request_json)
         time1 = time.time()
-        claims_for_job_application_proof_request = json.loads(
-            await anoncreds.prover_get_claims_for_proof_req(alice_wallet, authdecrypted_job_application_proof_request_json))
+        claims_for_job_application_proof_request_json = await anoncreds.prover_get_claims_for_proof_req(alice_wallet, authdecrypted_job_application_proof_request_json)
         time2 = time.time()
+
+        claims_for_job_application_proof_request = json.loads(claims_for_job_application_proof_request_json)
+
         etime = 1000*(time2-time1)
         if etime > maxtime:
             maxtime = etime
         avetime = avetime + etime
-        logger.info("anoncreds.prover_get_claims_for_proof_req(" + str(i) + ") took " + str(etime) + "ms, " +
-                    "max = " + str(maxtime) + ", ave = " + str(avetime / (i+1)))
+        logger.info("anoncreds.prover_get_claims_for_proof_req(" + str(i) + ") ")
+        logger.info("stats," + wallet_type + ",resp," + str(i) + "," + str(etime) + ",max," + str(maxtime) + ",ave," + str(avetime/(i+1)) + ",msg size," + str(len(claims_for_job_application_proof_request_json)))
+
         #logger.info("\"Alice\" -> returns prover_get_claims_for_proof_req() " +
         #            json.dumps(claims_for_job_application_proof_request, indent=4))
 
@@ -527,6 +546,12 @@ async def run():
         # logger.info("\"Alice\" -> Store \"Job-Certificate\" Claim")
         # await anoncreds.prover_store_claim(alice_wallet, authdecrypted_job_certificate_claim_json, None)
 
+        # for enterprise wallet scenario, close virtual wallet
+        if wallet_type == "enterprise":
+            logger.info("Closing Alice Virtual Wallet --> " + alice_wallet_name)
+            await wallet.close_wallet(alice_wallet)
+            alice_wallet_name = alice_root_wallet
+
     # TODO END LOOP
 
     # logger.info("==============================")
@@ -537,7 +562,7 @@ async def run():
     #
     # alice_wallet, alice_wallet_name, thrift_alice_key, alice_thrift_did, alice_thrift_key, \
     # thrift_alice_connection_response = await onboarding(pool_handle, pool_name, "Thrift", thrift_wallet, thrift_did,
-    #                                                     "Alice", alice_wallet, ' alice_wallet')
+    #                                                     "Alice", alice_wallet, ' alice_wallet', wallet_type)
     #
     # logger.info("==============================")
     # logger.info("== Apply for the loan with Thrift - Job-Certificate proving  ==")
@@ -759,7 +784,9 @@ async def run():
     await wallet.delete_wallet(thrift_wallet_name, None)
 
     logger.info("\"Alice\" -> Close and Delete wallet")
-    await wallet.close_wallet(alice_wallet)
+    if wallet_type != "enterprise":
+        # already dealt with this for enterprise scenario
+        await wallet.close_wallet(alice_wallet)
     await wallet.delete_wallet(alice_wallet_name, None)
 
     logger.info("Close and Delete pool")
@@ -771,7 +798,8 @@ async def run():
 
 async def onboarding(pool_handle, pool_name, _from, from_wallet, from_did, to,
                      to_wallet: Optional[str],
-                     to_wallet_name: Optional[str]):
+                     to_wallet_name: Optional[str],
+                     to_wallet_type: Optional[str]):
     logger.info("\"{}\" -> Create and store in Wallet \"{} {}\" DID".format(_from, _from, to))
     (from_to_did, from_to_key) = await did.create_and_store_my_did(from_wallet, "{}")
 
@@ -786,7 +814,7 @@ async def onboarding(pool_handle, pool_name, _from, from_wallet, from_did, to,
 
     if not to_wallet:
         logger.info("\"{}\" -> Create wallet".format(to))
-        await wallet.create_wallet(pool_name, to_wallet_name, None, None, None)
+        await wallet.create_wallet(pool_name, to_wallet_name, to_wallet_type, None, None)
         to_wallet = await wallet.open_wallet(to_wallet_name, None, None)
 
     logger.info("\"{}\" -> Create and store in Wallet \"{} {}\" DID".format(to, to, _from))
@@ -904,5 +932,6 @@ async def get_entities_from_ledger(pool_handle, _did, identifiers, actor):
 async def auth_decrypt(wallet_handle, key, message):
     from_verkey, decrypted_message_json = await crypto.auth_decrypt(wallet_handle, key, message)
     decrypted_message_json = decrypted_message_json.decode("utf-8")
+    # logger.info(decrypted_message_json)
     decrypted_message = json.loads(decrypted_message_json)
     return from_verkey, decrypted_message_json, decrypted_message
