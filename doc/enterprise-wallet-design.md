@@ -74,6 +74,15 @@ This would not require any changes to the API, or code outside of the Enterprise
 
 ![Virtual Wallet Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-query1-virtual-wallet.png "Virtual Wallet Query Scenario")
 
+Note that a POC wallet "src/services/wallet/enterprise.rs" has been built.  You can run a test of this wallet using:
+
+```
+cd samples/python
+PYTHONPATH=.:../../wrappers/python python src/perf_main.py -w default     # to use default wallet
+PYTHONPATH=.:../../wrappers/python python src/perf_main.py -w enterprise  # to use enterprise "virtual" wallet
+```
+
+
 ### Wallet Query - Use "Predicates" as Query filters
 
 Proof requests already include "predicates", which restrict attributes to specific sub-sets of data, for example:

@@ -191,7 +191,7 @@ async def run(wallet_type):
     # Alice get multiple claims from FABER; submit multiple applications to ACME
     maxtime = 0
     avetime = 0
-    for i in range(10):
+    for i in range(100):
         logger.info("==============================")
         logger.info("== Getting Transcript with Faber - Getting Transcript Claim ==")
         logger.info("== Loop iteration " + str(i) + " ==")
