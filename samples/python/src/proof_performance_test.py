@@ -86,7 +86,7 @@ async def run(wallet_type):
 
     thrift_wallet, thrift_wallet_name, steward_thrift_key, thrift_steward_did, thrift_steward_key, _ = \
         await onboarding(pool_handle, pool_name, "Sovrin Steward", steward_wallet, steward_did,
-                         "Thrift", None, ' thrift_wallet', wallet_type)
+                         "Thrift", None, 'thrift_wallet', wallet_type)
 
     logger.info("==============================")
     logger.info("== Getting Trust Anchor credentials - Thrift getting Verinym  ==")
@@ -180,7 +180,7 @@ async def run(wallet_type):
     logger.info("------------------------------")
 
     alice_wallet, alice_wallet_name, faber_alice_key, alice_faber_did, alice_faber_key, faber_alice_connection_response \
-        = await onboarding(pool_handle, pool_name, "Faber", faber_wallet, faber_did, "Alice", None, ' alice_wallet', wallet_type)
+        = await onboarding(pool_handle, pool_name, "Faber", faber_wallet, faber_did, "Alice", None, 'alice_wallet', wallet_type)
     alice_root_wallet = alice_wallet_name
 
     if wallet_type == "enterprise":
@@ -191,7 +191,7 @@ async def run(wallet_type):
     # Alice get multiple claims from FABER; submit multiple applications to ACME
     maxtime = 0
     avetime = 0
-    for i in range(100):
+    for i in range(1000):
         logger.info("==============================")
         logger.info("== Getting Transcript with Faber - Getting Transcript Claim ==")
         logger.info("== Loop iteration " + str(i) + " ==")

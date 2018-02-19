@@ -3,10 +3,12 @@ extern crate indy_crypto;
 
 mod default;
 mod enterprise;
+mod remote;
 mod plugged;
 
 use self::default::DefaultWalletType;
 use self::enterprise::EnterpriseWalletType;
+use self::remote::RemoteWalletType;
 use self::plugged::PluggedWalletType;
 
 use api::ErrorCode;
@@ -93,6 +95,7 @@ impl WalletService {
         let mut types: HashMap<String, Box<WalletType>> = HashMap::new();
         types.insert("default".to_string(), Box::new(DefaultWalletType::new()));
         types.insert("enterprise".to_string(),  Box::new(EnterpriseWalletType::new()));
+        types.insert("remote".to_string(),  Box::new(RemoteWalletType::new()));
 
         WalletService {
             types: RefCell::new(types),
@@ -392,6 +395,16 @@ mod tests {
 
         let wallet_service = WalletService::new();
         wallet_service.create("pool1", Some("enterprise"), "wallet1", None, None).unwrap();
+
+        TestUtils::cleanup_indy_home();
+    }
+
+    #[test]
+    fn wallet_service_create_works_for_remote() {
+        TestUtils::cleanup_indy_home();
+
+        let wallet_service = WalletService::new();
+        wallet_service.create("pool1", Some("remote"), "wallet1", None, None).unwrap();
 
         TestUtils::cleanup_indy_home();
     }
