@@ -19,7 +19,7 @@ The individual carries their claims in their personal wallet.  There is not nece
 1.	When Alice provides a proof, she can select from which claims she wants to provide the proof (the wallet gives her all the available options).  A proof may include attributes from many claims.
 1.	Alice can keep copies of her data in multiple wallets (if she chooses), or can switch from one wallet provider to another (for example if using “wallet-as-a-service”).  (The service provider will be in a similar situation to TheOrgBook, or the guardianship scenario described below.)
 
-![Alice/Faber Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-scenario1-alice-faber.png "Alice/Faber Scenario")
+![Alice/Faber Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-scenario1-alice-faber.png "Alice/Faber Scenario")
 
 ### Wallet Use Case - TheOrgBook
 
@@ -31,7 +31,7 @@ The BC Government is holding the claims and providing proofs in order to bootstr
 1.	When providing a proof, the subject (organization) will be known.  TheOrgBook wil provide an automated reply (there is no human intervention) so the requester must provide enough information to identify the claim(s) required to attest to this certification.
 1.	If a corporation sets up their own wallet, they can copy all their claims and then provide their own proofs.  However the data in TheOrgBook is public, so the government will likely continue to provide a centralized repository of claims and proofs.
 
-![TheOrgBook Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-scenario2-TheOrgBook.png "TheOrgBook Scenario")
+![TheOrgBook Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-scenario2-TheOrgBook.png "TheOrgBook Scenario")
 
 ### Wallet Use Case - Guardianship
 
@@ -48,8 +48,8 @@ This is the scenario of a homeless shelter or refugee camp.  An organization is 
 1.	Use proof request “predicates” as search criteria.
 1.	Implement query filters in the wallet API.
 1.	Use a hybrid approach:
-   1.	Initial search in TheOrgBook search database.
-   1.	Secondary search(es) against the wallet, based on TheOrgBook search results.
+     1.	Initial search in TheOrgBook search database.
+     1.	Secondary search(es) against the wallet, based on TheOrgBook search results.
 
 ### Wallet Query - Multiple Virtual Wallets
 
@@ -72,7 +72,7 @@ subject_claims = .execute("SELECT ... FROM WALLET WHERE " + derive_filter_from_s
 
 This would not require any changes to the API, or code outside of the Enterprise Wallet, however would not support queries across multiple subjects, or queries for sub-sets of claims within a single subject.
 
-![Virtual Wallet Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-query1-virtual-wallet.png "Virtual Wallet Query Scenario")
+![Virtual Wallet Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-query1-virtual-wallet.png "Virtual Wallet Query Scenario")
 
 Note that a POC wallet "src/services/wallet/enterprise.rs" has been built.  You can run a test of this wallet using:
 
@@ -93,7 +93,7 @@ Proof requests already include "predicates", which restrict attributes to specif
 
 These predicates are processed separately from the requested attributes, however it would be possible to use these as the filter criteria for the proof (for example to limit attribute selection only to those claims meeting the predicate criteria).
 
-![Predicate Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-query2-proof-req-predicate.png "Predicate Query Scenario")
+![Predicate Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-query2-proof-req-predicate.png "Predicate Query Scenario")
 
 ### Wallet Query - Implement Filters in Wallet API
 
@@ -117,12 +117,49 @@ For example, with the Virtual Wallet approach:
 * A secondary wallet search would be performed for each subject
 * The proof would be derived based on the total set of returned claims
 
-![Hybrid Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/ew-query4-hybrid-query.png "Hybrid Query Scenario")
+![Hybrid Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-query4-hybrid-query.png "Hybrid Query Scenario")
+
+## TheOrgBook Proposed Wallet Design
+
+This design proposes an enterprise wallet for TheOrgBook with the following features:
+
+* Implement a "virtual wallet" based on the organization of interest, to implement granular storage for storage of claims and construction of proofs.
+* Implementation of a filtering mechanism within the wallet, to restrict claims retrieved during the proof construction process to only those of interest in constructing the proof.
+* A stand-alone enterprise wallet for TheOrgBook, proving a REST-based set of services to store and retrieve claims and other data.
+* A corresponding "remote" (or "proxy") wallet type, within the indy sdk, which communicates with the stand-alone wallet via the REST services.
+
+Each of these features is described below.
+
+### Indy-sdk Proposed Design
+
+The new and updated components within the indy sdk are illustrated below:
+
+![Indy SDK Proposed Design](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-sdk-design.png "Indy SDK Proposed Design")
+
+- New wallet type "remote" implements a proxy to a REST interface
+- Requires a stand-alone wallet process that implements the required REST interface
+- Implements "virtual wallets" via credentials (TBD)
+- Include reference implementation for:
+    - "Remote" proxy wallet (via REST/http or https) (Rust, using crates.io "reqwest")
+    - Stand-alone wallet server (REST interface) (python/django)
+    - Embedded EnterpriseWallet (implementing virtual wallets) (Rust)
+- Include unit tests and performance tests for large wallet claim volumes (virtual wallet)
+- Code will be delivered in the indy-sdk repository
+
+## EW Proposed Design – TOB Wallet Implementation
+
+- Use TOB technologies
+    - Django/Python plus REST framework
+    - PostgreSQL database
+- Code will be delivered in the TheOrgBook repository
 
 ## EW Design – Other Factors
 
 These design factors will be considered once the approach to incorporating claims filtering into proof requests is determined.
 
 1.	Enterprise Database – SQL vs NoSQL vs LDAP vs Graph vs Other
+     - recommend SQL database, if no additional wallet search requirements
 1.	Storage of crypto credentials
+     - store in sql database in separate schema (allows for future integration into external HSM)
 1.  Refactor data across Wallet + other database
+     - maintain existing wallet data

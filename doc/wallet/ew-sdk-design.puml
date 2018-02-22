@@ -1,0 +1,54 @@
+@startuml
+node "Agent" {
+[Agent Application]
+}
+folder "Indy SDK" {
+[Ledger API]
+[Anoncreds API]
+[Wallet API]
+[Default Wallet]
+[Virtual Wallet]
+[Proxy Wallet]
+}
+component [Virtual Wallet] #Green
+component [Proxy Wallet] #Green
+[Agent Application] --> [Ledger API]
+[Agent Application] --> [Anoncreds API]
+[Agent Application] --> [Wallet API]
+[Anoncreds API] --> [Ledger API]
+[Anoncreds API] --> [Wallet API]
+[Wallet API] --> [Default Wallet]
+[Wallet API] --> [Virtual Wallet]
+[Wallet API] --> [Proxy Wallet]
+database "Default Wallet DB" {
+[Identity]
+}
+[Default Wallet] --> [Identity]
+database "Virtual Wallet DB" {
+[Identity 1]
+[Identity n]
+}
+[Virtual Wallet] --> [Identity 1]
+[Virtual Wallet] --> [Identity n]
+node "Indy Node" {
+[Ledger]
+[DID]
+[Claim Schema]
+[Claim Definition]
+}
+node "Remote Node" {
+[Remote Wallet]
+}
+component [Remote Wallet] #Green
+database "Remote Wallet DB" {
+[Identity 2]
+[Identity m]
+}
+[Remote Wallet] --> [Identity 2]
+[Remote Wallet] --> [Identity m]
+[Proxy Wallet] --> [Remote Wallet]
+[Ledger API] --> [Ledger]
+[Ledger] --> [DID]
+[Ledger] --> [Claim Schema]
+[Ledger] --> [Claim Definition]
+@enduml
