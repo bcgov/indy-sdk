@@ -55,11 +55,11 @@ A reference implementation of a "remote" wallet will be provided, including a cl
 The REST API will include the following:
 
 ```
-set(): POST <virtual wallet>/set/<key> (POST body is a JSON object)
-get(): GET <virtual wallet>/get/<key> (response body is a JSON object)
+set():             POST <virtual wallet>/set/<key> (POST body is a JSON object)
+get():             GET <virtual wallet>/get/<key> (response body is a JSON object)
 get_not_expired(): GET <virtual wallet>/get/<key> (response body is a JSON object)
-list(): GET <virtual wallet>/list/<key prefix> (response body is a JSON object)
-list(): GET <virtual wallet>/list (response body is a JSON object)
+list():            GET <virtual wallet>/list/<key prefix> (response body is a JSON object)
+list():            GET <virtual wallet>/list (response body is a JSON object)
 ```
 
 TODO support for query/filter parameters.
@@ -72,6 +72,8 @@ open(): handled by the client, to register a connection to a remote wallet using
 close(): handled by the client, to close an existing connection (virtual wallet)
 delete(): handled by the client, to delete a wallet configuration
 ```
+
+The following illustrates interaction for the Create Claim and Create Proof scenarios:
 
 ![Remote Wallet Scenarios](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-remote-wallet-query.png "Remote Wallet Scenarios")
 
@@ -87,19 +89,35 @@ The new TOB Wallet service will be implemented using existing TOB technologies (
 
 The TOB Wallet will using the same backing database as the existing TheOrgBook database (PostgreSQL), which is used to store claims data for searching.
 
-## TOB "Remote" Wallet
+## TheOrgBook "Remote" Wallet
 
-TODO description and diagram
+TheOrgBook wallet will be based on the same technical platform as the existing TOB API services:
 
-## TOB Integration of von_agent, virtual wallets and the TOB remote wallet
+* The services will be implemented using Python, Django and Django REST services
+* The TOB wallet will use PostgreSQL as a back-end database (TODO confirm)
+* The TOB wallet will use Django REST Framework "TokenAuthentication" (http://www.django-rest-framework.org/api-guide/authentication/) to secure communications between the client (indy sdk proxy) and wallet server
+    * Note that additional security measures are recommended, such as:
+    * Use of tls (https) between client and server
+    * Do not allow access to wallet REST API's from external IP's
+* The TOB secure credentials will be stored in the "root wallet", which will be maintained in a separate database schema from the "virtual wallets" (claims, claim requests, claim definitions, etc.)
 
-TODO sequence diagram
+This provides a wallet solution for TOB that meets current requirements, and provides flexibility for future needs:
+
+* Additional API methods can be added to the TOB wallet if additional search capabilities are required (outside of those required by the Indy SDK)
+* Additional clients can be granted access to the wallet API methods by creating additional users and tokens within the Django REST Framework
+* Segregating the security credentials from the claims within the wallet and database provides the capability to move these credentials to a secure storage in the future
+
+## TheOrgBook Integration of von_agent, virtual wallets and the TOB remote wallet
+
+The following illustrates interaction for the Create Claim and Create Proof scenarios:
+
+![Remote Wallet Scenarios](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-remote-wallet-query.png "Remote Wallet Scenarios")
 
 ## Unit and Performance Testing Approach
 
 TODO
 
-## EW Design – Other Factors
+# Enterprise Wallet Design – Other Factors
 
 These design factors will be considered once the approach to incorporating claims filtering into proof requests is determined.
 
