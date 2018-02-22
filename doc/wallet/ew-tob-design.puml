@@ -1,0 +1,43 @@
+@startuml
+node "TheOrgBook" {
+[TOB Application]
+}
+node "TOB API" {
+[TOB API Application]
+[VON Agent]
+}
+[TOB API Application] --> [VON Agent]
+folder "Indy SDK" {
+[Ledger API]
+[Anoncreds API]
+[Wallet API]
+[Proxy Wallet]
+}
+component [Proxy Wallet] #Green
+[VON Agent] --> [Ledger API]
+[VON Agent] --> [Anoncreds API]
+[VON Agent] --> [Wallet API]
+[Anoncreds API] --> [Ledger API]
+[Anoncreds API] --> [Wallet API]
+[Wallet API] --> [Proxy Wallet]
+node "Indy Node" {
+[Ledger]
+}
+node "TOB Wallet API" {
+[Remote Wallet]
+}
+component [Remote Wallet] #Green
+database "TOB DB" {
+[Claims]
+}
+database "Remote Wallet DB" {
+[Identity 2]
+[Identity m]
+}
+[TOB Application] --> [Claims]
+[TOB API Application] --> [Claims]
+[Remote Wallet] --> [Identity 2]
+[Remote Wallet] --> [Identity m]
+[Proxy Wallet] --> [Remote Wallet]
+[Ledger API] --> [Ledger]
+@enduml

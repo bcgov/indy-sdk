@@ -136,22 +136,26 @@ The new and updated components within the indy sdk are illustrated below:
 
 ![Indy SDK Proposed Design](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-sdk-design.png "Indy SDK Proposed Design")
 
-- New wallet type "remote" implements a proxy to a REST interface
-- Requires a stand-alone wallet process that implements the required REST interface
-- Implements "virtual wallets" via credentials (TBD)
-- Include reference implementation for:
-    - "Remote" proxy wallet (via REST/http or https) (Rust, using crates.io "reqwest")
-    - Stand-alone wallet server (REST interface) (python/django)
-    - Embedded EnterpriseWallet (implementing virtual wallets) (Rust)
-- Include unit tests and performance tests for large wallet claim volumes (virtual wallet)
-- Code will be delivered in the indy-sdk repository
+This design proposes the addition of two wallet types to the Indy SDK:
 
-## EW Proposed Design – TOB Wallet Implementation
+* A new wallet type "virtual", which implements virtual wallets.  The wallet is created as normal, however an additional parameter is added to the Credentials to specify the virtual wallet.  This must be provided each time the wallet is opened.  Changing virtual wallets will require closing and re-opening the wallet.
+* A new wallet type "remote", which is a REST client proxy to a remote wallet process.  The remote process will implement a REST client using the Rust "reqwest" library (https://github.com/seanmonstar/reqwest, https://docs.rs/reqwest/0.8.5/reqwest/).  Authentication parameters (such as a token or password) will be included in the Credentials and passed through to the remote service.
 
-- Use TOB technologies
-    - Django/Python plus REST framework
-    - PostgreSQL database
-- Code will be delivered in the TheOrgBook repository
+These two new wallets types can be added to the Indy SDK without any additional SD changes.
+
+This design also proposes an additional filter parameter to the wallet's "list()" method, which is called from the anoncreds "prover_get_claims_for_proof_req()" method.  This *will* require SDK changes to the anoncreds classes.
+
+TODO the specifics of the filter implementation are still under discussion.
+
+### TOB Wallet Proposed Design
+
+TheOrgBook will implement a remote wallet:
+
+![TheOrgBook Proposed Design](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-tob-design.png "TheOrgBook Proposed Design")
+
+The new TOB Wallet service will be implemented using existing TOB technologies (Python, Django and Django REST Framework) and follow the same design patterns as the existing TOB API services.
+
+The TOB Wallet will using the same backing database as the existing TheOrgBook database (PostgreSQL), which is used to store claims data for searching.
 
 ## EW Design – Other Factors
 
