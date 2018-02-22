@@ -115,15 +115,49 @@ The following illustrates interaction for the Create Claim and Create Proof scen
 
 ## Unit and Performance Testing Approach
 
-TODO
+This project will deliver unit and performance testing scripts in both the indy-sdk and TheOrgBook projects.
+
+Indy-SDK:
+
+* Unit tests for both the Rust core and Python wrapper code, for any new or updated code in the sdk, to a similar extent as currently exists for the default wallet
+* Python scripts to execute a timed test creating claims and proofs - this will be a single-threaded script, based on the "Alice/Faber" getting started scenario
+
+TheOrgBook:
+
+* Unit tests for the new wallet server and any changes required to TheOrgBook or Von-Agent code
+* Performance test scripts for the stand-alone TOB wallet server
+      * These scripts will execute the set() and list() REST methods
+      * The data loaded will simulate real claim data, but will be solely to test the wallet server performance, not claim or proof logic
+      * the scripts will target a maximum data capacity of 1 million identities (virtual wallets) and 10 million claims
+      * the scripts will measure response time and throughput at these data volumes
+* Performance test scripts for the integrated TOB-API REST services, incorporating the new TOB Wallet and any indy-sdk changes
+      * These scripts will execute the create_claim() and request_proof() methods
+      * TOB data load scripts will be leveraged, and modified to support the required load test scenarios
+      * Data volumes will be loaded to the extend possible, based on time available
+      * the scripts will measure response time and throughput at the max data volume possible
+
+TODO select the performance testing tool (or stand-alone python scripts)
 
 # Enterprise Wallet Design – Other Factors
 
 These design factors will be considered once the approach to incorporating claims filtering into proof requests is determined.
 
-1.	Enterprise Database – SQL vs NoSQL vs LDAP vs Graph vs Other
-     - recommend SQL database, if no additional wallet search requirements
-1.	Storage of crypto credentials
-     - store in sql database in separate schema (allows for future integration into external HSM)
-1.  Refactor data across Wallet + other database
-     - maintain existing wallet data
+## Enterprise Database – SQL vs NoSQL vs Other
+
+The delivered solution will use PostgreSQL database for TOB wallet, consistent with the existing TOB solution and architecture.
+
+Claims will be stored as PostgreSQL JSON data types.  Depending on the resolution of the query/filter requirements:
+
+       * json will be used if no query/filter parameters are required
+       * both json and jsonb will be used if query/filter parameters are required (json to support maintaining json format, jsonb to support queries)
+       * see https://www.postgresql.org/docs/9.4/static/datatype-json.html
+
+PostgreSQL supports a limited set of JSON search operators, see https://www.postgresql.org/docs/9.4/static/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
+
+## Storage of crypto credentials
+
+Store in sql database in separate schema (allows for future integration into external HSM)
+
+## Refactor data across Wallet + other database
+
+Maintain existing wallet data
