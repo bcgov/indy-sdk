@@ -27,7 +27,12 @@ These two new wallets types can be added to the Indy SDK without any additional 
 
 This design also proposes an additional filter parameter to the wallet's "list()" method, which is called from the anoncreds "prover_get_claims_for_proof_req()" method.  This *will* require SDK changes to the anoncreds classes.
 
-TODO support for query/filter parameters.
+Support for query/filter parameters is still under discussion, however this design assumes the following:
+
+* Support will be limited to checking for the presence of an attribute, and exact matching on an attribute value (due to limitations on JSON searching in most databases)
+* A new method will be created on anoncreds that creates search criteria (in JSON format) based on the contents of a proof request
+* This additional call will either be built into anoncreds, or will be called in advance by the agent and then the resulting JSON passed to anoncreds
+* In either case, the wallet's list() function will be updated to take the additional parameter
 
 ### Indy SDK "Virtual" Wallet
 
@@ -55,14 +60,23 @@ A reference implementation of a "remote" wallet will be provided, including a cl
 The REST API will include the following:
 
 ```
-set():             POST <virtual wallet>/set/<key> (POST body is a JSON object)
-get():             GET <virtual wallet>/get/<key> (response body is a JSON object)
-get_not_expired(): GET <virtual wallet>/get/<key> (response body is a JSON object)
-list():            GET <virtual wallet>/list/<key prefix> (response body is a JSON object)
-list():            GET <virtual wallet>/list (response body is a JSON object)
+set():             POST <virtual wallet>/set/<key>
+                            (POST body is a JSON object)
+get():             GET <virtual wallet>/get/<key>
+                            (response body is a JSON object)
+get_not_expired(): GET <virtual wallet>/get/<key>
+                            (response body is a JSON object)
+list():            GET <virtual wallet>/list/<key prefix>
+                            (response body is a JSON object)
+list():            GET <virtual wallet>/list
+                            (response body is a JSON object)
+list():            POST <virtual wallet>/list/<key prefix>
+                            (POST body is JSON filter parameters)
+                            (response body is a JSON object)
+list():            POST <virtual wallet>/list
+                            (POST body is JSON filter parameters)
+                            (response body is a JSON object)
 ```
-
-TODO support for query/filter parameters.
 
 Note that the following are note supported as REST calls:
 
@@ -77,7 +91,7 @@ The following illustrates interaction for the Create Claim and Create Proof scen
 
 ![Remote Wallet Scenarios](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-remote-wallet-query.png "Remote Wallet Scenarios")
 
-Creation and deletion of the remote wallet server, and its associated data store, is outside the scope fo the sdk.
+Creation and deletion of the remote wallet server, and its associated data store, is outside the scope of the sdk.
 
 ## TheOrgBook Wallet Proposed Design
 
@@ -94,7 +108,7 @@ The TOB Wallet will using the same backing database as the existing TheOrgBook d
 TheOrgBook wallet will be based on the same technical platform as the existing TOB API services:
 
 * The services will be implemented using Python, Django and Django REST services
-* The TOB wallet will use PostgreSQL as a back-end database (TODO confirm)
+* The TOB wallet will use PostgreSQL as a back-end database
 * The TOB wallet will use Django REST Framework "TokenAuthentication" (http://www.django-rest-framework.org/api-guide/authentication/) to secure communications between the client (indy sdk proxy) and wallet server
     * Note that additional security measures are recommended, such as:
     * Use of tls (https) between client and server
