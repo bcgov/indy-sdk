@@ -183,25 +183,29 @@ async def run(wallet_type):
         = await onboarding(pool_handle, pool_name, "Faber", faber_wallet, faber_did, "Alice", None, 'alice_wallet', wallet_type)
     alice_root_wallet = alice_wallet_name
 
-    if wallet_type == "enterprise":
+    if wallet_type == "virtual":
         # we will open a virtual wallet per transcript
+        logger.info("Closing Alice wallet")
         await wallet.close_wallet(alice_wallet)
 
     # TODO START LOOP
     # Alice get multiple claims from FABER; submit multiple applications to ACME
     maxtime = 0
     avetime = 0
-    for i in range(1000):
+    for i in range(10):
         logger.info("==============================")
         logger.info("== Getting Transcript with Faber - Getting Transcript Claim ==")
         logger.info("== Loop iteration " + str(i) + " ==")
         logger.info("------------------------------")
 
         # for enterprise wallet scenario, open a virtual wallet for each transcript
-        if wallet_type == "enterprise":
-            alice_wallet_name = alice_root_wallet + "::" + str(i)
+        if wallet_type == "virtual":
+            alice_wallet_name = alice_root_wallet
+            alice_wallet_credentials = '{"key":"filler", "virtual_wallet":"v' + str(i) + '"}'
+            # '{"key":"testkey", "virtual_wallet":"newwallet"}'
             logger.info("Opening Alice Virtual Wallet --> " + alice_wallet_name)
-            alice_wallet = await wallet.open_wallet(alice_wallet_name, None, None)
+            logger.info("Alice Virtual Wallet Creds --> " + alice_wallet_credentials)
+            alice_wallet = await wallet.open_wallet(alice_wallet_name, None, alice_wallet_credentials)
 
         logger.info("\"Faber\" -> Create \"Transcript\" Claim Offer for Alice")
         transcript_claim_offer_json = \
@@ -547,7 +551,7 @@ async def run(wallet_type):
         # await anoncreds.prover_store_claim(alice_wallet, authdecrypted_job_certificate_claim_json, None)
 
         # for enterprise wallet scenario, close virtual wallet
-        if wallet_type == "enterprise":
+        if wallet_type == "virtual":
             logger.info("Closing Alice Virtual Wallet --> " + alice_wallet_name)
             await wallet.close_wallet(alice_wallet)
             alice_wallet_name = alice_root_wallet
@@ -784,7 +788,7 @@ async def run(wallet_type):
     await wallet.delete_wallet(thrift_wallet_name, None)
 
     logger.info("\"Alice\" -> Close and Delete wallet")
-    if wallet_type != "enterprise":
+    if wallet_type != "virtual":
         # already dealt with this for enterprise scenario
         await wallet.close_wallet(alice_wallet)
     await wallet.delete_wallet(alice_wallet_name, None)
@@ -814,8 +818,8 @@ async def onboarding(pool_handle, pool_name, _from, from_wallet, from_did, to,
 
     if not to_wallet:
         logger.info("\"{}\" -> Create wallet".format(to))
-        await wallet.create_wallet(pool_name, to_wallet_name, to_wallet_type, None, None)
-        to_wallet = await wallet.open_wallet(to_wallet_name, None, None)
+        await wallet.create_wallet(pool_name, to_wallet_name, to_wallet_type, None, '{"key":"filler"}')
+        to_wallet = await wallet.open_wallet(to_wallet_name, None, '{"key":"filler"}')
 
     logger.info("\"{}\" -> Create and store in Wallet \"{} {}\" DID".format(to, to, _from))
     (to_from_did, to_from_key) = await did.create_and_store_my_did(to_wallet, "{}")

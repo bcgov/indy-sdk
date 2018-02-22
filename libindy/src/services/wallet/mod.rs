@@ -2,12 +2,12 @@ extern crate libc;
 extern crate indy_crypto;
 
 mod default;
-mod enterprise;
+mod virtualid;
 mod remote;
 mod plugged;
 
 use self::default::DefaultWalletType;
-use self::enterprise::EnterpriseWalletType;
+use self::virtualid::VirtualWalletType;
 use self::remote::RemoteWalletType;
 use self::plugged::PluggedWalletType;
 
@@ -94,7 +94,7 @@ impl WalletService {
     pub fn new() -> WalletService {
         let mut types: HashMap<String, Box<WalletType>> = HashMap::new();
         types.insert("default".to_string(), Box::new(DefaultWalletType::new()));
-        types.insert("enterprise".to_string(),  Box::new(EnterpriseWalletType::new()));
+        types.insert("virtual".to_string(),  Box::new(VirtualWalletType::new()));
         types.insert("remote".to_string(),  Box::new(RemoteWalletType::new()));
 
         WalletService {
@@ -221,10 +221,7 @@ impl WalletService {
     pub fn open(&self, name: &str, runtime_config: Option<&str>, credentials: Option<&str>) -> Result<i32, WalletError> {
         let mut descriptor_json = String::new();
         let descriptor: WalletDescriptor = WalletDescriptor::from_json({
-            // TODO hack for now, if it's an enterprise wallet take the root name
-            let v: Vec<&str> = name.split("::").collect();
-            let root_name = v.get(0).unwrap();
-            let mut file = File::open(_wallet_descriptor_path(root_name))?; // FIXME: Better error!
+            let mut file = File::open(_wallet_descriptor_path(name))?; // FIXME: Better error!
             file.read_to_string(&mut descriptor_json)?;
             descriptor_json.as_str()
         })?;
@@ -390,11 +387,11 @@ mod tests {
     }
 
     #[test]
-    fn wallet_service_create_works_for_enterprise() {
+    fn wallet_service_create_works_for_virtual() {
         TestUtils::cleanup_indy_home();
 
         let wallet_service = WalletService::new();
-        wallet_service.create("pool1", Some("enterprise"), "wallet1", None, None).unwrap();
+        wallet_service.create("pool1", Some("virtual"), "wallet1", None, None).unwrap();
 
         TestUtils::cleanup_indy_home();
     }

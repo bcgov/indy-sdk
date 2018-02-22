@@ -7,9 +7,7 @@ from tests.conftest import path_home as x_path_home, pool_name as x_pool_name, w
     wallet_type as x_wallet_type, wallet_runtime_config as x_wallet_runtime_config, \
     xwallet_cleanup as x_xwallet_cleanup, wallet_handle_cleanup as x_wallet_handle_cleanup, \
     wallet_handle as x_wallet_handle, \
-    xwallet as x_xwallet, \
-    ew_wallet_name as x_ew_wallet_name, ew_wallet_type as x_ew_wallet_type, \
-    ew_wallet_handle as x_ew_wallet_handle, ew_xwallet as x_ew_xwallet
+    xwallet as x_xwallet
 
 
 @pytest.fixture(scope="module")
@@ -30,18 +28,8 @@ def wallet_name():
 
 
 @pytest.fixture(scope="module")
-def ew_wallet_name():
-    return x_ew_wallet_name()
-
-
-@pytest.fixture(scope="module")
 def wallet_type():
     return x_wallet_type()
-
-
-@pytest.fixture(scope="module")
-def ew_wallet_type():
-    return x_ew_wallet_type()
 
 
 @pytest.fixture(scope="module")
@@ -62,14 +50,6 @@ def xwallet(event_loop, pool_name, wallet_name, wallet_type, xwallet_cleanup, pa
     next(xwallet_gen)
 
 
-# noinspection PyUnusedLocal
-@pytest.fixture(scope="module")
-def ew_xwallet(event_loop, pool_name, ew_wallet_name, ew_wallet_type, xwallet_cleanup, path_home):
-    ew_xwallet_gen = x_ew_xwallet(event_loop, pool_name, ew_wallet_name, ew_wallet_type, xwallet_cleanup, path_home, None)
-    yield next(ew_xwallet_gen)
-    next(ew_xwallet_gen)
-
-
 @pytest.fixture(scope="module")
 def wallet_handle_cleanup():
     return x_wallet_handle_cleanup()
@@ -81,14 +61,6 @@ def wallet_handle(event_loop, wallet_name, xwallet, wallet_runtime_config, walle
         x_wallet_handle(event_loop, wallet_name, xwallet, wallet_runtime_config, None, wallet_handle_cleanup)
     yield next(wallet_handle_gen)
     next(wallet_handle_gen)
-
-
-@pytest.fixture(scope="module")
-def ew_wallet_handle(event_loop, ew_wallet_name, ew_xwallet, wallet_runtime_config, wallet_handle_cleanup):
-    ew_wallet_handle_gen = \
-        x_ew_wallet_handle(event_loop, ew_wallet_name, ew_xwallet, wallet_runtime_config, None, wallet_handle_cleanup)
-    yield next(ew_wallet_handle_gen)
-    next(ew_wallet_handle_gen)
 
 
 @pytest.fixture(scope="module")
@@ -412,52 +384,52 @@ async def prepopulated_wallet(wallet_handle, gvt_schema_json, xyz_schema_json, g
 
 
 @pytest.fixture(scope="module")
-async def ew_prepopulated_wallet(ew_wallet_handle, gvt_schema_json, xyz_schema_json, gvt_claim_json, gvt_2_claim_json,
+async def ew_prepopulated_wallet(wallet_handle, gvt_schema_json, xyz_schema_json, gvt_claim_json, gvt_2_claim_json,
                               xyz_claim_json, issuer_did, issuer_did_2, master_secret_name, prover_did):
     # Create GVT Claim by Issuer1
     claim_def_json = await anoncreds.issuer_create_and_store_claim_def(
-        ew_wallet_handle, issuer_did, gvt_schema_json, None, False)
+        wallet_handle, issuer_did, gvt_schema_json, None, False)
 
     # Create XYZ Claim by Issuer1
     claim_def_json_2 = await anoncreds.issuer_create_and_store_claim_def(
-        ew_wallet_handle, issuer_did, xyz_schema_json, None, False)
+        wallet_handle, issuer_did, xyz_schema_json, None, False)
 
     # Create GVT Claim by Issuer2
     claim_def_json_3 = await anoncreds.issuer_create_and_store_claim_def(
-        ew_wallet_handle, issuer_did_2, gvt_schema_json, None, False)
+        wallet_handle, issuer_did_2, gvt_schema_json, None, False)
 
     issuer_1_gvt_claim_offer_json = \
-        await anoncreds.issuer_create_claim_offer(ew_wallet_handle, gvt_schema_json, issuer_did, prover_did)
+        await anoncreds.issuer_create_claim_offer(wallet_handle, gvt_schema_json, issuer_did, prover_did)
     issuer_1_xyz_claim_offer_json = \
-        await anoncreds.issuer_create_claim_offer(ew_wallet_handle, xyz_schema_json, issuer_did, prover_did)
+        await anoncreds.issuer_create_claim_offer(wallet_handle, xyz_schema_json, issuer_did, prover_did)
     issuer_2_gvt_claim_offer_json = \
-        await anoncreds.issuer_create_claim_offer(ew_wallet_handle, gvt_schema_json, issuer_did_2, prover_did)
+        await anoncreds.issuer_create_claim_offer(wallet_handle, gvt_schema_json, issuer_did_2, prover_did)
 
-    await anoncreds.prover_store_claim_offer(ew_wallet_handle, issuer_1_gvt_claim_offer_json)
-    await anoncreds.prover_store_claim_offer(ew_wallet_handle, issuer_1_xyz_claim_offer_json)
-    await anoncreds.prover_store_claim_offer(ew_wallet_handle, issuer_2_gvt_claim_offer_json)
+    await anoncreds.prover_store_claim_offer(wallet_handle, issuer_1_gvt_claim_offer_json)
+    await anoncreds.prover_store_claim_offer(wallet_handle, issuer_1_xyz_claim_offer_json)
+    await anoncreds.prover_store_claim_offer(wallet_handle, issuer_2_gvt_claim_offer_json)
 
-    await anoncreds.prover_create_master_secret(ew_wallet_handle, master_secret_name)
+    await anoncreds.prover_create_master_secret(wallet_handle, master_secret_name)
 
     claim_req = await anoncreds.prover_create_and_store_claim_req(
-        ew_wallet_handle, prover_did, issuer_1_gvt_claim_offer_json, claim_def_json, master_secret_name)
+        wallet_handle, prover_did, issuer_1_gvt_claim_offer_json, claim_def_json, master_secret_name)
 
-    (_, claim_json) = await anoncreds.issuer_create_claim(ew_wallet_handle, claim_req, gvt_claim_json, -1)
+    (_, claim_json) = await anoncreds.issuer_create_claim(wallet_handle, claim_req, gvt_claim_json, -1)
 
-    await anoncreds.prover_store_claim(ew_wallet_handle, claim_json, None)
+    await anoncreds.prover_store_claim(wallet_handle, claim_json, None)
 
     claim_req_2 = await anoncreds.prover_create_and_store_claim_req(
-        ew_wallet_handle, prover_did, issuer_1_xyz_claim_offer_json, claim_def_json_2, master_secret_name)
+        wallet_handle, prover_did, issuer_1_xyz_claim_offer_json, claim_def_json_2, master_secret_name)
 
-    (_, claim_2_json) = await anoncreds.issuer_create_claim(ew_wallet_handle, claim_req_2, xyz_claim_json, -1)
+    (_, claim_2_json) = await anoncreds.issuer_create_claim(wallet_handle, claim_req_2, xyz_claim_json, -1)
 
-    await anoncreds.prover_store_claim(ew_wallet_handle, claim_2_json, None)
+    await anoncreds.prover_store_claim(wallet_handle, claim_2_json, None)
 
     claim_req_3 = await anoncreds.prover_create_and_store_claim_req(
-        ew_wallet_handle, prover_did, issuer_2_gvt_claim_offer_json, claim_def_json_3, master_secret_name)
+        wallet_handle, prover_did, issuer_2_gvt_claim_offer_json, claim_def_json_3, master_secret_name)
 
-    (_, claim_3_json) = await anoncreds.issuer_create_claim(ew_wallet_handle, claim_req_3, gvt_2_claim_json, -1)
+    (_, claim_3_json) = await anoncreds.issuer_create_claim(wallet_handle, claim_req_3, gvt_2_claim_json, -1)
 
-    await anoncreds.prover_store_claim(ew_wallet_handle, claim_3_json, None)
+    await anoncreds.prover_store_claim(wallet_handle, claim_3_json, None)
 
     return claim_def_json, issuer_1_gvt_claim_offer_json, claim_req, claim_json,
