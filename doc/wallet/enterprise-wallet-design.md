@@ -1,5 +1,5 @@
 
-# Enterprise Wallet - Proposed Design
+# Enterprise Wallet - Proposed Design Scenarios
 
 This document describes proposed changes to the SDK Wallet to support multiple identities as required by TheOrgBook.  The document first describes usage scenarios to differentiate between TheOrgbook case, and the typical case of an individual (such as Alice).  Different options for implementing a claims search (to support constructing a proof) are described.
 
