@@ -3,7 +3,7 @@
 
 This document describes proposed changes to the SDK Wallet to support multiple identities as required by TheOrgBook.  The document first describes usage scenarios to differentiate between TheOrgbook case, and the typical case of an individual (such as Alice).  Different options for implementing a claims search (to support constructing a proof) are described.
 
-Note please see the companion document https://github.com/ianco/indy-sdk/raw/master/doc/wallet/enterprise-wallet-design.md for a description of the proposed Indy SDK and TheOrgBook implementation design.
+Note please see the companion document https://github.com/ianco/indy-sdk/blob/master/doc/wallet/enterprise-wallet-design.md for a description of the proposed Indy SDK and TheOrgBook implementation design.
 
 ## EW Design – Usage Scenarios
 

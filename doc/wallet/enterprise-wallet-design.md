@@ -10,7 +10,7 @@ This design proposes an enterprise wallet for TheOrgBook with the following feat
 
 Each of these features is described below.
 
-Note please see the companion document https://github.com/ianco/indy-sdk/raw/master/doc/wallet/enterprise-wallet-design-scenarios.md for a description of the business and design scenarios.
+Note please see the companion document https://github.com/ianco/indy-sdk/blob/master/doc/wallet/enterprise-wallet-design-scenarios.md for a description of the business and design scenarios.
 
 ## Indy-sdk Proposed Design
 
