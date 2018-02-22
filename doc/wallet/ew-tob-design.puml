@@ -1,10 +1,12 @@
 @startuml
-node "TheOrgBook" {
+node "Foo" {
+folder "TheOrgBook" {
 [TOB Application]
 }
-node "TOB API" {
+folder "TOB API" {
 [TOB API Application]
 [VON Agent]
+}
 }
 [TOB API Application] --> [VON Agent]
 folder "Indy SDK" {
@@ -28,16 +30,20 @@ node "TOB Wallet API" {
 }
 component [Remote Wallet] #Green
 database "TOB DB" {
+folder "TOB Claims" {
 [Claims]
 }
-database "Remote Wallet DB" {
-[Identity 2]
-[Identity m]
+folder "Remote Wallet DB" {
+[Root Identity]
+[Identity 1]
+[Identity n]
+}
 }
 [TOB Application] --> [Claims]
 [TOB API Application] --> [Claims]
-[Remote Wallet] --> [Identity 2]
-[Remote Wallet] --> [Identity m]
+[Remote Wallet] --> [Root Identity]
+[Remote Wallet] --> [Identity 1]
+[Remote Wallet] --> [Identity n]
 [Proxy Wallet] --> [Remote Wallet]
 [Ledger API] --> [Ledger]
 @enduml
