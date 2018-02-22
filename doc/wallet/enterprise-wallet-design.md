@@ -136,7 +136,11 @@ TheOrgBook:
       * Data volumes will be loaded to the extend possible, based on time available
       * the scripts will measure response time and throughput at the max data volume possible
 
-TODO select the performance testing tool (or stand-alone python scripts)
+TODO select the performance testing tool (or stand-alone python scripts):
+
+* Data loading will use the scripts developed for TheOrgBook/Permitify, modified if necessary to achieve large data volumes
+* Performance testing will use a low-level script (for example https://locust.io/) to support building custom queries, for example to support testing proof requests, augmented with standard performance testing tools
+* Tools will be selected on consultation with DevOps lab staff, and will use existing tools where practical
 
 # Enterprise Wallet Design – Other Factors
 
@@ -156,8 +160,28 @@ PostgreSQL supports a limited set of JSON search operators, see https://www.post
 
 ## Storage of crypto credentials
 
-Store in sql database in separate schema (allows for future integration into external HSM)
+Cryptographic credentials, such as the Master Secret and private keys, will be stored in the wallet's sql database in separate a schema from the claims and other data - this allows for future integration into external HSM.
 
-## Refactor data across Wallet + other database
+A survey will be done of standard methods and protocols for handling/managing enterprise keys - this will be delivered with the Phase 3 deliverables, and will include recommendations on specific methods for TheOrgBook to implement.
 
-Maintain existing wallet data
+# Schedule
+
+The deliverables for phase 2 and 3 of this project are summarized below.
+
+## Phase 2 - Large Scale Wallet solution
+
+* indy-sdk reference implementations for virtual and remote wallets
+* unit tests for the above, and any other required sdk changes
+* TOB wallet server, including PostgreSQL implementation
+* updates to TOB-API and von-agent to integrate with the new TOB wallet
+* performance testing scripts for TOB Wallet and TOB-API
+* updates to the design documents for any changes that occur during the development phase
+
+## Phase 3 - Claims filtering
+
+* indy-sdk implementation of query filters, and any changes necessary to anoncreds or other sdk components
+* unit tests for the above
+* updates to TOB Wallet, TOB-API and von_agent to integrate query filters
+* updates to the performance tests
+* updates to the design documents for any changes that occur during the development phase
+* survey and recommendations for handling enterprise keys
