@@ -29,14 +29,11 @@ use self::indy_crypto::utils::json::JsonDecodable;
  * all subjects, or referring to the managing organization), and multiple "virtual" 
  * wallets, one per subject.
  * 
- * The wallet name is specifid in two parts:  "root::child", were the first part specifies
- * the name of the root wallet (and used as the overall wallet name), and the second
- * part identified the virtual "child" wallet.  If the child is not specified then the
- * root is used as the virtual wallet.
+ * The virtual wallet name is specifid in the wallet credentials:
  * 
- * For example:
- *      "TheOrgBook" => The root and virtual wallets are both "TheOrgBook"
- *      "TheOrgBook::Client1" => The root is "TheOrgBook" and the virtual is "Client1"
+ *     {key: "", virtual_wallet: "subject1_wallet"}
+ * 
+ * If the virtual_wallet is not specified then the wallet name is used as the virtual wallet.
  * 
  * This code is cloned from "default.rs" and an additional database column added to the
  * wallet database to specify the virtual wallet.
@@ -62,7 +59,7 @@ impl Default for VirtualWalletRuntimeConfig {
 struct VirtualWalletCredentials {
     key: String,
     rekey: Option<String>,
-    virtual_wallet: Option<String>
+    virtual_wallet: Option<String>   // virtual wallet name (optional)
 }
 
 impl<'a> JsonDecodable<'a> for VirtualWalletCredentials {}
@@ -86,8 +83,6 @@ struct VirtualWallet {
     credentials: VirtualWalletCredentials
 }
 
-// Note the wallet name can specify a virtual wallet, as described above
-// e.g. "TheOrgBook::Client1"
 impl VirtualWallet {
     fn new(name: &str,
            pool_name: &str,
@@ -102,13 +97,12 @@ impl VirtualWallet {
     }
 }
 
-// Extract the root name from the overall wallet name
+// Helper function for the root wallet name 
 fn root_wallet_name(wallet_name: &str) -> String {
     wallet_name.to_string()
 }
 
-// Extract the virtual wallet name from the overall wallet name
-// If the virtual wallet is not specified then the root is used as the virtual
+// Helper function to extract the virtual wallet name from the credentials
 fn virtual_wallet_name(wallet_name: &str, credentials: &VirtualWalletCredentials) -> String {
     match credentials.virtual_wallet {
         Some(ref s) => s.to_string(),
@@ -116,6 +110,8 @@ fn virtual_wallet_name(wallet_name: &str, credentials: &VirtualWalletCredentials
     }
 }
 
+// Helper method to fetch claims
+// wallet_name is either the virtual wallet or the root walllet
 fn call_get_internal(root_wallet_name: &str, wallet_name: &str,
                     credentials: &VirtualWalletCredentials, key: &str) -> Result<String, WalletError> {
     let db = _open_connection(root_wallet_name, credentials)?;
