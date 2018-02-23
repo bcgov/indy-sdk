@@ -46,6 +46,8 @@ This is the scenario of a homeless shelter or refugee camp.  An organization is 
 
 ## EW Design – Query Scenarios
 
+The following options are considered to improve wallet search performance when constructing proofs:
+
 1.	Multiple Virtual Wallets (wallet per subject).
 1.	Use proof request “predicates” as search criteria.
 1.	Implement query filters in the wallet API.
@@ -57,11 +59,11 @@ This is the scenario of a homeless shelter or refugee camp.  An organization is 
 
 In this scenario a separate "virtual wallet" would be used for claims and other data for each subject.
 
-The "Enterprise Wallet" would implement these within a single physical database, using the virtual wallet "name" to identify the subject for each wallet.  Creating a claim or creating a proof for a specific subject would involve two steps:
+The "Enterprise Wallet" would implement these within a single physical database, using either the virtual wallet "name", or potentially login credentials, to identify the subject for each wallet.  Creating a claim or creating a proof for a specific subject would involve two steps:
 
 ```
-wallet_name = derive_wallet_from_subject(subject_name);
-subject_wallet = open_wallet(wallet_name);
+virtual_wallet = derive_wallet_from_subject(subject_name);
+subject_wallet = open_wallet(virtual_wallet);
 claims = get_claims(subject_wallet);
 ```
 
@@ -102,6 +104,8 @@ These predicates are processed separately from the requested attributes, however
 An example is described in the JIRA ticket [https://jira.hyperledger.org/browse/IS-486]
 
 The sequence diagram is similar to the previous case, except that the filter criteria is passed from the Client (or TheOrgBook) rather than constructed from the predicates.
+
+![Predicate Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-query3-proof-req-predicate.png "Predicate Query Scenario")
 
 ### Wallet Query - Hybrid Approach
 

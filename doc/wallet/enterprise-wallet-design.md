@@ -4,13 +4,13 @@
 This design proposes an enterprise wallet for TheOrgBook with the following features:
 
 * Implement a "virtual wallet" based on the organization of interest, to implement granular storage for storage of claims and construction of proofs.
-* Implementation of a filtering mechanism within the wallet, to restrict claims retrieved during the proof construction process to only those of interest in constructing the proof.
 * A stand-alone enterprise wallet for TheOrgBook, proving a REST-based set of services to store and retrieve claims and other data.
 * A corresponding "remote" (or "proxy") wallet type, within the indy sdk, which communicates with the stand-alone wallet via the REST services.
+* Implementation of a filtering mechanism within the wallet, to restrict claims retrieved during the proof construction process to only those of interest in constructing the proof.
 
 Each of these features is described below.
 
-Note please see the companion document https://github.com/ianco/indy-sdk/blob/master/doc/wallet/enterprise-wallet-design-scenarios.md for a description of the business and design scenarios.
+Note please see the companion document https://github.com/ianco/indy-sdk/blob/master/doc/wallet/enterprise-wallet-design-scenarios.md for a description of the business and design scenarios considered.
 
 ## Indy-sdk Proposed Design
 
@@ -20,19 +20,18 @@ The new and updated components within the indy sdk are illustrated below:
 
 This design proposes the addition of two wallet types to the Indy SDK:
 
-* A new wallet type "virtual", which implements virtual wallets.  The wallet is created as normal, however an additional parameter is added to the Credentials to specify the virtual wallet.  This must be provided each time the wallet is opened.  Changing virtual wallets will require closing and re-opening the wallet.
+* A new wallet type "virtual", which implements virtual wallets.  The wallet is created as usual, however an additional parameter is added to the Credentials to specify the virtual wallet.  This must be provided each time the wallet is opened.  Changing virtual wallets will require closing and re-opening the wallet.
+```
+'{key="", virtual_wallet="subject1_wallet"}'
+```
 * A new wallet type "remote", which is a REST client proxy to a remote wallet process.  The remote process will implement a REST client using the Rust "reqwest" library (https://github.com/seanmonstar/reqwest, https://docs.rs/reqwest/0.8.5/reqwest/).  Authentication parameters (such as a token or password) will be included in the Credentials and passed through to the remote service.
+```
+'{key="", virtual_wallet="subject1_wallet", token="1234567890"}'
+```
 
 These two new wallets types can be added to the Indy SDK without any additional SD changes.
 
 This design also proposes an additional filter parameter to the wallet's "list()" method, which is called from the anoncreds "prover_get_claims_for_proof_req()" method.  This *will* require SDK changes to the anoncreds classes.
-
-Support for query/filter parameters is still under discussion, however this design assumes the following:
-
-* Support will be limited to checking for the presence of an attribute, and exact matching on an attribute value (due to limitations on JSON searching in most databases)
-* A new method will be created on anoncreds that creates search criteria (in JSON format) based on the contents of a proof request
-* This additional call will either be built into anoncreds, or will be called in advance by the agent and then the resulting JSON passed to anoncreds
-* In either case, the wallet's list() function will be updated to take the additional parameter
 
 ### Indy SDK "Virtual" Wallet
 
@@ -44,6 +43,8 @@ A reference implementation will be built for a wallet that can support multiple 
 * Internally, a database column will be added to store the corresponding "virtual" wallet name (or "root" wallet name)
 * Searches will be limited within a "virtual" wallet, or the "root" wallet
 * Unit tests will be developed to the same extent as the existing default wallet
+
+The initial POC for this wallet is available here:  https://github.com/ianco/indy-sdk/blob/master/libindy/src/services/wallet/virtualid.rs
 
 ### Indy SDK "Remote" Wallet
 
@@ -78,13 +79,13 @@ list():            POST <virtual wallet>/list
                             (response body is a JSON object)
 ```
 
-Note that the following are note supported as REST calls:
+Note that the following are not supported as REST calls:
 
 ```
-create(): handled by the client, to create a wallet configuration corresponding to a remote wallet
-open(): handled by the client, to register a connection to a remote wallet using a specific virtual wallet name
-close(): handled by the client, to close an existing connection (virtual wallet)
-delete(): handled by the client, to delete a wallet configuration
+create():  handled by the client, to create a wallet configuration corresponding to a remote wallet
+open():    handled by the client, to register a connection to a remote wallet using a specific virtual wallet name
+close():   handled by the client, to close an existing connection (virtual wallet)
+delete():  handled by the client, to delete a wallet configuration
 ```
 
 The following illustrates interaction for the Create Claim and Create Proof scenarios:
@@ -92,6 +93,19 @@ The following illustrates interaction for the Create Claim and Create Proof scen
 ![Remote Wallet Scenarios](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-remote-wallet-query.png "Remote Wallet Scenarios")
 
 Creation and deletion of the remote wallet server, and its associated data store, is outside the scope of the sdk.
+
+### Wallet Query Filter
+
+Support for query/filter parameters is still under discussion, however this design assumes the following:
+
+* Support will be limited to checking for the presence of an attribute, and exact matching on an attribute value (due to limitations on JSON searching in most databases)
+* A new method will be created on anoncreds that creates search criteria (in JSON format) based on the contents of a proof request
+* This additional call will either be built into anoncreds, or will be called in advance by the agent and then the resulting JSON passed to anoncreds
+* In either case, the wallet's list() function will be updated to take the additional parameter
+
+In the following example, the calling agent determines the filter criteria (through a call to anoncreds) and then passes this through to the claims search method:
+
+![Predicate Query Scenario](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ew-query3-proof-req-predicate.png "Predicate Query Scenario")
 
 ## TheOrgBook Wallet Proposed Design
 
@@ -112,7 +126,7 @@ TheOrgBook wallet will be based on the same technical platform as the existing T
 * The TOB wallet will use Django REST Framework "TokenAuthentication" (http://www.django-rest-framework.org/api-guide/authentication/) to secure communications between the client (indy sdk proxy) and wallet server
     * Note that additional security measures are recommended, such as:
     * Use of tls (https) between client and server
-    * Do not allow access to wallet REST API's from external IP's
+    * Blocking access to wallet REST API's from external IP's
 * The TOB secure credentials will be stored in the "root wallet", which will be maintained in a separate database schema from the "virtual wallets" (claims, claim requests, claim definitions, etc.)
 
 This provides a wallet solution for TOB that meets current requirements, and provides flexibility for future needs:
@@ -140,15 +154,15 @@ TheOrgBook:
 
 * Unit tests for the new wallet server and any changes required to TheOrgBook or Von-Agent code
 * Performance test scripts for the stand-alone TOB wallet server
-      * These scripts will execute the set() and list() REST methods
-      * The data loaded will simulate real claim data, but will be solely to test the wallet server performance, not claim or proof logic
-      * the scripts will target a maximum data capacity of 1 million identities (virtual wallets) and 10 million claims
-      * the scripts will measure response time and throughput at these data volumes
+     * These scripts will execute the set() and list() REST methods
+     * The data loaded will simulate real claim data, but will be solely to test the wallet server performance, not claim or proof logic
+     * the scripts will target a maximum data capacity of 1 million identities (virtual wallets) and 10 million claims
+     * the scripts will measure response time and throughput at these data volumes
 * Performance test scripts for the integrated TOB-API REST services, incorporating the new TOB Wallet and any indy-sdk changes
-      * These scripts will execute the create_claim() and request_proof() methods
-      * TOB data load scripts will be leveraged, and modified to support the required load test scenarios
-      * Data volumes will be loaded to the extend possible, based on time available
-      * the scripts will measure response time and throughput at the max data volume possible
+     * These scripts will execute the create_claim() and request_proof() methods
+     * TOB data load scripts will be leveraged, and modified to support the required load test scenarios
+     * Data volumes will be loaded to the extend possible, based on time available
+     * the scripts will measure response time and throughput at the max data volume possible
 
 TODO select the performance testing tool (or stand-alone python scripts):
 
@@ -166,9 +180,9 @@ The delivered solution will use PostgreSQL database for TOB wallet, consistent w
 
 Claims will be stored as PostgreSQL JSON data types.  Depending on the resolution of the query/filter requirements:
 
-       * json will be used if no query/filter parameters are required
-       * both json and jsonb will be used if query/filter parameters are required (json to support maintaining json format, jsonb to support queries)
-       * see https://www.postgresql.org/docs/9.4/static/datatype-json.html
+* json will be used if no query/filter parameters are required
+* both json and jsonb will be used if query/filter parameters are required (json to support maintaining json format, jsonb to support queries)
+* see https://www.postgresql.org/docs/9.4/static/datatype-json.html
 
 PostgreSQL supports a limited set of JSON search operators, see https://www.postgresql.org/docs/9.4/static/functions-json.html#FUNCTIONS-JSONB-OP-TABLE
 

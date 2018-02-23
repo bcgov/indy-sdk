@@ -17,6 +17,9 @@ AnonCreds --> EnterpriseWallet: get_claims(wallet)
 EnterpriseWallet --> EnterpriseWallet: get_subject_from_wallet(wallet)
 EnterpriseWallet --> VirtualWallet: get_claims()
 EnterpriseWallet --> AnonCreds: claims
+AnonCreds --> TheOrgBook: claims
+TheOrgBook --> TheOrgBook: select_claims_for_proof(claims)
+TheOrgBook --> AnonCreds: build_proof(claims)
 AnonCreds --> AnonCreds: build_proof(proof_req, claims)
 AnonCreds --> TheOrgBook: proof
 TheOrgBook --> Client: proof
