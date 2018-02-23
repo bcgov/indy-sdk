@@ -192,7 +192,7 @@ async def run(wallet_type):
     # Alice get multiple claims from FABER; submit multiple applications to ACME
     maxtime = 0
     avetime = 0
-    for i in range(10):
+    for i in range(5):
         logger.info("==============================")
         logger.info("== Getting Transcript with Faber - Getting Transcript Claim ==")
         logger.info("== Loop iteration " + str(i) + " ==")
@@ -201,7 +201,7 @@ async def run(wallet_type):
         # for enterprise wallet scenario, open a virtual wallet for each transcript
         if wallet_type == "virtual":
             alice_wallet_name = alice_root_wallet
-            alice_wallet_credentials = '{"key":"filler", "virtual_wallet":"v' + str(i) + '"}'
+            alice_wallet_credentials = '{"key":"", "virtual_wallet":"v' + str(i) + '"}'
             # '{"key":"testkey", "virtual_wallet":"newwallet"}'
             logger.info("Opening Alice Virtual Wallet --> " + alice_wallet_name)
             logger.info("Alice Virtual Wallet Creds --> " + alice_wallet_credentials)
@@ -791,7 +791,7 @@ async def run(wallet_type):
     if wallet_type != "virtual":
         # already dealt with this for enterprise scenario
         await wallet.close_wallet(alice_wallet)
-    await wallet.delete_wallet(alice_wallet_name, None)
+    await wallet.delete_wallet(alice_wallet_name, '{"key":""}')
 
     logger.info("Close and Delete pool")
     await pool.close_pool_ledger(pool_handle)
@@ -818,8 +818,8 @@ async def onboarding(pool_handle, pool_name, _from, from_wallet, from_did, to,
 
     if not to_wallet:
         logger.info("\"{}\" -> Create wallet".format(to))
-        await wallet.create_wallet(pool_name, to_wallet_name, to_wallet_type, None, '{"key":"filler"}')
-        to_wallet = await wallet.open_wallet(to_wallet_name, None, '{"key":"filler"}')
+        await wallet.create_wallet(pool_name, to_wallet_name, to_wallet_type, None, '{"key":""}')
+        to_wallet = await wallet.open_wallet(to_wallet_name, None, '{"key":""}')
 
     logger.info("\"{}\" -> Create and store in Wallet \"{} {}\" DID".format(to, to, _from))
     (to_from_did, to_from_key) = await did.create_and_store_my_did(to_wallet, "{}")
