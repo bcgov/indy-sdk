@@ -279,6 +279,9 @@ async def run(wallet_type):
                                                 transcript_claim_values, -1)
 
         logger.info("\"Faber\" -> Authcrypt \"Transcript\" Claim for Alice")
+        logger.info("==============================")
+        logger.info("Transcript claim = " + transcript_claim_json)
+        logger.info("==============================")
         authcrypted_transcript_claim_json = await crypto.auth_crypt(faber_wallet, faber_alice_key, alice_faber_verkey,
                                                                     transcript_claim_json.encode('utf-8'))
 
