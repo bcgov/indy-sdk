@@ -44,3 +44,11 @@ async def test_open_wallet_works_for_changing_credentials(pool_name, xwallet, wa
     await wallet.create_wallet(pool_name, 'works_for_changing_credentials', None, None, '{"key":"testkey"}')
     handle = await wallet.open_wallet('works_for_changing_credentials', None, '{"key":"testkey", "rekey":"newkey"}')
     await wallet.close_wallet(handle)
+
+
+@pytest.mark.asyncio
+async def test_virtual_open_wallet_works_for_changing_credentials(pool_name):
+    await wallet.create_wallet(pool_name, 'works_for_changing_credentials_v', "virtual", None, '{"key":"testkey"}')
+    handle = await wallet.open_wallet('works_for_changing_credentials_v', None, '{"key":"testkey", "virtual_wallet":"newwallet"}')
+    await wallet.close_wallet(handle)
+

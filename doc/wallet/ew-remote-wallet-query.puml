@@ -1,0 +1,47 @@
+@startuml
+actor Client
+participant Client order 10
+participant TheOrgBook order 20
+participant Von_Agent order 30
+participant AnonCreds order 50
+participant ProxyWallet order 60
+participant RemoteWallet order 70
+database TOB_Wallet order 80
+
+alt Create Claim
+Client --> TheOrgBook: create_claim(claim)
+TheOrgBook --> Von_Agent: create_claim(clain)
+Von_Agent --> Von_Agent: determine_wallet(claim)
+Von_Agent --> ProxyWallet: open_wallet(virtual_wallet)
+ProxyWallet --> ProxyWallet: save_virtual_wallet()
+ProxyWallet --> Von_Agent: wallet_handle
+Von_Agent --> ProxyWallet: save_claim(wallet_handle, claim)
+ProxyWallet --> ProxyWallet: build_remote_request(claim)
+ProxyWallet --> RemoteWallet: save_claim(request)
+RemoteWallet --> TOB_Wallet: save_claim()
+RemoteWallet --> ProxyWallet: OK
+ProxyWallet --> Von_Agent: OK
+Von_Agent --> TheOrgBook: OK
+TheOrgBook --> Client: OK
+end
+alt Request Proof
+Client --> TheOrgBook: request_proof(proof_request)
+TheOrgBook --> Von_Agent: request_proof(proof_request)
+Von_Agent --> Von_Agent: determine_wallet(proof_request)
+Von_Agent --> ProxyWallet: open_wallet(virtual_wallet)
+ProxyWallet --> ProxyWallet: save_virtual_wallet()
+ProxyWallet --> Von_Agent: wallet_handle
+Von_Agent --> AnonCreds: indy_prover_get_claims_for_proof_req(wallet_handle, proof_req)
+AnonCreds --> ProxyWallet: get_claims(wallet_handle)
+ProxyWallet --> ProxyWallet: build_remote_request(claim)
+ProxyWallet --> RemoteWallet: get_claims(request)
+RemoteWallet --> TOB_Wallet: get_claims(virtual_wallet)
+RemoteWallet --> ProxyWallet: claims
+ProxyWallet --> AnonCreds: claims
+AnonCreds --> Von_Agent: claims
+Von_Agent --> AnonCreds: build_proof(proof_req, claims)
+AnonCreds --> Von_Agent: proof
+Von_Agent --> TheOrgBook: proof
+TheOrgBook --> Client: proof
+end
+@enduml

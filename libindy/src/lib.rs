@@ -13,6 +13,9 @@ extern crate lazy_static;
 
 extern crate openssl;
 
+extern crate hyper;
+extern crate reqwest;
+
 // Note that to use macroses from util inside of other modules it must me loaded first!
 #[allow(dead_code)] /* FIXME */
 #[macro_use]

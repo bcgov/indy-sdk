@@ -381,3 +381,55 @@ async def prepopulated_wallet(wallet_handle, gvt_schema_json, xyz_schema_json, g
     await anoncreds.prover_store_claim(wallet_handle, claim_3_json, None)
 
     return claim_def_json, issuer_1_gvt_claim_offer_json, claim_req, claim_json,
+
+
+@pytest.fixture(scope="module")
+async def ew_prepopulated_wallet(wallet_handle, gvt_schema_json, xyz_schema_json, gvt_claim_json, gvt_2_claim_json,
+                              xyz_claim_json, issuer_did, issuer_did_2, master_secret_name, prover_did):
+    # Create GVT Claim by Issuer1
+    claim_def_json = await anoncreds.issuer_create_and_store_claim_def(
+        wallet_handle, issuer_did, gvt_schema_json, None, False)
+
+    # Create XYZ Claim by Issuer1
+    claim_def_json_2 = await anoncreds.issuer_create_and_store_claim_def(
+        wallet_handle, issuer_did, xyz_schema_json, None, False)
+
+    # Create GVT Claim by Issuer2
+    claim_def_json_3 = await anoncreds.issuer_create_and_store_claim_def(
+        wallet_handle, issuer_did_2, gvt_schema_json, None, False)
+
+    issuer_1_gvt_claim_offer_json = \
+        await anoncreds.issuer_create_claim_offer(wallet_handle, gvt_schema_json, issuer_did, prover_did)
+    issuer_1_xyz_claim_offer_json = \
+        await anoncreds.issuer_create_claim_offer(wallet_handle, xyz_schema_json, issuer_did, prover_did)
+    issuer_2_gvt_claim_offer_json = \
+        await anoncreds.issuer_create_claim_offer(wallet_handle, gvt_schema_json, issuer_did_2, prover_did)
+
+    await anoncreds.prover_store_claim_offer(wallet_handle, issuer_1_gvt_claim_offer_json)
+    await anoncreds.prover_store_claim_offer(wallet_handle, issuer_1_xyz_claim_offer_json)
+    await anoncreds.prover_store_claim_offer(wallet_handle, issuer_2_gvt_claim_offer_json)
+
+    await anoncreds.prover_create_master_secret(wallet_handle, master_secret_name)
+
+    claim_req = await anoncreds.prover_create_and_store_claim_req(
+        wallet_handle, prover_did, issuer_1_gvt_claim_offer_json, claim_def_json, master_secret_name)
+
+    (_, claim_json) = await anoncreds.issuer_create_claim(wallet_handle, claim_req, gvt_claim_json, -1)
+
+    await anoncreds.prover_store_claim(wallet_handle, claim_json, None)
+
+    claim_req_2 = await anoncreds.prover_create_and_store_claim_req(
+        wallet_handle, prover_did, issuer_1_xyz_claim_offer_json, claim_def_json_2, master_secret_name)
+
+    (_, claim_2_json) = await anoncreds.issuer_create_claim(wallet_handle, claim_req_2, xyz_claim_json, -1)
+
+    await anoncreds.prover_store_claim(wallet_handle, claim_2_json, None)
+
+    claim_req_3 = await anoncreds.prover_create_and_store_claim_req(
+        wallet_handle, prover_did, issuer_2_gvt_claim_offer_json, claim_def_json_3, master_secret_name)
+
+    (_, claim_3_json) = await anoncreds.issuer_create_claim(wallet_handle, claim_req_3, gvt_2_claim_json, -1)
+
+    await anoncreds.prover_store_claim(wallet_handle, claim_3_json, None)
+
+    return claim_def_json, issuer_1_gvt_claim_offer_json, claim_req, claim_json,

@@ -7,4 +7,8 @@ build
 .cache
 .DS_Store
 Podfile.lock
+.pytest_cache
+Pipfile.lock
+db.sqlite3
+__pycache__
 

@@ -1,0 +1,81 @@
+Building and running cli
+
+cd indy-sdk/libindy
+cargo build
+cd ..
+
+Run docker nodes for indy network
+
+cd indy-node/environment/docker/pool
+./pool_build.sh
+./pool_start.sh
+docker ps
+
+
+cli Commands (setup network and nodes)
+
+cd indy-sdk/cli
+cargo build
+cargo run
+
+
+pool create sandbox gen_txn_file=docker_pool_transactions_genesis
+pool connect sandbox
+wallet create IAN pool_name=sandbox
+wallet open IAN
+did new seed=000000000000000000000000Steward1
+
+did use Th7MpTaRZVRYnPiabds81Y
+ledger nym did=ULtgFQJe6bjiFbs7ke3NJD role=TRUST_ANCHOR verkey=~5kh3FB4H3NKq7tUDqeqHc1
+did new seed=Faber000000000000000000000000000
+did use ULtgFQJe6bjiFbs7ke3NJD
+ledger attrib did=ULtgFQJe6bjiFbs7ke3NJD raw={"endpoint":{"ha":"10.0.0.6:5555","pubkey":"5hmMA64DDQz5NzGJNVtRzNwpkZxktNQds21q3Wxxa62z"}}
+
+did use Th7MpTaRZVRYnPiabds81Y
+ledger nym did=CzkavE58zgX7rUMrzSinLr role=TRUST_ANCHOR verkey=~WjXEvZ9xj4Tz9sLtzf7HVP
+did new seed=Acme0000000000000000000000000000
+did use CzkavE58zgX7rUMrzSinLr
+ledger attrib did=CzkavE58zgX7rUMrzSinLr raw={"endpoint":{"ha":"10.0.0.6:6666","pubkey":"C5eqjU7NMVMGGfGfx2ubvX5H9X346bQt5qeziVAo3naQ"}}
+
+did use Th7MpTaRZVRYnPiabds81Y
+ledger nym did=H2aKRiDeq8aLZSydQMDbtf role=TRUST_ANCHOR verkey=~3sphzTb2itL2mwSeJ1Ji28
+did new seed=Thrift00000000000000000000000000
+did use H2aKRiDeq8aLZSydQMDbtf
+ledger attrib did=H2aKRiDeq8aLZSydQMDbtf raw={"endpoint":{"ha":"10.0.0.6:7777","pubkey":"AGBjYvyM3SFnoiDGAEzkSLHvqyzVkXeMZfKDvdpEsC2x"}}
+
+exit
+
+
+Run Alice/Faber/Acme demo
+
+Start Agents
+
+cd indy_node/indy_client/test/agent
+python faber.py  --port 5555 --network pool-network >/tmp/faber.log &
+python acme.py  --port 6666 --network pool-network >/tmp/acme.log &
+python thrift.py  --port 7777 --network pool-network >/tmp/thrift.log &
+
+tail -f /tmp/faber.log
+tail -f /tmp/acme.log
+tail -f /tmp/thrift.log
+
+
+Run ALICE Client
+
+cd indy-sdk/cli
+cargo run
+
+prompt ALICE
+pool connect sandbox
+wallet create ALICE pool_name=sandbox
+wallet open ALICE
+
+show /home/osboxes/Projects/indy-node/sample/faber-request.indy
+load /home/osboxes/Projects/indy-node/sample/faber-request.indy
+
+
+
+
+
+
+

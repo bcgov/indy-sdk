@@ -1,0 +1,25 @@
+@startuml
+actor Client
+participant Client order 10
+participant TheOrgBook order 20
+participant AnonCreds order 30
+participant EnterpriseWallet order 50
+database Wallet order 60
+Client --> TheOrgBook: get_proof(subject_name, proof_req)
+alt TheOrgBook builds filter criteria
+TheOrgBook --> AnonCreds: get_predicates(proof_req)
+AnonCreds --> AnonCreds: extract_predicates()
+AnonCreds --> TheOrgBook:  filter
+end
+TheOrgBook --> AnonCreds: indy_prover_get_claims_for_proof_req(wallet, proof_req, filter)
+AnonCreds --> EnterpriseWallet: get_claims(wallet, predicates, filter)
+EnterpriseWallet --> EnterpriseWallet: build_query_filter(filter)
+EnterpriseWallet --> Wallet: get_claims(filter)
+EnterpriseWallet --> AnonCreds: claims
+AnonCreds --> TheOrgBook: claims
+TheOrgBook --> TheOrgBook: select_claims_for_proof(claims)
+TheOrgBook --> AnonCreds: build_proof(claims)
+AnonCreds --> AnonCreds: build_proof(proof_req, claims)
+AnonCreds --> TheOrgBook: proof
+TheOrgBook --> Client: proof
+@enduml

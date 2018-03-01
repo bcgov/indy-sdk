@@ -2,6 +2,7 @@ pub const SEQ_NO: i32 = 1;
 pub const POOL: &'static str = "pool_1";
 pub const WALLET: &'static str = "wallet_1";
 pub const TYPE: &'static str = "default";
+pub const EW_TYPE: &'static str = "virtual";
 pub const INMEM_TYPE: &'static str = "inmem";
 pub const SIGNATURE_TYPE: &'static str = "CL";
 pub const TRUSTEE_SEED: &'static str = "000000000000000000000000Trustee1";
