@@ -153,14 +153,9 @@ pub fn rest_extract_response(mut res: Response, item_name: &str) -> Result<Strin
 #[cfg(test)]
 mod tests {
     use super::*;
-    use errors::wallet::WalletError;
-    use utils::test::TestUtils;
 
     use serde_json;
     use self::serde_json::Error as JsonError;
-
-    use std::time::Duration;
-    use std::thread;
 
     #[test]
     fn ensure_trailing_slash_works() {
@@ -231,15 +226,15 @@ mod tests {
         let endpoint = "http://localhost:8765/schema/";   // assume we're not listening on this port
         let response = rest_get_request(endpoint, None);
         match response {
-            Ok(r) => assert!(false),   // should fail
-            Err(e) => ()
+            Ok(_r) => assert!(false),   // should fail
+            Err(_e) => ()
         }
 
         let endpoint = "http://notalocalhost:8000/schema/"; // not a valid server
         let response = rest_get_request(endpoint, None);
         match response {
-            Ok(r) => assert!(false),  // should fail
-            Err(e) => ()
+            Ok(_r) => assert!(false),  // should fail
+            Err(_e) => ()
         }
     }
 
@@ -248,7 +243,7 @@ mod tests {
         let endpoint = "http://localhost:8000/api-token-auth/";
         let response = rest_post_request_auth(endpoint, "ian", "pass1234");
         match response {
-            Ok(s) => (), // ok, returned a token
+            Ok(_s) => (), // ok, returned a token
             Err(e) => assert!(false, format!("{:?}", e))
         }
     }
@@ -262,7 +257,7 @@ mod tests {
                 let result = rest_check_result(r);
                 match result {
                     Ok(()) => assert!(false),  // should fail with no token
-                    Err(e) => ()
+                    Err(_e) => ()
                 }
             }
             Err(e) => assert!(false, format!("{:?}", e))
@@ -309,7 +304,7 @@ mod tests {
                 let result = rest_check_result(r);
                 match result {
                     Ok(()) => assert!(false),  // should fail with no token
-                    Err(e) => ()
+                    Err(_e) => ()
                 }
             }
             Err(e) => assert!(false, format!("{:?}", e))

@@ -2,6 +2,7 @@ extern crate rusqlcipher;
 extern crate time;
 extern crate hyper;
 extern crate serde_json;
+extern crate serde_derive;
 extern crate reqwest;
 extern crate indy_crypto;
 
@@ -43,7 +44,7 @@ use self::indy_crypto::utils::json::JsonDecodable;
  * Key names can be duplicated across virtual wallets.
  */
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct RemoteWalletRuntimeConfig {
     endpoint: String,
     freshness_time: i64
@@ -54,13 +55,13 @@ impl<'a> JsonDecodable<'a> for RemoteWalletRuntimeConfig {}
 impl Default for RemoteWalletRuntimeConfig {
     fn default() -> Self {
         RemoteWalletRuntimeConfig { 
-            endpoint: String::from("http://localhost:8000/"), 
+            endpoint: String::from("http://localhost:8000/items/"), 
             freshness_time: 1000 
         }
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 struct RemoteWalletCredentials {
     auth_token: Option<String>,      // "Token <token>" or "JWT <token>" for example
     virtual_wallet: Option<String>   // virtual wallet name (optional)
@@ -183,81 +184,6 @@ fn key_prefix_to_type(key_prefix: &str) -> String {
     }
 }
 
-/*
-fn check_result(mut res: reqwest::Response) -> Result<(), WalletError> {
-    if res.status().is_success() {
-        let mut buf: Vec<u8> = vec![];
-        let _cres = res.copy_to(&mut buf);
-        let s = match str::from_utf8(buf.as_slice()) {
-            Ok(v) => v,
-            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-        };
-        Ok(())
-    } else if res.status().is_server_error() {
-        Err(WalletError::NotFound(format!("Server error {:?}", res.status())))
-    } else {
-        Err(WalletError::NotFound(format!("Something else happened {:?}", res.status())))
-    }
-}
-
-fn check_and_unwrap_result(mut res: reqwest::Response) -> Result<String, WalletError> {
-    if res.status().is_success() {
-        let mut buf: Vec<u8> = vec![];
-        let _cres = res.copy_to(&mut buf);
-        let s = match str::from_utf8(buf.as_slice()) {
-            Ok(v) => v,
-            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-        };
-
-        // Parse the string of data into serde_json::Value.
-        let v: Value = serde_json::from_str(s).unwrap();
-
-        // Access parts of the data by indexing with square brackets.
-        let ss = v["item_value"].as_str().unwrap();
-        Ok(ss.to_owned())
-    } else if res.status().is_server_error() {
-        Err(WalletError::NotFound(format!("Server error {:?}", res.status())))
-    } else {
-        Err(WalletError::NotFound(format!("Something else happened {:?}", res.status())))
-    }
-}
-
-fn check_result_token(mut res: reqwest::Response) -> Result<String, WalletError> {
-    if res.status().is_success() {
-        let mut buf: Vec<u8> = vec![];
-        let _cres = res.copy_to(&mut buf);
-        let s = match str::from_utf8(buf.as_slice()) {
-            Ok(v) => v,
-            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-        };
-
-        // Parse the string of data into serde_json::Value.
-        let v: Value = serde_json::from_str(s).unwrap();
-
-        // Access parts of the data by indexing with square brackets.
-        let ss = v["token"].as_str().unwrap();
-        Ok(ss.to_owned())
-    } else if res.status().is_server_error() {
-        Err(WalletError::NotFound(format!("Server error {:?}", res.status())))
-    } else {
-        Err(WalletError::NotFound(format!("Something else happened {:?}", res.status())))
-    }
-}
-
-// Helper function to create a GET request
-fn rest_get_request(url: &str) -> RequestBuilder {
-    let client = reqwest::Client::new();
-    let res = client.get(url);
-    res
-}
-
-// Helper function to create a POST request
-fn rest_post_request(url: &str) -> RequestBuilder {
-    let client = reqwest::Client::new();
-    let res = client.post(url);
-    res
-}
-*/
 // Helper method to fetch claims
 // wallet_name is either the virtual wallet or the root wallet
 fn call_get_internal(root_wallet_name: &str, wallet_name: &str,
@@ -285,40 +211,16 @@ fn call_get_internal(root_wallet_name: &str, wallet_name: &str,
         },
         Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
     }
-
-    // check result status and raise error if applicable
-    //let result = check_and_unwrap_result(res);
-
-    /*
-    let db = _open_connection(root_wallet_name, credentials)?;
-    let result = db.query_row(
-            "SELECT key, value, time_created FROM wallet 
-            WHERE virtual_wallet = ?1 AND key = ?2 LIMIT 1",
-            &[&wallet_name.to_string(), &key.to_string()], |row| {
-                RemoteWalletRecord {
-                    key: row.get(0),
-                    value: row.get(1),
-                    time_created: row.get(2)
-                }
-            });
-    match result {
-        Ok(record) => Ok(record),
-        Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
-    } 
-    */
 } 
 
 impl Wallet for RemoteWallet {
     fn set(&self, key: &str, value: &str) -> Result<(), WalletError> {
-        //if self.credentials.rekey.is_some() {
-        //    return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
-        //}
         let (item_type, item_id) = key_to_item_type_id(key);
         
         // build request URL
-        let req_url = rest_endpoint_for_resource_id(&self.config, &self.credentials, 
+        let req_url = rest_endpoint_for_resource(&self.config, &self.credentials, 
                         &virtual_wallet_name(&self.wallet_name, &self.credentials), 
-                        &item_type, &item_id);
+                        &item_type /*, &item_id*/);
 
         // build auth headers
         let headers = rest_auth_header(&self.config, &self.credentials);
@@ -343,33 +245,12 @@ impl Wallet for RemoteWallet {
             },
             Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
         }
-
-        // check result status and raise error if applicable
-        //let result = check_result(res);
-
-        // convert result set to JSON string and return
-
-        //_open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?
-        //    .execute(
-        //        "INSERT OR REPLACE INTO wallet 
-        //        (virtual_wallet, key, value, time_created) 
-        //        VALUES 
-        //        (?1, ?2, ?3, ?4)",
-        //        &[&virtual_wallet_name(&self.wallet_name, &self.credentials).as_str(), &key.to_string(), &value.to_string(), &time::get_time()])?;
-        //match result {
-        //    Ok(()) => Ok(()),
-        //    Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
-        //} 
     }
 
     // get will first check the selected wallet, and if the key is not found, 
     // will *also* check the root wallet
     // keys shared between all virtual wallets can be stored once in the root
     fn get(&self, key: &str) -> Result<String, WalletError> {
-        //if self.credentials.rekey.is_some() {
-        //    return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
-        //}
-
         let result = call_get_internal(&root_wallet_name(&self.wallet_name), 
                                         &virtual_wallet_name(&self.wallet_name, &self.credentials),
                                         &self.config, &self.credentials, key);
@@ -389,9 +270,6 @@ impl Wallet for RemoteWallet {
 
     // list will return records only from the selected wallet (root or virtual)
     fn list(&self, key_prefix: &str) -> Result<Vec<(String, String)>, WalletError> {
-        //if self.credentials.rekey.is_some() {
-        //    return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
-        //}
         let item_type = key_prefix_to_type(key_prefix);
 
         // build request URL
@@ -448,10 +326,6 @@ impl Wallet for RemoteWallet {
     // will *also* check the root wallet
     // keys shared between all virtual wallets can be stored once in the root
     fn get_not_expired(&self, key: &str) -> Result<String, WalletError> {
-        //if self.credentials.rekey.is_some() {
-        //    return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
-        //}
-
         let (item_type, item_id) = key_to_item_type_id(key);
         
         // build request URL
@@ -551,7 +425,7 @@ impl WalletType for RemoteWalletType {
 
         // the wallet should exist, let's try to ping the server and make sure it exists(?)
         // we'll do a schema request, verify that it returns an "OK" status
-        let endpoint = proxy::rest_append_path(&runtime_config.endpoint, "schema");
+        let endpoint = proxy::rest_append_path("http://localhost:8000/", "schema");
         let response = proxy::rest_get_request(&endpoint, None);
         match response {
             Ok(r) => {
@@ -567,29 +441,6 @@ impl WalletType for RemoteWalletType {
             }
             Err(e) => Err(WalletError::AccessFailed(format!("{:?}", e)))
         }
-
-        // TODO authenticate and cache our token (?)
-
-        //if runtime_auth.rekey.is_some() {
-        //    return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
-        //}
-
-        // note the addition of an extra database column to specify the virtual wallet
-        // this can also be the root (if no virtual is specified)
-        /*
-        _open_connection(&root_name, &runtime_auth).map_err(map_err_trace!())?
-            .execute("CREATE TABLE wallet 
-            (
-                virtual_wallet TEXT NOT NULL,
-                key TEXT NOT NULL, 
-                value TEXT NOT NULL, 
-                time_created TEXT NOT NULL,
-                PRIMARY KEY (virtual_wallet, key)
-            )", &[])
-            .map_err(map_err_trace!())?;
-        */
-        //trace!("RemoteWalletType.create <<");
-        //Ok(())
     }
 
     fn delete(&self, name: &str, config: Option<&str>, credentials: Option<&str>) -> Result<(), WalletError> {
@@ -613,7 +464,7 @@ impl WalletType for RemoteWalletType {
         let root_name = root_wallet_name(&name);
 
         // we'll do a schema request, verify that it returns an "OK" status
-        let endpoint = proxy::rest_append_path(&runtime_config.endpoint, "schema");
+        let endpoint = proxy::rest_append_path("http://localhost:8000/", "schema");
         let response = proxy::rest_get_request(&endpoint, None);
         match response {
             Ok(r) => {
@@ -635,22 +486,6 @@ impl WalletType for RemoteWalletType {
             }
             Err(e) => Err(WalletError::AccessFailed(format!("{:?}", e)))
         }
-
-        //_open_connection(&root_name, &runtime_auth).map_err(map_err_trace!())?
-        //    .query_row("SELECT sql FROM sqlite_master", &[], |_| {})
-        //    .map_err(map_err_trace!())?;
-
-        //if let Some(rekey) = runtime_auth.rekey {
-        //    runtime_auth.key = rekey;
-        //    runtime_auth.rekey = None;
-        //}
-
-        //Ok(Box::new(
-        //    RemoteWallet::new(
-        //        name,
-        //        pool_name,
-        //        runtime_config,
-        //        runtime_auth)))
     }
 }
 
@@ -659,92 +494,7 @@ fn _db_path(name: &str) -> PathBuf {
     path.push("sqlite.db");
     path
 }
-/*
-fn _open_connection(name: &str, credentials: &RemoteWalletCredentials) -> Result<Connection, WalletError> {
-    let path = _db_path(name);
-    if !path.parent().unwrap().exists() {
-        fs::DirBuilder::new()
-            .recursive(true)
-            .create(path.parent().unwrap())?;
-    }
 
-    // TODO potentially ping the schema url on open
-    
-    //let conn = Connection::open(path)?;
-    //conn.execute(&format!("PRAGMA key='{}'", credentials.key), &[])?;
-
-    match credentials.rekey {
-        None => Ok(conn),
-        Some(ref rk) => {
-            if credentials.key.len() == 0 && rk.len() > 0 {
-                _export_unencrypted_to_encrypted(conn, name, &rk)
-            } else if rk.len() > 0 {
-                conn.execute(&format!("PRAGMA rekey='{}'", rk), &[])?;
-                Ok(conn)
-            } else {
-                _export_encrypted_to_unencrypted(conn, name)
-            }
-        }
-    }
-    Err(WalletError::NotFound(format!("{:?}", "Because!")))
-}
-
-fn _export_encrypted_to_unencrypted(conn: Connection, name: &str) -> Result<Connection, WalletError> {
-    let mut path = EnvironmentUtils::wallet_path(name);
-    path.push("plaintext.db");
-
-    conn.execute(&format!("ATTACH DATABASE {:?} AS plaintext KEY ''", path), &[])?;
-    conn.query_row(&"SELECT sqlcipher_export('plaintext')", &[], |row| {})?;
-    conn.execute(&"DETACH DATABASE plaintext", &[])?;
-    let r = conn.close();
-    if let Err((c, w)) = r {
-        Err(WalletError::from(w))
-    } else {
-        let wallet = _db_path(name);
-        fs::remove_file(&wallet)?;
-        fs::rename(&path, &wallet)?;
-
-        Ok(Connection::open(wallet)?)
-    }
-    
-    Err(WalletError::NotFound(format!("{:?}", "Because!")))
-}
-
-fn _export_unencrypted_to_encrypted(conn: Connection, name: &str, key: &str) -> Result<Connection, WalletError> {
-    let mut path = EnvironmentUtils::wallet_path(name);
-    path.push("encrypted.db");
-
-    let sql = format!("ATTACH DATABASE {:?} AS encrypted KEY '{}'", path, key);
-    conn.execute(&sql, &[])?;
-    conn.query_row(&"SELECT sqlcipher_export('encrypted')", &[], |row| {})?;
-    conn.execute(&"DETACH DATABASE encrypted", &[])?;
-    let r = conn.close();
-    if let Err((c, w)) = r {
-        Err(WalletError::from(w))
-    } else {
-        let wallet = _db_path(name);
-        fs::remove_file(&wallet)?;
-        fs::rename(&path, &wallet)?;
-
-        let new = Connection::open(wallet)?;
-        new.execute(&format!("PRAGMA key='{}'", key), &[])?;
-        Ok(new)
-    }
-
-    Err(WalletError::NotFound(format!("{:?}", "Because!")))
-}
- TODO this code is duplicated from default.rs and causes a compile error
-impl From<rusqlcipher::Error> for WalletError {
-    fn from(err: rusqlcipher::Error) -> WalletError {
-        match err {
-            rusqlcipher::Error::QueryReturnedNoRows => WalletError::NotFound(format!("Wallet record is not found: {}", err.description())),
-            rusqlcipher::Error::SqliteFailure(err, _) if err.code == rusqlcipher::ErrorCode::NotADatabase =>
-                WalletError::AccessFailed(format!("Wallet security error: {}", err.description())),
-            _ => WalletError::CommonError(CommonError::InvalidState(format!("Unexpected SQLite error: {}", err.description())))
-        }
-    }
-}
-*/
 
 #[cfg(test)]
 mod tests {
@@ -848,16 +598,43 @@ mod tests {
     }
 
     #[test]
-    fn virtual_wallet_set_get_works() {
+    fn virtual_wallet_set_get_works_base() {
         TestUtils::cleanup_indy_home();
 
-        let wallet_type = RemoteWalletType::new();
-        wallet_type.create("wallet1", None, None).unwrap();
-        let wallet = wallet_type.open("wallet1", "pool1", None, None, None).unwrap();
+        // set configuraiton, including endpoint
+        let config = RemoteWalletRuntimeConfig::default();
 
-        wallet.set("type::key1", "value1").unwrap();
-        let value = wallet.get("type::key1").unwrap();
-        assert_eq!("value1", value);
+        let auth_endpoint = proxy::rest_endpoint("http://localhost:8000/", Some("api-token-auth"));
+        let response = proxy::rest_post_request_auth(&auth_endpoint, "ian", "pass1234");
+        match response {
+            Ok(s) => {     // ok, returned a token, try the "GET" again
+                let token = s;
+
+                // build credentials before creating and opening wallet
+                let auth_creds = RemoteWalletCredentials { 
+                    auth_token: Some(token), 
+                    virtual_wallet: None 
+                };
+
+                let cf_str = serde_json::to_string(&config).unwrap();
+                let ac_str = serde_json::to_string(&auth_creds).unwrap();
+
+                let wallet_type = RemoteWalletType::new();
+                wallet_type.create("wallet1", Some(&cf_str), Some(&ac_str)).unwrap();
+                let wallet = wallet_type.open("wallet1", "pool1", None, Some(&cf_str), Some(&ac_str)).unwrap();
+
+                let result = wallet.get("type::key1");
+                match result {
+                    Ok(s) => print!("Reurned value {}", s),
+                    Err(e) => print!("Error {:?}", e)
+                };
+                wallet.set("type::key1", "value1").unwrap();
+                let value = wallet.get("type::key1").unwrap();
+                assert_eq!("value1", value);
+
+            },
+            Err(e) => assert!(false, format!("{:?}", e))
+        }
 
         TestUtils::cleanup_indy_home();
     }
@@ -1235,105 +1012,4 @@ mod tests {
 
         TestUtils::cleanup_indy_home();
     }
-/* TODO this is causing a compile error, fix later ...
-    #[test]
-    fn remote_wallet_create_encrypted() {
-        TestUtils::cleanup_indy_home();
-
-        {
-            let remote_wallet_type = RemoteWalletType::new();
-            remote_wallet_type.create("encrypted_wallet", None, Some(r#"{"key":"test"}"#)).unwrap();
-            let wallet = remote_wallet_type.open("encrypted_wallet", "pool1", None, None, Some(r#"{"key":"test"}"#)).unwrap();
-
-            wallet.set("key1::subkey1", "value1").unwrap();
-            wallet.set("key1::subkey2", "value2").unwrap();
-
-            let mut key_values = wallet.list("key1::").unwrap();
-            key_values.sort();
-            assert_eq!(2, key_values.len());
-
-            let (key, value) = key_values.pop().unwrap();
-            assert_eq!("key1::subkey2", key);
-            assert_eq!("value2", value);
-
-            let (key, value) = key_values.pop().unwrap();
-            assert_eq!("key1::subkey1", key);
-            assert_eq!("value1", value);
-        }
-        {
-            let remote_wallet_type = RemoteWalletType::new();
-            let wallet_error = remote_wallet_type.open("encrypted_wallet", "pool1", None, None, None);
-
-            match wallet_error {
-                Ok(_) => assert!(false),
-                Err(error) => assert_eq!(error.description(), String::from("Wallet security error: File opened that is not a database file"))
-            };
-        }
-
-        TestUtils::cleanup_indy_home();
-    }
-*/
-/* TODO remote wallet is not encrypted, remote this test
-    #[test]
-    fn remote_wallet_change_key() {
-        TestUtils::cleanup_indy_home();
-
-        {
-            let remote_wallet_type = RemoteWalletType::new();
-            remote_wallet_type.create("encrypted_wallet", None, Some(r#"{"key":"test"}"#)).unwrap();
-            let wallet = remote_wallet_type.open("encrypted_wallet", "pool1", None, None, Some(r#"{"key":"test"}"#)).unwrap();
-
-            wallet.set("key1::subkey1", "value1").unwrap();
-            wallet.set("key1::subkey2", "value2").unwrap();
-
-            let mut key_values = wallet.list("key1::").unwrap();
-            key_values.sort();
-            assert_eq!(2, key_values.len());
-
-            let (key, value) = key_values.pop().unwrap();
-            assert_eq!("key1::subkey2", key);
-            assert_eq!("value2", value);
-
-            let (key, value) = key_values.pop().unwrap();
-            assert_eq!("key1::subkey1", key);
-            assert_eq!("value1", value);
-        }
-
-        {
-            let remote_wallet_type = RemoteWalletType::new();
-            let wallet = remote_wallet_type.open("encrypted_wallet", "pool1", None, None, Some(r#"{"auth_token":"test","virtual_wallet":"newtest"}"#)).unwrap();
-
-            let mut key_values = wallet.list("key1::").unwrap();
-            key_values.sort();
-            assert_eq!(2, key_values.len());
-
-            let (key, value) = key_values.pop().unwrap();
-            assert_eq!("key1::subkey2", key);
-            assert_eq!("value2", value);
-
-            let (key, value) = key_values.pop().unwrap();
-            assert_eq!("key1::subkey1", key);
-            assert_eq!("value1", value);
-        }
-
-        {
-            let remote_wallet_type = RemoteWalletType::new();
-            let wallet = remote_wallet_type.open("encrypted_wallet", "pool1", None, None, Some(r#"{"key":"newtest"}"#)).unwrap();
-
-            let mut key_values = wallet.list("key1::").unwrap();
-            key_values.sort();
-            assert_eq!(2, key_values.len());
-
-            let (key, value) = key_values.pop().unwrap();
-            assert_eq!("key1::subkey2", key);
-            assert_eq!("value2", value);
-
-            let (key, value) = key_values.pop().unwrap();
-            assert_eq!("key1::subkey1", key);
-            assert_eq!("value1", value);
-        }
-
-        TestUtils::cleanup_indy_home();
-    }
-*/
 }
