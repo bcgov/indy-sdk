@@ -13,6 +13,12 @@ fn main() {
 
     let client = reqwest::Client::new();
 
+    println!("Try to do an un-authenticated GET schema (should work)");
+    let res1 = client.get("http://localhost:8000/schema/")
+        .send()
+        .unwrap();
+    check_result(res1);
+
     println!("Try to do an un-authenticated GET list of items");
     let res1 = client.get("http://localhost:8000/items/")
         .send()
@@ -60,6 +66,12 @@ fn main() {
     let drf_token = check_result_token(res3);
 
     println!("Try to POST a JSON body using a DRF token");
+    let json = "{\"wallet_name\":\"my_wallet\", 
+                 \"item_type\":\"claim\", 
+                 \"item_id\":\"1234567890\", 
+                 \"item_value\":\"{\\\"this\\\":\\\"is\\\", \\\"a\\\":\\\"claim\\\", \\\"from\\\":\\\"rust\\\"}\"
+                }";
+    println!("{}", json);
     let mut map = HashMap::new();
     map.insert("wallet_name", "Rust_Wallet");
     map.insert("item_type", "rust_claim");
@@ -69,9 +81,13 @@ fn main() {
     let mut headers4 = Headers::new();
     auth_str.push_str(&drf_token);
     headers4.set(Authorization(auth_str));
+    let mut headers4a = Headers::new();
+    headers4a.set(reqwest::header::ContentType::json());
     let res4 = client.post("http://localhost:8000/items/")
         .headers(headers4)
-        .json(&map)
+        //.json(&map)
+        .headers(headers4a)
+        .body(json)
         .send()
         .unwrap();
     check_result(res4);

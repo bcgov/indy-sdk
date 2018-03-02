@@ -19,6 +19,10 @@ http://cheng.logdown.com/posts/2015/10/27/how-to-use-django-rest-frameworks-toke
 
 http://www.django-rest-framework.org/api-guide/filtering/
 
+Note that Django Rest Logging is installed for debugging requests on the server side:
+
+https://github.com/Rhumbix/django-request-logging
+
 ### Building and Running the REST Server
 
 This requires Python 3.6.
