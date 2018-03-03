@@ -127,6 +127,12 @@ fn rest_endpoint(config: &RemoteWalletRuntimeConfig,
     proxy::rest_endpoint(&config.endpoint, Some(&virtual_wallet_name(wallet_name, credentials)))
 }
 
+// Helper function to construct the endpoint for a REST request
+fn rest_endpoint_for_set(config: &RemoteWalletRuntimeConfig, 
+                        credentials: &RemoteWalletCredentials) -> String {
+    proxy::rest_endpoint(&config.endpoint, None)
+}
+
 // Helper function to construct the endpoint for a REST request for a specific resource (wallet item)
 fn rest_endpoint_for_resource(config: &RemoteWalletRuntimeConfig, 
                     credentials: &RemoteWalletCredentials, 
@@ -203,7 +209,7 @@ fn call_get_internal(root_wallet_name: &str, wallet_name: &str,
     let response = proxy::rest_get_request(&req_url, Some(headers));
     match response {
         Ok(r) => {
-            let result = proxy::rest_extract_response(r, "item_value");
+            let result = proxy::rest_extract_response_body(r);
             match result {
                 Ok(s) => Ok(s),
                 Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
@@ -216,11 +222,9 @@ fn call_get_internal(root_wallet_name: &str, wallet_name: &str,
 impl Wallet for RemoteWallet {
     fn set(&self, key: &str, value: &str) -> Result<(), WalletError> {
         let (item_type, item_id) = key_to_item_type_id(key);
-        
+
         // build request URL
-        let req_url = rest_endpoint_for_resource(&self.config, &self.credentials, 
-                        &virtual_wallet_name(&self.wallet_name, &self.credentials), 
-                        &item_type /*, &item_id*/);
+        let req_url = rest_endpoint_for_set(&self.config, &self.credentials);
 
         // build auth headers
         let headers = rest_auth_header(&self.config, &self.credentials);
@@ -283,7 +287,7 @@ impl Wallet for RemoteWallet {
         let response = proxy::rest_get_request(&req_url, Some(headers));
         match response {
             Ok(r) => {
-                let result = proxy::rest_extract_response(r, "item_value");
+                let result = proxy::rest_extract_response_body(r);
                 match result {
                     Ok(s) => {
                         // TODO parse the result string into an array of items
@@ -340,7 +344,7 @@ impl Wallet for RemoteWallet {
         let response = proxy::rest_get_request(&req_url, Some(headers));
         match response {
             Ok(r) => {
-                let result = proxy::rest_extract_response(r, "item_value");
+                let result = proxy::rest_extract_response_body(r);
                 // TODO need to do the validation magic around te expiry time
                 match result {
                     Ok(s) => Ok(s),

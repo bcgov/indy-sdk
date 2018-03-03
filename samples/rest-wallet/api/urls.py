@@ -2,7 +2,7 @@ from django.conf.urls import url, include
 from rest_framework.urlpatterns import format_suffix_patterns
 # from api import views
 from api.views import UserViewSet, api_root
-from api.views import WalletItemViewSet, WalletItemSearchViewSet
+from api.views import WalletItemViewSet, WalletItemSearchViewSet, WalletItemDetailSearchViewSet
 from rest_framework import renderers
 from rest_framework.schemas import get_schema_view
 # the next line is for DRF tokens, comment out for JWT tokens
@@ -27,7 +27,9 @@ wallet_item_detail = WalletItemViewSet.as_view({
 wallet_item_highlight = WalletItemViewSet.as_view({
     'get': 'highlight'
 }, renderer_classes=[renderers.StaticHTMLRenderer])
+
 wallet_item_search = WalletItemSearchViewSet.as_view()
+wallet_item_detail_search = WalletItemDetailSearchViewSet.as_view()
 
 user_list = UserViewSet.as_view({
     'get': 'list'
@@ -41,7 +43,10 @@ urlpatterns = format_suffix_patterns([
     url(r'^items/$', wallet_item_list, name='walletitem-list'),
     url(r'^items/(?P<pk>[0-9]+)/$', wallet_item_detail, name='walletitem-detail'),
     url(r'^items/(?P<pk>[0-9]+)/highlight/$', wallet_item_highlight, name='walletitem-highlight'),
-    url(r'^items/(?P<wallet_name>[A-Z,a-z-_]+)/(?P<item_type>[A-Z,a-z-_]+)/$', wallet_item_search, name='walletitem-search'),
+    url(r'^items/(?P<wallet_name>[A-Z,a-z,0-9,-_]+)/(?P<item_type>[A-Z,a-z,0-9,-_]+)/(?P<item_id>[A-Z,a-z,0-9,-_]+)$',
+        wallet_item_detail_search, name='walletitemdetail-search'),
+    url(r'^items/(?P<wallet_name>[A-Z,a-z,0-9,-_]+)/(?P<item_type>[A-Z,a-z,0-9,-_]+)/$',
+        wallet_item_search, name='walletitem-search'),
     url(r'^users/$', user_list, name='user-list'),
     url(r'^users/(?P<pk>[0-9]+)/$', user_detail, name='user-detail'),
     # the next line is for DRF tokens, comment out for JWT tokens

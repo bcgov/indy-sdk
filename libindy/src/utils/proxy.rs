@@ -14,7 +14,8 @@ pub enum RestError {
     RestRequestError(String),
     RestServerError(String),
     RestOtherError(String),
-    RestInvalidResponse(String)
+    RestInvalidResponse(String),
+    RestResponseFormatError(String)
 }
 
 
@@ -107,7 +108,7 @@ pub fn rest_post_request_auth(req_url: &str, userid: &str, password: &str) -> Re
     map.insert("password", password);
     let response = rest_post_request_map(req_url, None, Some(&map));
     match response {
-        Ok(r) => rest_extract_response(r, "token"),
+        Ok(r) => rest_extract_response_item(r, "token"),
         Err(e) => Err(e)
     }
 }
@@ -128,7 +129,22 @@ pub fn rest_check_result(mut res: Response) -> Result<(), RestError> {
     }
 }
 
-pub fn rest_extract_response(mut res: Response, item_name: &str) -> Result<String, RestError> {
+pub fn rest_extract_response_body(mut res: Response) -> Result<String, RestError> {
+    if res.status().is_success() {
+        let mut buf: Vec<u8> = vec![];
+        let _cres = res.copy_to(&mut buf);
+        match str::from_utf8(buf.as_slice()) {
+            Ok(v) => Ok(v.to_owned()),
+            Err(e) => Err(RestError::RestInvalidResponse(format!("Invalid UTF-8 sequence: {:?}", e)))
+        }
+    } else if res.status().is_server_error() {
+        Err(RestError::RestServerError(format!("Server error {:?}", res.status())))
+    } else {
+        Err(RestError::RestOtherError(format!("Something else happened {:?}", res.status())))
+    }
+}
+
+pub fn rest_extract_response_item(mut res: Response, item_name: &str) -> Result<String, RestError> {
     if res.status().is_success() {
         let mut buf: Vec<u8> = vec![];
         let _cres = res.copy_to(&mut buf);
@@ -139,7 +155,7 @@ pub fn rest_extract_response(mut res: Response, item_name: &str) -> Result<Strin
                 // Access parts of the data by indexing with square brackets.
                 let ss = v[item_name].as_str().unwrap();
                 return Ok(ss.to_owned())
-            }
+            },
             Err(e) => return Err(RestError::RestInvalidResponse(format!("Invalid UTF-8 sequence: {:?}", e)))
         };
     } else if res.status().is_server_error() {
@@ -149,6 +165,62 @@ pub fn rest_extract_response(mut res: Response, item_name: &str) -> Result<Strin
     }
 }
 
+fn object_as_hashmap(obj: &serde_json::Map<String, serde_json::Value>, keys: &Vec<&str>) -> HashMap<String, String> {
+    let mut hm: HashMap<String, String> = HashMap::new();
+    for i in 0..keys.len() {
+        let ok = obj.get(keys[i]);
+        match ok {
+            Some(v) => {
+                let sv = match v.to_owned() {
+                    serde_json::Value::String(s) => s,
+                    _ => serde_json::to_string(&v).unwrap()
+                };
+                hm.insert(keys[i].to_owned(), sv.to_owned());
+                ()
+            },
+            None => ()
+        }
+    }
+
+    hm
+}
+
+pub fn body_as_vec(body: &str, keys: &Vec<&str>) -> Result<Vec<HashMap<String, String>>, RestError> {
+    let mut r_values: Vec<HashMap<String, String>> = Vec::new();
+    let r = serde_json::from_str(body);
+    match r {
+        Ok(v) => {
+            match v {
+                serde_json::Value::String(s) => {
+                    return Err(RestError::RestResponseFormatError(format!("Expecting an object or array but got a string {}", s)));
+                },
+                serde_json::Value::Object(o) => {
+                    let om = object_as_hashmap(&o, keys);
+                    r_values.push(om);
+                    ()
+                },
+                serde_json::Value::Array(a) => {
+                    for i in 0..a.len() {
+                        if a[i].is_object() {
+                            let om = object_as_hashmap(a[i].as_object().unwrap(), keys);
+                            r_values.push(om);
+                        } else {
+                            return Err(RestError::RestResponseFormatError(format!("Expecting an array of objects {:?}", a[i])));
+                        }
+                    }
+                },
+                _ => {
+                    return Err(RestError::RestResponseFormatError(format!("Expecting an array of objects {:?}", v)));
+                } 
+            }
+        },
+        Err(e) => {
+            return Err(RestError::RestResponseFormatError(format!("Expecting a json object or array {:?}", e)));
+        }
+    }
+
+    Ok(r_values)
+}
 
 #[cfg(test)]
 mod tests {
@@ -339,6 +411,134 @@ mod tests {
                         match result {
                             Ok(()) => (),
                             Err(e) => assert!(false, format!("{:?}", e))   // should pass now with a token
+                        }
+                    },
+                    Err(e) => assert!(false, format!("{:?}", e))
+                }
+            },
+            Err(e) => assert!(false, format!("{:?}", e))
+        }
+    }
+
+    #[test] 
+    fn validate_body_as_vec_works() {
+        let body = "[
+            {\"url\":\"http://localhost:8000/items/1/\",
+            \"id\":1,
+            \"created\":\"2018-02-27T17:05:09.577673Z\",
+            \"wallet_name\":\"Rust_Wallet\",
+            \"item_type\":\"rust_claim\",
+            \"item_id\":\"888\",
+            \"item_value\":\"{\\\"this\\\":\\\"is\\\", \\\"a\\\":\\\"claim\\\", \\\"from\\\":\\\"rust\\\"}\",
+            \"creator\":\"ian\"},
+            {\"url\":\"http://localhost:8000/items/2/\",
+            \"id\":2,
+            \"created\":\"2018-02-27T17:17:17.635730Z\",
+            \"wallet_name\":\"Rust_Wallet\",
+            \"item_type\":\"rust_claim\",
+            \"item_id\":\"888\",
+            \"item_value\":\"{\\\"this\\\":\\\"is\\\", \\\"a\\\":\\\"claim\\\", \\\"from\\\":\\\"rust\\\"}\",
+            \"creator\":\"ian\"}
+            ]";
+
+        let mut keys: Vec<&str> = Vec::new();
+        keys.push("wallet_name");
+        keys.push("item_type");
+        keys.push("item_id");
+        keys.push("item_value");
+        keys.push("id");
+        keys.push("created");
+        let objects = body_as_vec(body, &keys);
+        match objects {
+            Ok(v) => {
+                assert_eq!(v.len(), 2);
+                let hm = &v[0];
+                assert_eq!("Rust_Wallet", hm["wallet_name"]);
+                assert_eq!("rust_claim", hm["item_type"]);
+                assert_eq!("888", hm["item_id"]);
+                assert_eq!("2018-02-27T17:05:09.577673Z", hm["created"]);
+                assert_eq!("1", hm["id"]);
+                assert_eq!("{\"this\":\"is\", \"a\":\"claim\", \"from\":\"rust\"}", hm["item_value"]);
+            },
+            Err(e) => assert!(false, format!("{:?}", e))
+        }
+    }
+
+    #[test]
+    fn validate_rest_auth_get_list_works() {
+        let auth_endpoint = "http://localhost:8000/api-token-auth/";
+        let response = rest_post_request_auth(auth_endpoint, "ian", "pass1234");
+        match response {
+            Ok(s) => {     // ok, returned a token, try the "GET" again
+                let token = s;
+
+                // try with map (serialize to json)
+                let mut map = HashMap::new();
+                map.insert("wallet_name", "Rust_Wallet");
+                map.insert("item_type", "rust_claim");
+                map.insert("item_id", "888");
+                map.insert("item_value", "{\"this\":\"is\", \"a\":\"claim\", \"from\":\"rust\"}");
+                let headers = rest_auth_headers(&token);
+                let get_endpoint = "http://localhost:8000/items/";
+                let response = rest_post_request_map(get_endpoint, Some(headers), Some(&map));
+                match response {
+                    Ok(r) => {
+                        let result = rest_check_result(r);
+                        match result {
+                            Ok(()) => (),
+                            Err(e) => assert!(false, format!("{:?}", e))   // should pass now with a token
+                        }
+                    },
+                    Err(e) => assert!(false, format!("{:?}", e))
+                }
+
+                // try with map (serialize to json)
+                let mut map = HashMap::new();
+                map.insert("wallet_name", "Rust_Wallet");
+                map.insert("item_type", "rust_claim");
+                map.insert("item_id", "999");
+                map.insert("item_value", "{\"this\":\"is\", \"a\":\"claim\", \"from\":\"rust\"}");
+                let headers = rest_auth_headers(&token);
+                let response = rest_post_request_map(get_endpoint, Some(headers), Some(&map));
+                match response {
+                    Ok(r) => {
+                        let result = rest_check_result(r);
+                        match result {
+                            Ok(()) => (),
+                            Err(e) => assert!(false, format!("{:?}", e))   // should pass now with a token
+                        }
+                    },
+                    Err(e) => assert!(false, format!("{:?}", e))
+                }
+
+                // now do a get list into an array
+                let get_endpoint = "http://localhost:8000/items/Rust_Wallet/rust_claim/";
+                let headers = rest_auth_headers(&token);
+                let response = rest_get_request(get_endpoint, Some(headers));
+                let body = rest_extract_response_body(response.unwrap());
+                match body {
+                    Ok(s) => {
+                        let mut keys: Vec<&str> = Vec::new();
+                        keys.push("wallet_name");
+                        keys.push("item_type");
+                        keys.push("item_id");
+                        keys.push("item_value");
+                        keys.push("id");
+                        keys.push("created");
+                        let objects = body_as_vec(&s, &keys);
+                        match objects {
+                            Ok(v) => {
+                                for i in 0..v.len() {
+                                    let hm = &v[i];
+                                    println!("wallet_name {}", hm["wallet_name"]);
+                                    println!("item_type {}", hm["item_type"]);
+                                    println!("item_id {}", hm["item_id"]);
+                                    println!("created {}", hm["created"]);
+                                    println!("id {}", hm["id"]);
+                                    println!("item_value {}", hm["item_value"]);
+                                }
+                            },
+                            Err(e) => assert!(false, format!("{:?}", e))
                         }
                     },
                     Err(e) => assert!(false, format!("{:?}", e))

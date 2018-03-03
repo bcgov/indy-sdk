@@ -101,7 +101,9 @@ fn main() {
         .headers(headers5)
         .send()
         .unwrap();
-    check_result(res8);
+    //check_result(res8);
+    let ss = rest_extract_response_body(res8);
+
 /*
     println!("Try to register a new user using a JWT token");
     let mut map = HashMap::new();
@@ -152,6 +154,8 @@ fn main() {
         .unwrap();
     check_result(res8);
 */
+    //unserialize_into_json("[{\"s\":\"1\"}, {\"t\":\"2\"}]");
+    unserialize_into_json(&ss);
 }
 
 fn check_result(mut res: reqwest::Response) {
@@ -194,4 +198,60 @@ fn check_result_token(mut res: reqwest::Response) -> String {
         println!("Something else happened. Status: {:?}", res.status());
     }
     "".to_owned()
+}
+
+pub fn rest_extract_response_body(mut res: reqwest::Response) -> String {
+    if res.status().is_success() {
+        let mut buf: Vec<u8> = vec![];
+        let _cres = res.copy_to(&mut buf);
+        let s = match str::from_utf8(buf.as_slice()) {
+            Ok(v) => v,
+            Err(e) => panic!("Invalid UTF-8 sequence: {}", e)
+        };
+        return s.to_owned();
+    } else if res.status().is_server_error() {
+        println!("server error!");
+    } else {
+        println!("Something else happened. Status: {:?}", res.status());
+    }
+    "".to_owned()
+}
+
+fn unserialize_into_json(s: &str) {
+    println!("{}", s);
+    let r = serde_json::from_str(s);
+    match r {
+        Ok(v) => {
+            match v {
+                serde_json::Value::String(s) => {
+                    println!("Got a string {:?}", s)
+                },
+                serde_json::Value::Array(a) => {
+                    println!("Got an array {:?}", a);
+                    println!("Array len {}", a.len());
+                    for i in 0..a.len() {
+                        if a[i].is_object() {
+                            println!("a {} is an object", i);
+                            println!("wallet_name {}", a[i].as_object().unwrap()["wallet_name"]);
+                            println!("item_type {}", a[i].as_object().unwrap()["item_type"]);
+                            println!("item_id {}", a[i].as_object().unwrap()["item_id"]);
+                            println!("created {}", a[i].as_object().unwrap()["created"]);
+                            println!("id {}", a[i].as_object().unwrap()["id"]);
+                            let rs = serde_json::to_string(&a[i].as_object().unwrap()["item_value"]).unwrap();
+                            println!("item_value {}", rs);
+                        } else {
+                            println!("a {} is not an object", i);
+                        }
+                    }
+                },
+                serde_json::Value::Object(o) => {
+                    println!("Got an object {:?}", o)
+                },
+                _ => {
+                    println!("Got something else")
+                } 
+            }
+        },
+        Err(e) => println!("Error {:?}", e)
+    }
 }
