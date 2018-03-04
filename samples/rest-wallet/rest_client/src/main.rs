@@ -1,15 +1,21 @@
 extern crate hyper;
 extern crate serde_json;
 extern crate reqwest;
+extern crate rand;
 
 use std::str;
 use std::collections::HashMap;
 use hyper::header::{Headers, Authorization /*, Basic} */};
 use serde_json::{Value /*, Error */};
-
+use rand::{thread_rng, Rng};
 
 fn main() {
     println!("Hello, world!");
+
+    let mut rng = thread_rng();
+    let num: i32 = rng.gen_range(0, 999999);
+    let snum: String = format!("{:06}", num);
+    println!("Rand {}", snum);
 
     let client = reqwest::Client::new();
 
