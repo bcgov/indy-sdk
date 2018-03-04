@@ -2,7 +2,6 @@ extern crate rusqlcipher;
 extern crate time;
 extern crate hyper;
 extern crate serde_json;
-extern crate serde_derive;
 extern crate reqwest;
 extern crate indy_crypto;
 extern crate rand;
@@ -18,8 +17,8 @@ use self::time::Timespec;
 use utils::proxy;
 
 use std::str;
-use std::fs;
 use std::path::PathBuf;
+use std::ops::Sub;
 
 use self::indy_crypto::utils::json::JsonDecodable;
 
@@ -294,7 +293,7 @@ impl Wallet for RemoteWallet {
         map.insert("item_value", value);
 
         // build REST request and execute
-        let mut response;
+        let response;
         if tmp_id.len() > 0 {
             response = proxy::rest_put_request_map(&req_url, Some(headers), Some(&map));
         } else {
@@ -356,40 +355,31 @@ impl Wallet for RemoteWallet {
                 let result = proxy::rest_extract_response_body(r);
                 match result {
                     Ok(s) => {
-                        // TODO parse the result string into an array of items
-                        let mut key_values = Vec::new();
-                        Ok(key_values)
+                        // parse the result string into an array of items
+                        let hm = rest_body_to_items(&s);
+                        match hm {
+                            Ok(v) => {
+                                let mut key_values = Vec::new();
+
+                                // loop through response and build array to return
+                                for record in v {
+                                    let mut item_type = record["item_type"].to_owned();
+                                    item_type.push_str("::");
+                                    item_type.push_str(&record["item_id"]);
+                                    let item_value = record["item_value"].to_owned();
+                                    key_values.push((item_type, item_value));
+                                }
+
+                                Ok(key_values)
+                            },
+                            Err(e) => Err(e)
+                        }
                     },
                     Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
                 }
             },
             Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
         }
-
-        /*
-        let connection = _open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?;
-        let mut stmt = connection.prepare("SELECT key, value, time_created 
-                FROM wallet WHERE virtual_wallet = ?1 AND key like ?2 order by key")?;
-        let records = stmt.query_map(&[&virtual_wallet_name(&self.wallet_name, &self.credentials).as_str(), &format!("{}%", key_prefix)], |row| {
-            RemoteWalletRecord {
-                wallet_name: "".to_owned(),
-                key_type: "".to_owned(),
-                key: row.get(0),
-                value: row.get(1),
-                time_created: row.get(2)
-            }
-        })?;
-        */
-
-        //let mut key_values = Vec::new();
-
-        // TODO loop through response and build array to return
-        //for record in records {
-        //    let key_value = record?;
-        //    key_values.push((key_value.key, key_value.value));
-        //}
-
-        //Ok(key_values)
     }
 
     // TODO get_not_expired will first check the selected wallet, and if the key is not found, 
@@ -411,47 +401,34 @@ impl Wallet for RemoteWallet {
         match response {
             Ok(r) => {
                 let result = proxy::rest_extract_response_body(r);
-                // TODO need to do the validation magic around the expiry time
                 match result {
-                    Ok(s) => Ok(s),
+                    Ok(s) => {
+                        // parse the result string into an array of items
+                        let hm = rest_body_to_items(&s);
+                        match hm {
+                            Ok(v) => {
+                                if v.len() == 0 {
+                                    Err(WalletError::NotFound(format!("Error Item not found")))
+                                } else if v.len() > 1 {
+                                    Err(WalletError::NotFound(format!("Error Multiple Items found")))
+                                } else {
+                                    // do the validation magic around the expiry time
+                                    let time_created = time::strptime(&v[0]["created"], "%Y-%m-%dT%H:%M:%S").unwrap();
+                                    if self.config.freshness_time != 0
+                                        && time::now_utc().sub(time_created).num_seconds() > self.config.freshness_time {
+                                        return Err(WalletError::NotFound(key.to_string()));
+                                    }
+                                    Ok(v[0]["item_value"].to_owned())
+                                }
+                            },
+                            Err(e) => Err(e)
+                        }
+                    },
                     Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
                 }
             },
             Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
         }
-
-        /*
-        let record = _open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?
-            .query_row(
-                "SELECT key, value, time_created 
-                FROM wallet WHERE virtual_wallet = ?1 AND key = ?2 LIMIT 1",
-                &[&virtual_wallet_name(&self.wallet_name, &self.credentials).as_str(), &key.to_string()], |row| {
-                    RemoteWalletRecord {
-                        wallet_name: "".to_owned(),
-                        key_type: "".to_owned(),
-                        key: row.get(0),
-                        value: row.get(1),
-                        time_created: row.get(2)
-                    }
-                })?;
-        */
-
-        /*
-        let record = RemoteWalletRecord {
-                        wallet_name: "".to_owned(),
-                        key_type: "".to_owned(),
-                        key: "".to_owned(),
-                        value: "".to_owned(),
-                        time_created: Timespec::new(60,0)
-                    };
-
-        if self.config.freshness_time != 0
-            && time::get_time().sub(record.time_created).num_seconds() > self.config.freshness_time {
-            return Err(WalletError::NotFound(key.to_string()));
-        }
-
-        return Ok(record.value);
-        */
     }
 
     fn close(&self) -> Result<(), WalletError> { Ok(()) }
@@ -504,6 +481,7 @@ impl WalletType for RemoteWalletType {
                     Ok(()) => {
                         // TODO authenticate and cache our token (?)
                         trace!("RemoteWalletType.create <<");
+
                         Ok(())
                     },
                     Err(e) => Err(WalletError::AccessFailed(format!("{:?}", e)))
@@ -517,7 +495,9 @@ impl WalletType for RemoteWalletType {
         trace!("RemoteWalletType.delete {}, with config {:?} and credentials {:?}", name, config, credentials);
         // FIXME: parse and implement credentials!!!
         let root_name = root_wallet_name(&name);
-        Ok(fs::remove_file(_db_path(&root_name)).map_err(map_err_trace!())?)
+        //Ok(fs::remove_file(_db_path(&root_name)).map_err(map_err_trace!())?)
+        // this is a no-op for the remote wallet
+        Ok(())
     }
 
     fn open(&self, name: &str, pool_name: &str, config: Option<&str>, runtime_config: Option<&str>, credentials: Option<&str>) -> Result<Box<Wallet>, WalletError> {
@@ -687,7 +667,9 @@ mod tests {
         wallet_type.create("wallet1", None, None).unwrap();
 
         let res = wallet_type.create("wallet1", None, None);
-        assert_match!(Err(WalletError::AlreadyExists(_)), res);
+        // create works twice for rest remote virtual wallet
+        //assert_match!(Err(WalletError::AlreadyExists(_)), res);
+        assert_match!(Ok(()), res);
 
         TestUtils::cleanup_indy_home();
     }
@@ -738,7 +720,7 @@ mod tests {
     fn virtual_wallet_set_get_works_base1() {
         TestUtils::cleanup_indy_home();
 
-        // set configuraiton, including endpoint
+        // set configuration, including endpoint
         let cf_str = default_config_for_test();
 
         // verify server is running and get a token
@@ -768,7 +750,7 @@ mod tests {
     fn virtual_wallet_set_get_works_base2() {
         TestUtils::cleanup_indy_home();
 
-        // set configuraiton, including endpoint
+        // set configuration, including endpoint
         let cf_str = default_config_for_test();
 
         // verify server is running and get a token
@@ -798,7 +780,7 @@ mod tests {
     fn remote_virtual_wallet_set_get_works() {
         TestUtils::cleanup_indy_home();
 
-        // set configuraiton, including endpoint
+        // set configuration, including endpoint
         let cf_str = default_config_for_test();
 
         // verify server is running and get a token
@@ -877,7 +859,7 @@ mod tests {
     fn virtual_wallet_set_get_works_for_reopen() {
         TestUtils::cleanup_indy_home();
 
-        // set configuraiton, including endpoint
+        // set configuration, including endpoint
         let cf_str = default_config_for_test();
 
         // verify server is running and get a token
@@ -907,7 +889,7 @@ mod tests {
     fn virtual_wallet_get_works_for_unknown() {
         TestUtils::cleanup_indy_home();
 
-        // set configuraiton, including endpoint
+        // set configuration, including endpoint
         let cf_str = default_config_for_test();
 
         // verify server is running and get a token
@@ -931,7 +913,7 @@ mod tests {
     fn virtual_wallet_set_get_works_for_update() {
         TestUtils::cleanup_indy_home();
 
-        // set configuraiton, including endpoint
+        // set configuration, including endpoint
         let cf_str = default_config_for_test();
 
         // verify server is running and get a token
@@ -960,8 +942,12 @@ mod tests {
     fn virtual_wallet_set_get_not_expired_works() {
         TestUtils::cleanup_indy_home();
 
-        // set configuraiton, including endpoint
-        let cf_str = default_config_for_test();
+        // set configuration, including endpoint
+        let config = RemoteWalletRuntimeConfig { 
+            endpoint: String::from("http://localhost:8000/items/"), 
+            freshness_time: 1
+        };
+        let cf_str = serde_json::to_string(&config).unwrap();
 
         // verify server is running and get a token
         let token = verify_rest_server();
@@ -973,11 +959,11 @@ mod tests {
         wallet_type.create("wallet1", None, None).unwrap();
         let my_key1 = rand_key("type", "key_");
 
-        let wallet = wallet_type.open("wallet1", "pool1", None, Some("{\"freshness_time\": 1}"), None).unwrap();
+        let wallet = wallet_type.open("wallet1", "pool1", None, Some(&cf_str), Some(&ac_str)).unwrap();
         wallet.set(&my_key1, "value1").unwrap();
 
         // Wait until value expires
-        thread::sleep(Duration::new(2, 0));
+        thread::sleep(Duration::new(5, 0));
 
         let value = wallet.get_not_expired(&my_key1);
         assert_match!(Err(WalletError::NotFound(_)), value);
@@ -989,7 +975,7 @@ mod tests {
     fn virtual_wallet_list_works() {
         TestUtils::cleanup_indy_home();
 
-        // set configuraiton, including endpoint
+        // set configuration, including endpoint
         let cf_str = default_config_for_test();
 
         // verify server is running and get a token
@@ -1002,8 +988,11 @@ mod tests {
         wallet_type.create("wallet1", Some(&cf_str), Some(&ac_str)).unwrap();
         let wallet = wallet_type.open("wallet1", "pool1", None, Some(&cf_str), Some(&ac_str)).unwrap();
         let mut my_type = rand_type("type");
-        let my_key1 = rand_key(&my_type, "key_");
-        let my_key2 = rand_key(&my_type, "key_");
+        let my_key = rand_key(&my_type, "key_");
+        let mut my_key1 = my_key.clone();
+        my_key1.push_str("1");
+        let mut my_key2 = my_key.clone();
+        my_key2.push_str("2");
 
         wallet.set(&my_key1, "value1").unwrap();
         wallet.set(&my_key2, "value2").unwrap();
@@ -1028,7 +1017,7 @@ mod tests {
     fn remote_virtual_wallet_list_works() {
         TestUtils::cleanup_indy_home();
 
-        // set configuraiton, including endpoint
+        // set configuration, including endpoint
         let cf_str = default_config_for_test();
 
         // verify server is running and get a token
@@ -1040,11 +1029,17 @@ mod tests {
         let wallet_type = RemoteWalletType::new();
         wallet_type.create("wallet1", Some(&cf_str), Some(&ac_str)).unwrap();
         let mut my_type = rand_type("type");
-        let my_key1 = rand_key(&my_type, "key_");
-        let my_key2 = rand_key(&my_type, "key_");
-        let my_key3 = rand_key(&my_type, "key_");
-        let my_key4 = rand_key(&my_type, "key_");
-        let my_key5 = rand_key(&my_type, "key_");
+        let my_key = rand_key(&my_type, "key_");
+        let mut my_key1 = my_key.clone();
+        my_key1.push_str("1");
+        let mut my_key2 = my_key.clone();
+        my_key2.push_str("2");
+        let mut my_key3 = my_key.clone();
+        my_key3.push_str("3");
+        let mut my_key4 = my_key.clone();
+        my_key4.push_str("4");
+        let mut my_key5 = my_key.clone();
+        my_key5.push_str("5");
 
         let credentials1 = default_virtual_credentials_for_test(&token, "client1");
         let credentials2 = default_virtual_credentials_for_test(&token, "client2");
@@ -1109,7 +1104,7 @@ mod tests {
     fn remote_wallet_get_pool_name_works() {
         TestUtils::cleanup_indy_home();
 
-        // set configuraiton, including endpoint
+        // set configuration, including endpoint
         let cf_str = default_config_for_test();
 
         // verify server is running and get a token
@@ -1131,7 +1126,7 @@ mod tests {
     fn remote_wallet_get_name_works() {
         TestUtils::cleanup_indy_home();
 
-        // set configuraiton, including endpoint
+        // set configuration, including endpoint
         let cf_str = default_config_for_test();
 
         // verify server is running and get a token
@@ -1152,7 +1147,9 @@ mod tests {
     #[test]
     fn remote_wallet_credentials_deserialize() {
         let empty: Result<RemoteWalletCredentials, JsonError> = serde_json::from_str(r#"{}"#);
-        assert!(empty.is_err());
+        // not an error for remote wallet
+        //assert!(empty.is_err());
+        assert!(empty.is_ok());
 
         let one: Result<RemoteWalletCredentials, JsonError> = serde_json::from_str(r#"{"auth_token":""}"#);
         assert!(one.is_ok());
@@ -1166,7 +1163,7 @@ mod tests {
         assert_eq!(rtwo.auth_token, Some("thisisatest".to_string()));
         assert_eq!(rtwo.virtual_wallet, None);
 
-        let three: Result<RemoteWalletCredentials, JsonError> = serde_json::from_str(r#"{"auth_token":"","virtual_wallet:"thisismynewpassword"}"#);
+        let three: Result<RemoteWalletCredentials, JsonError> = serde_json::from_str(r#"{"auth_token":"","virtual_wallet":"thisismynewpassword"}"#);
         assert!(three.is_ok());
         let rthree = three.unwrap();
         assert_eq!(rthree.auth_token, Some("".to_string()));

@@ -21,3 +21,6 @@ class WalletItem(models.Model):
     item_id = models.CharField(max_length=255, blank=False)
     item_value = models.TextField(blank=False)
     created_by = models.ForeignKey('auth.User', related_name='wallet_items', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('wallet_name', 'item_type', 'item_id',)

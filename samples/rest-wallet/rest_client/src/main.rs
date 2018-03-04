@@ -2,12 +2,14 @@ extern crate hyper;
 extern crate serde_json;
 extern crate reqwest;
 extern crate rand;
+extern crate time;
 
 use std::str;
 use std::collections::HashMap;
 use hyper::header::{Headers, Authorization /*, Basic} */};
 use serde_json::{Value /*, Error */};
 use rand::{thread_rng, Rng};
+use std::ops::Sub;
 
 fn main() {
     println!("Hello, world!");
@@ -16,6 +18,11 @@ fn main() {
     let num: i32 = rng.gen_range(0, 999999);
     let snum: String = format!("{:06}", num);
     println!("Rand {}", snum);
+
+    let timestr = "2018-03-04T19:37:36.612196Z";
+    let timefmt = "%Y-%m-%dT%H:%M:%S";
+    let time_created = time::strptime(timestr, timefmt).unwrap();
+    let num_secs = time::now_utc().sub(time_created).num_seconds();
 
     let client = reqwest::Client::new();
 
