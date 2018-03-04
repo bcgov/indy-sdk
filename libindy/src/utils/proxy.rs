@@ -102,6 +102,22 @@ pub fn rest_post_request_map(req_url: &str, headers: Option<Headers>, body: Opti
     }
 }
 
+pub fn rest_put_request_map(req_url: &str, headers: Option<Headers>, body: Option<&HashMap<&str, &str>>) -> Result<Response, RestError> {
+    let client = reqwest::Client::new();
+    let mut rb = client.put(req_url);
+    if headers != None {
+        let _unused = rb.headers(headers.unwrap());
+    }
+    if body != None {
+        let _unused = rb.json(body.unwrap());
+    }
+    let res = rb.send();
+    match res {
+        Ok(r) => Ok(r),
+        Err(e) => Err(RestError::RestRequestError(format!("{:?}", e)))
+    }
+}
+
 pub fn rest_post_request_auth(req_url: &str, userid: &str, password: &str) -> Result<String, RestError> {
     let mut map = HashMap::new();
     map.insert("username", userid);

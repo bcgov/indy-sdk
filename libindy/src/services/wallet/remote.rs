@@ -8,6 +8,7 @@ extern crate indy_crypto;
 
 use super::{Wallet, WalletType};
 
+use errors::common::CommonError;
 use errors::wallet::WalletError;
 use utils::environment::EnvironmentUtils;
 use hyper::header::{Headers};
@@ -129,8 +130,9 @@ fn rest_endpoint(config: &RemoteWalletRuntimeConfig,
 
 // Helper function to construct the endpoint for a REST request
 fn rest_endpoint_for_set(config: &RemoteWalletRuntimeConfig, 
-                        credentials: &RemoteWalletCredentials) -> String {
-    proxy::rest_endpoint(&config.endpoint, None)
+                        credentials: &RemoteWalletCredentials,
+                        id: Option<&str>) -> String {
+    proxy::rest_endpoint(&config.endpoint, id)
 }
 
 // Helper function to construct the endpoint for a REST request for a specific resource (wallet item)
@@ -195,7 +197,7 @@ fn key_prefix_to_type(key_prefix: &str) -> String {
 fn call_get_internal(root_wallet_name: &str, wallet_name: &str,
                     config: &RemoteWalletRuntimeConfig, 
                     credentials: &RemoteWalletCredentials, 
-                    key: &str) -> Result<String, WalletError> {
+                    key: &str) -> Result<(String, String), WalletError> {
     
     let (item_type, item_id) = key_to_item_type_id(key);
     
@@ -211,7 +213,21 @@ fn call_get_internal(root_wallet_name: &str, wallet_name: &str,
         Ok(r) => {
             let result = proxy::rest_extract_response_body(r);
             match result {
-                Ok(s) => Ok(s),
+                Ok(s) => {
+                    let hm = rest_body_to_items(&s);
+                    match hm {
+                        Ok(v) => {
+                            if v.len() == 0 {
+                                Err(WalletError::NotFound(format!("Error Item not found")))
+                            } else if v.len() > 1 {
+                                Err(WalletError::NotFound(format!("Error Multiple Items found")))
+                            } else {
+                                Ok((v[0]["id"].to_owned(), v[0]["item_value"].to_owned()))
+                            }
+                        },
+                        Err(e) => Err(e)
+                    }
+                },
                 Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
             }
         },
@@ -219,12 +235,46 @@ fn call_get_internal(root_wallet_name: &str, wallet_name: &str,
     }
 } 
 
+pub fn rest_body_to_items(body: &str) -> Result<Vec<HashMap<String, String>>, WalletError> {
+    let mut keys: Vec<&str> = Vec::new();
+    keys.push("wallet_name");
+    keys.push("item_type");
+    keys.push("item_id");
+    keys.push("item_value");
+    keys.push("id");
+    keys.push("created");
+    let objects = proxy::body_as_vec(body, &keys);
+    match objects {
+        Ok(s) => Ok(s),
+        Err(e) => Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid response from wallet"))))
+    }
+}
+
 impl Wallet for RemoteWallet {
     fn set(&self, key: &str, value: &str) -> Result<(), WalletError> {
         let (item_type, item_id) = key_to_item_type_id(key);
 
+        // check if we are doing  create or update
+        let result = call_get_internal(&root_wallet_name(&self.wallet_name), 
+                                        &virtual_wallet_name(&self.wallet_name, &self.credentials),
+                                        &self.config, &self.credentials, key);
+        let tmp_id = match result {
+            Ok((id, _s)) => id,
+            Err(_e) => "".to_owned()
+        };
+        println!("Found existing id (?) {}", tmp_id);
+        let tmp2_id: &str = &tmp_id[..];
+        let set_id = if tmp_id.len() > 0 {
+            println!("Sending id {}", tmp_id);
+            Some(tmp2_id)
+        } else {
+            println!("Sending None id");
+            None
+        };
+        
         // build request URL
-        let req_url = rest_endpoint_for_set(&self.config, &self.credentials);
+        let req_url = rest_endpoint_for_set(&self.config, &self.credentials, set_id);
+        println!("Sending to URL {}", req_url);
 
         // build auth headers
         let headers = rest_auth_header(&self.config, &self.credentials);
@@ -238,7 +288,12 @@ impl Wallet for RemoteWallet {
         map.insert("item_value", value);
 
         // build REST request and execute
-        let response = proxy::rest_post_request_map(&req_url, Some(headers), Some(&map));
+        let mut response;
+        if tmp_id.len() > 0 {
+            response = proxy::rest_put_request_map(&req_url, Some(headers), Some(&map));
+        } else {
+            response = proxy::rest_post_request_map(&req_url, Some(headers), Some(&map));
+        }
         match response {
             Ok(r) => {
                 let result = proxy::rest_check_result(r);
@@ -259,13 +314,13 @@ impl Wallet for RemoteWallet {
                                         &virtual_wallet_name(&self.wallet_name, &self.credentials),
                                         &self.config, &self.credentials, key);
         match result {
-            Ok(record) => Ok(record),
+            Ok((_s, record)) => Ok(record),
             Err(why) => {
                 let result2 = call_get_internal(&root_wallet_name(&self.wallet_name), 
                                                 &root_wallet_name(&self.wallet_name),
                                                 &self.config, &self.credentials, key);
                 match result2 {
-                    Ok(record2) => Ok(record2),
+                    Ok((_s, record2)) => Ok(record2),
                     Err(why2) => Err(WalletError::NotFound(format!("{:?}", why2)))
                 }
             }
@@ -345,7 +400,7 @@ impl Wallet for RemoteWallet {
         match response {
             Ok(r) => {
                 let result = proxy::rest_extract_response_body(r);
-                // TODO need to do the validation magic around te expiry time
+                // TODO need to do the validation magic around the expiry time
                 match result {
                     Ok(s) => Ok(s),
                     Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
@@ -629,8 +684,8 @@ mod tests {
 
                 let result = wallet.get("type::key1");
                 match result {
-                    Ok(s) => print!("Reurned value {}", s),
-                    Err(e) => print!("Error {:?}", e)
+                    Ok(s) => println!("Reurned value {}", s),
+                    Err(e) => println!("Error {:?}", e)
                 };
                 wallet.set("type::key1", "value1").unwrap();
                 let value = wallet.get("type::key1").unwrap();

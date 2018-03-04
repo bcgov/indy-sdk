@@ -39,14 +39,13 @@ user_detail = UserViewSet.as_view({
 })
 
 urlpatterns = format_suffix_patterns([
-    url(r'^schema/$', schema_view),
-    url(r'^items/$', wallet_item_list, name='walletitem-list'),
-    url(r'^items/(?P<pk>[0-9]+)/$', wallet_item_detail, name='walletitem-detail'),
-    url(r'^items/(?P<pk>[0-9]+)/highlight/$', wallet_item_highlight, name='walletitem-highlight'),
-    url(r'^items/(?P<wallet_name>[A-Z,a-z,0-9,-_]+)/(?P<item_type>[A-Z,a-z,0-9,-_]+)/(?P<item_id>[A-Z,a-z,0-9,-_]+)$',
+    url(r'^items/(?P<wallet_name>[A-Z,a-z,0-9,-_]+)/(?P<item_type>[A-Z,a-z,0-9,-_]+)/(?P<item_id>[A-Z,a-z,0-9,-_]+)/$',
         wallet_item_detail_search, name='walletitemdetail-search'),
     url(r'^items/(?P<wallet_name>[A-Z,a-z,0-9,-_]+)/(?P<item_type>[A-Z,a-z,0-9,-_]+)/$',
         wallet_item_search, name='walletitem-search'),
+    url(r'^items/(?P<pk>[0-9]+)/highlight/$', wallet_item_highlight, name='walletitem-highlight'),
+    url(r'^items/(?P<pk>[0-9]+)/$', wallet_item_detail, name='walletitem-detail'),
+    url(r'^items/$', wallet_item_list, name='walletitem-list'),
     url(r'^users/$', user_list, name='user-list'),
     url(r'^users/(?P<pk>[0-9]+)/$', user_detail, name='user-detail'),
     # the next line is for DRF tokens, comment out for JWT tokens
@@ -57,5 +56,6 @@ urlpatterns = format_suffix_patterns([
     # url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
     # url(r'^refresh-token/', refresh_jwt_token),
     # url(r'^', include('rest_auth.urls')),
+    url(r'^schema/$', schema_view),
     url(r'^$', api_root),
 ])
