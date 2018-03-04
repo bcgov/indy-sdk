@@ -244,6 +244,29 @@ mod tests {
 
     use serde_json;
     use self::serde_json::Error as JsonError;
+    use rand::{thread_rng, Rng};
+
+    fn rand_type(type_prefix: &str) -> String {
+        let mut rng = thread_rng();
+        let num: i32 = rng.gen_range(0, 999999);
+        let snum: String = format!("{:06}", num);
+        let mut my_type: String = "".to_owned();
+        my_type.push_str(type_prefix);
+        my_type.push_str(&snum);
+        my_type
+    }
+
+    fn rand_key(key_type: &str, key_prefix: &str) -> String {
+        let mut rng = thread_rng();
+        let num: i32 = rng.gen_range(0, 999999);
+        let snum: String = format!("{:06}", num);
+        let mut my_id: String = "".to_owned();
+        my_id.push_str(key_type);
+        my_id.push_str("::");
+        my_id.push_str(key_prefix);
+        my_id.push_str(&snum);
+        my_id
+    }
 
     #[test]
     fn ensure_trailing_slash_works() {
@@ -376,17 +399,23 @@ mod tests {
     #[test]
     fn validate_rest_auth_post_works() {
         let get_endpoint = "http://localhost:8000/items/";
-        let json = "{
-                    \"wallet_name\":\"my_wallet\", 
+        let mut rng = thread_rng();
+        let num: i32 = rng.gen_range(0, 999999);
+        let snum: String = format!("{:06}", num);
+        let mut json = "{\"wallet_name\":\"my_wallet\", 
                     \"item_type\":\"claim\", 
-                    \"item_id\":\"1234567890\", 
-                    \"item_value\":\"{\\\"this\\\":\\\"is\\\", \\\"a\\\":\\\"claim\\\", \\\"from\\\":\\\"rust\\\"}\"}";
+                    \"item_id\":\"".to_owned();
+        json.push_str(&snum);
+        json.push_str("\", \"item_value\":\"{\\\"this\\\":\\\"is\\\", \\\"a\\\":\\\"claim\\\", \\\"from\\\":\\\"rust\\\"}\"}");
+        let mut rng = thread_rng();
+        let num: i32 = rng.gen_range(0, 999999);
+        let snum: String = format!("{:06}", num);
         let mut map = HashMap::new();
         map.insert("wallet_name", "Rust_Wallet");
         map.insert("item_type", "rust_claim");
-        map.insert("item_id", "888");
+        map.insert("item_id", &snum);
         map.insert("item_value", "{\"this\":\"is\", \"a\":\"claim\", \"from\":\"rust\"}");
-        let response = rest_post_request(get_endpoint, None, Some(json));
+        let response = rest_post_request(get_endpoint, None, Some(&json));
         match response {
             Ok(r) => {
                 let result = rest_check_result(r);
@@ -406,7 +435,7 @@ mod tests {
 
                 // try with json string
                 let headers = rest_auth_headers(&token);
-                let response = rest_post_request(get_endpoint, Some(headers), Some(json));
+                let response = rest_post_request(get_endpoint, Some(headers), Some(&json));
                 match response {
                     Ok(r) => {
                         let result = rest_check_result(r);
@@ -438,7 +467,10 @@ mod tests {
 
     #[test] 
     fn validate_body_as_vec_works() {
-        let body = "[
+        let mut rng = thread_rng();
+        let num: i32 = rng.gen_range(0, 999999);
+        let snum: String = format!("{:06}", num);
+        let mut body = "[
             {\"url\":\"http://localhost:8000/items/1/\",
             \"id\":1,
             \"created\":\"2018-02-27T17:05:09.577673Z\",
@@ -452,10 +484,12 @@ mod tests {
             \"created\":\"2018-02-27T17:17:17.635730Z\",
             \"wallet_name\":\"Rust_Wallet\",
             \"item_type\":\"rust_claim\",
-            \"item_id\":\"888\",
+            \"item_id\":\"".to_owned();
+         body.push_str(&snum);
+         body.push_str("\",
             \"item_value\":\"{\\\"this\\\":\\\"is\\\", \\\"a\\\":\\\"claim\\\", \\\"from\\\":\\\"rust\\\"}\",
             \"creator\":\"ian\"}
-            ]";
+            ]");
 
         let mut keys: Vec<&str> = Vec::new();
         keys.push("wallet_name");
@@ -464,7 +498,7 @@ mod tests {
         keys.push("item_value");
         keys.push("id");
         keys.push("created");
-        let objects = body_as_vec(body, &keys);
+        let objects = body_as_vec(&body, &keys);
         match objects {
             Ok(v) => {
                 assert_eq!(v.len(), 2);
@@ -489,10 +523,13 @@ mod tests {
                 let token = s;
 
                 // try with map (serialize to json)
+                let mut rng = thread_rng();
+                let num: i32 = rng.gen_range(0, 999999);
+                let snum: String = format!("{:06}", num);
                 let mut map = HashMap::new();
                 map.insert("wallet_name", "Rust_Wallet");
                 map.insert("item_type", "rust_claim");
-                map.insert("item_id", "888");
+                map.insert("item_id", &snum);
                 map.insert("item_value", "{\"this\":\"is\", \"a\":\"claim\", \"from\":\"rust\"}");
                 let headers = rest_auth_headers(&token);
                 let get_endpoint = "http://localhost:8000/items/";
@@ -509,10 +546,12 @@ mod tests {
                 }
 
                 // try with map (serialize to json)
+                let num: i32 = rng.gen_range(0, 999999);
+                let snum: String = format!("{:06}", num);
                 let mut map = HashMap::new();
                 map.insert("wallet_name", "Rust_Wallet");
                 map.insert("item_type", "rust_claim");
-                map.insert("item_id", "999");
+                map.insert("item_id", &snum);
                 map.insert("item_value", "{\"this\":\"is\", \"a\":\"claim\", \"from\":\"rust\"}");
                 let headers = rest_auth_headers(&token);
                 let response = rest_post_request_map(get_endpoint, Some(headers), Some(&map));
