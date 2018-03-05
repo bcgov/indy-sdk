@@ -1194,6 +1194,10 @@ mod tests {
         remote_wallet_type.create("wallet1", Some(&cf_str), Some(&ac_str)).unwrap();
 
         let my_type = rand_type("type");
+        let start_time = time::now_utc();
+        let mut loop_time = time::now_utc();
+        let mut max_loop: i64 = 0;
+        let mut sum_loop: i64 = 0;
 
         for i in 0..100 {
             // build credentials before creating and opening wallet
@@ -1207,9 +1211,18 @@ mod tests {
                 let my_key = rand_key(&my_type, "key_");
                 wallet.set(&my_key, "{\"this\":\"is\", \"a\":\"claim\", \"from\":\"rust\"}").unwrap();
             }
+
+            let elapsed = time::now_utc().sub(loop_time).num_milliseconds();
+            sum_loop += elapsed;
+            if elapsed > max_loop {
+                max_loop = elapsed;
+            }
+            loop_time = time::now_utc();
         }
 
         println!("Now run a query on each client and see how long they take.");
+        let mut max_query: i64 = 0;
+        let mut sum_query: i64 = 0;
         for i in 0..100 {
             // build credentials before creating and opening wallet
             let my_wallet = format!("wallet_{:04}", i);
@@ -1222,8 +1235,20 @@ mod tests {
                 Ok(v) => (),
                 Err(e) => assert!(false, format!("{:?}", e))
             }
+
+            let elapsed = time::now_utc().sub(loop_time).num_milliseconds();
+            sum_query += elapsed;
+            if elapsed > max_query {
+                max_query = elapsed;
+            }
+            loop_time = time::now_utc();
         }
 
         println!("Done");
+        println!("Creating: max: {}, Avg: {}", max_loop, sum_loop/100);
+        println!("Querying: max: {}, Avg: {}", max_query, sum_query/100);
+        println!("Elapsed:  {} msec ({} sec)", 
+                time::now_utc().sub(start_time).num_milliseconds(),
+                time::now_utc().sub(start_time).num_seconds());
     }
 }
