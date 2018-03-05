@@ -41,7 +41,7 @@ async def run(wallet_type):
 
     government_wallet, government_wallet_name, steward_government_key, government_steward_did, government_steward_key, _ \
         = await onboarding(pool_handle, pool_name, "Sovrin Steward", steward_wallet,
-                           steward_did, "Government", None, 'government_wallet', wallet_type)
+                           steward_did, "Government", None, 'government_wallet', 'default')
 
     logger.info("==============================")
     logger.info("== Getting Trust Anchor credentials - Government getting Verinym  ==")
@@ -56,7 +56,7 @@ async def run(wallet_type):
     logger.info("------------------------------")
     faber_wallet, faber_wallet_name, steward_faber_key, faber_steward_did, faber_steward_key, _ = \
         await onboarding(pool_handle, pool_name, "Sovrin Steward", steward_wallet, steward_did,
-                         "Faber", None, 'faber_wallet', wallet_type)
+                         "Faber", None, 'faber_wallet', 'default')
 
     logger.info("==============================")
     logger.info("== Getting Trust Anchor credentials - Faber getting Verinym  ==")
@@ -71,7 +71,7 @@ async def run(wallet_type):
 
     acme_wallet, acme_wallet_name, steward_acme_key, acme_steward_did, acme_steward_key, _ = \
         await onboarding(pool_handle, pool_name, "Sovrin Steward", steward_wallet, steward_did,
-                         "Acme", None, 'acme_wallet', wallet_type)
+                         "Acme", None, 'acme_wallet', 'default')
 
     logger.info("==============================")
     logger.info("== Getting Trust Anchor credentials - Acme getting Verinym  ==")
@@ -86,7 +86,7 @@ async def run(wallet_type):
 
     thrift_wallet, thrift_wallet_name, steward_thrift_key, thrift_steward_did, thrift_steward_key, _ = \
         await onboarding(pool_handle, pool_name, "Sovrin Steward", steward_wallet, steward_did,
-                         "Thrift", None, 'thrift_wallet', wallet_type)
+                         "Thrift", None, 'thrift_wallet', 'default')
 
     logger.info("==============================")
     logger.info("== Getting Trust Anchor credentials - Thrift getting Verinym  ==")
@@ -183,7 +183,7 @@ async def run(wallet_type):
         = await onboarding(pool_handle, pool_name, "Faber", faber_wallet, faber_did, "Alice", None, 'alice_wallet', wallet_type)
     alice_root_wallet = alice_wallet_name
 
-    if wallet_type == "virtual":
+    if wallet_type == "virtual" or wallet_type == "remote":
         # we will open a virtual wallet per transcript
         logger.info("Closing Alice wallet")
         await wallet.close_wallet(alice_wallet)
@@ -199,7 +199,7 @@ async def run(wallet_type):
         logger.info("------------------------------")
 
         # for enterprise wallet scenario, open a virtual wallet for each transcript
-        if wallet_type == "virtual":
+        if wallet_type == "virtual" or wallet_type == "remote":
             alice_wallet_name = alice_root_wallet
             alice_wallet_credentials = '{"key":"", "virtual_wallet":"v' + str(i) + '"}'
             # '{"key":"testkey", "virtual_wallet":"newwallet"}'
@@ -554,7 +554,7 @@ async def run(wallet_type):
         # await anoncreds.prover_store_claim(alice_wallet, authdecrypted_job_certificate_claim_json, None)
 
         # for enterprise wallet scenario, close virtual wallet
-        if wallet_type == "virtual":
+        if wallet_type == "virtual" or wallet_type == "remote":
             logger.info("Closing Alice Virtual Wallet --> " + alice_wallet_name)
             await wallet.close_wallet(alice_wallet)
             alice_wallet_name = alice_root_wallet
@@ -791,7 +791,7 @@ async def run(wallet_type):
     await wallet.delete_wallet(thrift_wallet_name, None)
 
     logger.info("\"Alice\" -> Close and Delete wallet")
-    if wallet_type != "virtual":
+    if wallet_type != "virtual" and wallet_type != "remote":
         # already dealt with this for enterprise scenario
         await wallet.close_wallet(alice_wallet)
     await wallet.delete_wallet(alice_wallet_name, '{"key":""}')

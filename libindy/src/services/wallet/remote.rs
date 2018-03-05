@@ -267,19 +267,19 @@ impl Wallet for RemoteWallet {
             Ok((id, _s)) => id,
             Err(_e) => "".to_owned()
         };
-        println!("Found existing id (?) {}", tmp_id);
+        //println!("Found existing id (?) {}", tmp_id);
         let tmp2_id: &str = &tmp_id[..];
         let set_id = if tmp_id.len() > 0 {
-            println!("Sending id {}", tmp_id);
+            //println!("Sending id {}", tmp_id);
             Some(tmp2_id)
         } else {
-            println!("Sending None id");
+            //println!("Sending None id");
             None
         };
         
         // build request URL
         let req_url = rest_endpoint_for_set(&self.config, &self.credentials, set_id);
-        println!("Sending to URL {}", req_url);
+        //println!("Sending to URL {}", req_url);
 
         // build auth headers
         let headers = rest_auth_header(&self.config, &self.credentials);
@@ -1174,5 +1174,56 @@ mod tests {
         let rfour = four.unwrap();
         assert_eq!(rfour.auth_token, Some("".to_string()));
         assert_eq!(rfour.virtual_wallet, Some("".to_string()));
+    }
+
+    #[test]
+    fn validate_add_ten_thousand_claims_and_see_what_happens() {
+        TestUtils::cleanup_indy_home();
+
+        println!("Add 100 claims each for 100 wallets.");
+
+        // set configuration, including endpoint
+        let cf_str = default_config_for_test();
+
+        // verify server is running and get a token
+        let token = verify_rest_server();
+
+        let ac_str = default_credentials_for_test(&token);
+
+        let remote_wallet_type = RemoteWalletType::new();
+        remote_wallet_type.create("wallet1", Some(&cf_str), Some(&ac_str)).unwrap();
+
+        let my_type = rand_type("type");
+
+        for i in 0..100 {
+            // build credentials before creating and opening wallet
+            let my_wallet = format!("wallet_{:04}", i);
+            println!("Wallet = {}", my_wallet);
+            let credentials = default_virtual_credentials_for_test(&token, &my_wallet);
+
+            let wallet = remote_wallet_type.open("wallet1", "pool1", None, Some(&cf_str), Some(&credentials)).unwrap();
+
+            for j in 0..100 {
+                let my_key = rand_key(&my_type, "key_");
+                wallet.set(&my_key, "{\"this\":\"is\", \"a\":\"claim\", \"from\":\"rust\"}").unwrap();
+            }
+        }
+
+        println!("Now run a query on each client and see how long they take.");
+        for i in 0..100 {
+            // build credentials before creating and opening wallet
+            let my_wallet = format!("wallet_{:04}", i);
+            let credentials = default_virtual_credentials_for_test(&token, &my_wallet);
+
+            let wallet = remote_wallet_type.open("wallet1", "pool1", None, Some(&cf_str), Some(&credentials)).unwrap();
+
+            let response = wallet.list(&my_type);
+            match response {
+                Ok(v) => (),
+                Err(e) => assert!(false, format!("{:?}", e))
+            }
+        }
+
+        println!("Done");
     }
 }
