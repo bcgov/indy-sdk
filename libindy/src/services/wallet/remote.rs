@@ -1199,7 +1199,7 @@ mod tests {
         let mut max_loop: i64 = 0;
         let mut sum_loop: i64 = 0;
 
-        for i in 0..100 {
+        for i in 0..5 {
             // build credentials before creating and opening wallet
             let my_wallet = format!("wallet_{:04}", i);
             println!("Wallet = {}", my_wallet);
@@ -1207,7 +1207,7 @@ mod tests {
 
             let wallet = remote_wallet_type.open("wallet1", "pool1", None, Some(&cf_str), Some(&credentials)).unwrap();
 
-            for j in 0..100 {
+            for j in 0..5 {
                 let my_key = rand_key(&my_type, "key_");
                 wallet.set(&my_key, "{\"this\":\"is\", \"a\":\"claim\", \"from\":\"rust\"}").unwrap();
             }

@@ -20,7 +20,7 @@ async def run(wallet_type):
 
     remote_base_url = "http://localhost:8000/"
     remote_item_url = remote_base_url + "items/"
-    remote_userid = "ianco"
+    remote_userid = "ian"
     remote_password = "pass1234"
     remote_token = ""
     wallet_config = None
@@ -28,8 +28,8 @@ async def run(wallet_type):
 
     if wallet_type == "remote":
         remote_token = await remote_rest_auth(remote_base_url, remote_userid, remote_password)
-        wallet_config = '{"endpoint":"' + remote_item_url + '"}'
-        wallet_credentials = '{"token":"' + remote_token + '"}'
+        wallet_config = '{"endpoint":"' + remote_item_url + '", "freshness_time":0}'
+        wallet_credentials = '{"auth_token":"' + remote_token + '"}'
 
     logger.info("Open Pool Ledger")
     pool_name = 'pool1'
@@ -217,12 +217,13 @@ async def run(wallet_type):
         logger.info("------------------------------")
 
         # for enterprise wallet scenario, open a virtual wallet for each transcript
+        alice_wallet_credentials = None
         if wallet_type == "virtual" or wallet_type == "remote":
             alice_wallet_name = alice_root_wallet
             if wallet_type == "virtual":
                 alice_wallet_credentials = '{"key":"", "virtual_wallet":"vw_' + str(i) + '"}'
             if wallet_type == "remote":
-                alice_wallet_credentials = '{"token":"' + remote_token + '", "virtual_wallet":"vw_' + str(i) + '"}'
+                alice_wallet_credentials = '{"auth_token":"' + remote_token + '", "virtual_wallet":"vw_' + str(i) + '"}'
             logger.info("Opening Alice " + wallet_type + " Wallet --> " + alice_wallet_name)
             logger.info("Alice Virtual Wallet Creds --> " + alice_wallet_credentials)
             alice_wallet = await wallet.open_wallet(alice_wallet_name, wallet_config, alice_wallet_credentials)
@@ -849,6 +850,11 @@ async def onboarding(pool_handle, pool_name, _from, from_wallet, from_did, to,
         if not to_wallet_creds:
             to_wallet_creds = '{"key":""}'
         logger.info("\"{}\" -> Create wallet".format(to))
+        logger.info("Opening Wallet --> " + to_wallet_name)
+        if to_wallet_config:
+            logger.info("Wallet Config --> " + to_wallet_config)
+        if to_wallet_creds:
+            logger.info("Wallet Creds --> " + to_wallet_creds)
         await wallet.create_wallet(pool_name, to_wallet_name, to_wallet_type, to_wallet_config, to_wallet_creds)
         to_wallet = await wallet.open_wallet(to_wallet_name, to_wallet_config, to_wallet_creds)
 
@@ -974,7 +980,7 @@ async def auth_decrypt(wallet_handle, key, message):
 
 async def remote_rest_auth(url, userid, password):
     my_url = url + "api-token-auth/"
-    response = requests.post(my_url, auth=HTTPBasicAuth(userid, password))
+    response = requests.post(my_url, data = {"username":userid, "password":password})
     json_data = response.json()
     token = json_data["token"]
     logger.info("Authenticated remote wallet server: " + token)

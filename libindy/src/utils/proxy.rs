@@ -361,7 +361,7 @@ mod tests {
 
     #[test]
     fn validate_rest_auth_get_works() {
-        let get_endpoint = "http://localhost:8000/items/";
+        let get_endpoint = "http://localhost:8000/items/my_wallet/type/";
         let response = rest_get_request(get_endpoint, None);
         match response {
             Ok(r) => {
