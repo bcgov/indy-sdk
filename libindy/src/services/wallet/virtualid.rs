@@ -15,6 +15,7 @@ use self::time::Timespec;
 use std::fs;
 use std::path::PathBuf;
 use std::ops::Sub;
+use std::sync::{Mutex, Arc};
 
 use self::indy_crypto::utils::json::JsonDecodable;
 
@@ -76,8 +77,10 @@ struct VirtualWalletRecord {
     time_created: Timespec
 }
 
+// Data struct for virtual wallet
+// Notice that wallet_name is wrapped in a Mutex to force single-threading
 struct VirtualWallet {
-    wallet_name: String,
+    wallet_name: Arc<Mutex<String>>,
     pool_name: String,
     config: VirtualWalletRuntimeConfig,
     credentials: VirtualWalletCredentials
@@ -89,7 +92,7 @@ impl VirtualWallet {
            config: VirtualWalletRuntimeConfig,
            credentials: VirtualWalletCredentials) -> VirtualWallet {
         VirtualWallet {
-            wallet_name: name.to_string(),
+            wallet_name: Arc::new(Mutex::new(name.to_string())),
             pool_name: pool_name.to_string(),
             config: config,
             credentials: credentials
@@ -137,13 +140,16 @@ impl Wallet for VirtualWallet {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
         
-        _open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?
+        let wallet_name_ref = self.wallet_name.clone();
+        let wallet_name_guard = wallet_name_ref.lock().unwrap();
+
+        _open_connection(root_wallet_name(&wallet_name_guard).as_str(), &self.credentials)?
             .execute(
                 "INSERT OR REPLACE INTO wallet 
                 (virtual_wallet, key, value, time_created) 
                 VALUES 
                 (?1, ?2, ?3, ?4)",
-                &[&virtual_wallet_name(&self.wallet_name, &self.credentials).as_str(), &key.to_string(), &value.to_string(), &time::get_time()])?;
+                &[&virtual_wallet_name(&wallet_name_guard, &self.credentials).as_str(), &key.to_string(), &value.to_string(), &time::get_time()])?;
         Ok(())
     }
 
@@ -155,14 +161,17 @@ impl Wallet for VirtualWallet {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
 
-        let result = call_get_internal(&root_wallet_name(&self.wallet_name), 
-                                        &virtual_wallet_name(&self.wallet_name, &self.credentials),
+        let wallet_name_ref = self.wallet_name.clone();
+        let wallet_name_guard = wallet_name_ref.lock().unwrap();
+
+        let result = call_get_internal(&root_wallet_name(&wallet_name_guard), 
+                                        &virtual_wallet_name(&wallet_name_guard, &self.credentials),
                                         &self.credentials, key);
         match result {
             Ok(record) => Ok(record),
             Err(why) => {
-                let result2 = call_get_internal(&root_wallet_name(&self.wallet_name), 
-                                                &root_wallet_name(&self.wallet_name),
+                let result2 = call_get_internal(&root_wallet_name(&wallet_name_guard), 
+                                                &root_wallet_name(&wallet_name_guard),
                                                 &self.credentials, key);
                 match result2 {
                     Ok(record2) => Ok(record2),
@@ -178,10 +187,13 @@ impl Wallet for VirtualWallet {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
 
-        let connection = _open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?;
+        let wallet_name_ref = self.wallet_name.clone();
+        let wallet_name_guard = wallet_name_ref.lock().unwrap();
+
+        let connection = _open_connection(root_wallet_name(&wallet_name_guard).as_str(), &self.credentials)?;
         let mut stmt = connection.prepare("SELECT key, value, time_created 
                 FROM wallet WHERE virtual_wallet = ?1 AND key like ?2 order by key")?;
-        let records = stmt.query_map(&[&virtual_wallet_name(&self.wallet_name, &self.credentials).as_str(), &format!("{}%", key_prefix)], |row| {
+        let records = stmt.query_map(&[&virtual_wallet_name(&wallet_name_guard, &self.credentials).as_str(), &format!("{}%", key_prefix)], |row| {
             VirtualWalletRecord {
                 key: row.get(0),
                 value: row.get(1),
@@ -207,11 +219,14 @@ impl Wallet for VirtualWallet {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
 
-        let record = _open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?
+        let wallet_name_ref = self.wallet_name.clone();
+        let wallet_name_guard = wallet_name_ref.lock().unwrap();
+
+        let record = _open_connection(root_wallet_name(&wallet_name_guard).as_str(), &self.credentials)?
             .query_row(
                 "SELECT key, value, time_created 
                 FROM wallet WHERE virtual_wallet = ?1 AND key = ?2 LIMIT 1",
-                &[&virtual_wallet_name(&self.wallet_name, &self.credentials).as_str(), &key.to_string()], |row| {
+                &[&virtual_wallet_name(&wallet_name_guard, &self.credentials).as_str(), &key.to_string()], |row| {
                     VirtualWalletRecord {
                         key: row.get(0),
                         value: row.get(1),
@@ -234,7 +249,9 @@ impl Wallet for VirtualWallet {
     }
 
     fn get_name(&self) -> String {
-        self.wallet_name.clone()
+        let wallet_name_ref = self.wallet_name.clone();
+        let wallet_name_guard = wallet_name_ref.lock().unwrap();
+        wallet_name_guard.clone()
     }
 }
 
