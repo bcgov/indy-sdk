@@ -116,7 +116,12 @@ fn root_wallet_name(wallet_name: &str) -> String {
 // Helper function to extract the virtual wallet name from the credentials
 fn virtual_wallet_name(wallet_name: &str, credentials: &RemoteWalletCredentials) -> String {
     match credentials.virtual_wallet {
-        Some(ref s) => s.to_string(),
+        Some(ref s) => {
+            let mut v_w = wallet_name.to_string();
+            v_w.push_str("::");
+            v_w.push_str(s);
+            v_w
+        },
         None => wallet_name.to_string()
     }
 }
@@ -627,7 +632,7 @@ mod tests {
         let credentials1 = RemoteWalletCredentials{auth_token: Some(String::from("Token 1234567890")), 
                             virtual_wallet: Some(String::from("virtual"))};
         let w2 = virtual_wallet_name("root", &credentials1);
-        assert_eq!("virtual", w2);
+        assert_eq!("root::virtual", w2);
         
         let w3 = root_wallet_name("root");
         assert_eq!("root", w3);
