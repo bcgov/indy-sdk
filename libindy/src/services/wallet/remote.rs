@@ -56,7 +56,7 @@ impl<'a> JsonDecodable<'a> for RemoteWalletRuntimeConfig {}
 impl Default for RemoteWalletRuntimeConfig {
     fn default() -> Self {
         RemoteWalletRuntimeConfig { 
-            endpoint: String::from("http://localhost:8000/items/"), 
+            endpoint: String::from("http://localhost:8000/api/v1/keyval/"), 
             freshness_time: 1000 
         }
     }
@@ -477,7 +477,7 @@ impl WalletType for RemoteWalletType {
 
         // the wallet should exist, let's try to ping the server and make sure it exists(?)
         // we'll do a schema request, verify that it returns an "OK" status
-        let endpoint = proxy::rest_append_path("http://localhost:8000/", "schema");
+        let endpoint = proxy::rest_append_path("http://localhost:8000/api/v1/", "schema");
         let response = proxy::rest_get_request(&endpoint, None);
         match response {
             Ok(r) => {
@@ -519,7 +519,7 @@ impl WalletType for RemoteWalletType {
         let root_name = root_wallet_name(&name);
 
         // we'll do a schema request, verify that it returns an "OK" status
-        let endpoint = proxy::rest_append_path("http://localhost:8000/", "schema");
+        let endpoint = proxy::rest_append_path("http://localhost:8000/api/v1/", "schema");
         let response = proxy::rest_get_request(&endpoint, None);
         match response {
             Ok(r) => {
@@ -613,7 +613,7 @@ mod tests {
     }
 
     fn verify_rest_server() -> String {
-        let auth_endpoint = proxy::rest_endpoint("http://localhost:8000/", Some("api-token-auth"));
+        let auth_endpoint = proxy::rest_endpoint("http://localhost:8000/api/v1/", Some("api-token-auth"));
         let response = proxy::rest_post_request_auth(&auth_endpoint, "ian", "pass1234");
         match response {
             Ok(s) => s,
@@ -949,7 +949,7 @@ mod tests {
 
         // set configuration, including endpoint
         let config = RemoteWalletRuntimeConfig { 
-            endpoint: String::from("http://localhost:8000/items/"), 
+            endpoint: String::from("http://localhost:8000/api/v1/keyval/"), 
             freshness_time: 1
         };
         let cf_str = serde_json::to_string(&config).unwrap();

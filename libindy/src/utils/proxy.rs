@@ -318,7 +318,7 @@ mod tests {
 
     #[test]
     fn validate_unauth_rest_get_works() {
-        let endpoint = "http://localhost:8000/schema/";
+        let endpoint = "http://localhost:8000/api/v1/schema/";
         let response = rest_get_request(endpoint, None);
         match response {
             Ok(r) => {
@@ -334,14 +334,14 @@ mod tests {
 
     #[test]
     fn validate_rest_invalid_url_works() {
-        let endpoint = "http://localhost:8765/schema/";   // assume we're not listening on this port
+        let endpoint = "http://localhost:8765/api/v1/schema/";   // assume we're not listening on this port
         let response = rest_get_request(endpoint, None);
         match response {
             Ok(_r) => assert!(false),   // should fail
             Err(_e) => ()
         }
 
-        let endpoint = "http://notalocalhost:8000/schema/"; // not a valid server
+        let endpoint = "http://notalocalhost:8000/api/v1/schema/"; // not a valid server
         let response = rest_get_request(endpoint, None);
         match response {
             Ok(_r) => assert!(false),  // should fail
@@ -351,7 +351,7 @@ mod tests {
 
     #[test]
     fn validate_rest_authenticate_works() {
-        let endpoint = "http://localhost:8000/api-token-auth/";
+        let endpoint = "http://localhost:8000/api/v1/api-token-auth/";
         let response = rest_post_request_auth(endpoint, "ian", "pass1234");
         match response {
             Ok(_s) => (), // ok, returned a token
@@ -361,7 +361,7 @@ mod tests {
 
     #[test]
     fn validate_rest_auth_get_works() {
-        let get_endpoint = "http://localhost:8000/items/my_wallet/type/";
+        let get_endpoint = "http://localhost:8000/api/v1/keyval/my_wallet/type/";
         let response = rest_get_request(get_endpoint, None);
         match response {
             Ok(r) => {
@@ -374,7 +374,7 @@ mod tests {
             Err(e) => assert!(false, format!("{:?}", e))
         }
 
-        let auth_endpoint = "http://localhost:8000/api-token-auth/";
+        let auth_endpoint = "http://localhost:8000/api/v1/api-token-auth/";
         let response = rest_post_request_auth(auth_endpoint, "ian", "pass1234");
         match response {
             Ok(s) => {     // ok, returned a token, try the "GET" again
@@ -398,7 +398,7 @@ mod tests {
 
     #[test]
     fn validate_rest_auth_post_works() {
-        let get_endpoint = "http://localhost:8000/items/";
+        let get_endpoint = "http://localhost:8000/api/v1/keyval/";
         let mut rng = thread_rng();
         let num: i32 = rng.gen_range(0, 999999);
         let snum: String = format!("{:06}", num);
@@ -427,7 +427,7 @@ mod tests {
             Err(e) => assert!(false, format!("{:?}", e))
         }
 
-        let auth_endpoint = "http://localhost:8000/api-token-auth/";
+        let auth_endpoint = "http://localhost:8000/api/v1/api-token-auth/";
         let response = rest_post_request_auth(auth_endpoint, "ian", "pass1234");
         match response {
             Ok(s) => {     // ok, returned a token, try the "GET" again
@@ -471,7 +471,7 @@ mod tests {
         let num: i32 = rng.gen_range(0, 999999);
         let snum: String = format!("{:06}", num);
         let mut body = "[
-            {\"url\":\"http://localhost:8000/items/1/\",
+            {\"url\":\"http://localhost:8000/api/v1/keyval/1/\",
             \"id\":1,
             \"created\":\"2018-02-27T17:05:09.577673Z\",
             \"wallet_name\":\"Rust_Wallet\",
@@ -479,7 +479,7 @@ mod tests {
             \"item_id\":\"888\",
             \"item_value\":\"{\\\"this\\\":\\\"is\\\", \\\"a\\\":\\\"claim\\\", \\\"from\\\":\\\"rust\\\"}\",
             \"creator\":\"ian\"},
-            {\"url\":\"http://localhost:8000/items/2/\",
+            {\"url\":\"http://localhost:8000/api/v1/keyval/2/\",
             \"id\":2,
             \"created\":\"2018-02-27T17:17:17.635730Z\",
             \"wallet_name\":\"Rust_Wallet\",
@@ -516,7 +516,7 @@ mod tests {
 
     #[test]
     fn validate_rest_auth_get_list_works() {
-        let auth_endpoint = "http://localhost:8000/api-token-auth/";
+        let auth_endpoint = "http://localhost:8000/api/v1/api-token-auth/";
         let response = rest_post_request_auth(auth_endpoint, "ian", "pass1234");
         match response {
             Ok(s) => {     // ok, returned a token, try the "GET" again
@@ -532,7 +532,7 @@ mod tests {
                 map.insert("item_id", &snum);
                 map.insert("item_value", "{\"this\":\"is\", \"a\":\"claim\", \"from\":\"rust\"}");
                 let headers = rest_auth_headers(&token);
-                let get_endpoint = "http://localhost:8000/items/";
+                let get_endpoint = "http://localhost:8000/api/v1/keyval/";
                 let response = rest_post_request_map(get_endpoint, Some(headers), Some(&map));
                 match response {
                     Ok(r) => {
@@ -567,7 +567,7 @@ mod tests {
                 }
 
                 // now do a get list into an array
-                let get_endpoint = "http://localhost:8000/items/Rust_Wallet/rust_claim/";
+                let get_endpoint = "http://localhost:8000/api/v1/keyval/Rust_Wallet/rust_claim/";
                 let headers = rest_auth_headers(&token);
                 let response = rest_get_request(get_endpoint, Some(headers));
                 let body = rest_extract_response_body(response.unwrap());
