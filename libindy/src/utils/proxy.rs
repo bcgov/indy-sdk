@@ -1,12 +1,14 @@
 extern crate hyper;
 extern crate serde_json;
 extern crate reqwest;
+extern crate url;
 
 use std::str;
 use std::collections::HashMap;
 use hyper::header::{Headers, Authorization};
 use reqwest::{Response};
 use serde_json::{Value};
+use url::percent_encoding::{utf8_percent_encode, percent_decode, DEFAULT_ENCODE_SET};
 
 
 #[derive(Debug)]
@@ -29,14 +31,18 @@ pub fn ensure_trailing_slash(s: &str) -> String {
 
 pub fn rest_append_path(endpoint: &str, app_path: &str) -> String {
     let mut ret_endpoint = ensure_trailing_slash(endpoint);
-    ret_endpoint.push_str(app_path);
+    let app_path_encoded = utf8_percent_encode(app_path, DEFAULT_ENCODE_SET).to_string();
+    ret_endpoint.push_str(&app_path_encoded);
     ensure_trailing_slash(&ret_endpoint)
 }
 
 pub fn rest_endpoint(endpoint: &str, virtual_wallet_name: Option<&str>) -> String {
     let mut ret_endpoint = ensure_trailing_slash(endpoint);
     match virtual_wallet_name {
-        Some(s) => ret_endpoint.push_str(s),
+        Some(s) => {
+            let s_encoded = utf8_percent_encode(s, DEFAULT_ENCODE_SET).to_string();
+            ret_endpoint.push_str(&s_encoded)
+        },
         _ => ()
     }
     ensure_trailing_slash(&ret_endpoint)
@@ -266,6 +272,17 @@ mod tests {
         my_id.push_str(key_prefix);
         my_id.push_str(&snum);
         my_id
+    }
+
+    #[test]
+    fn ensure_url_encoding_works() {
+        let input = "confident, productive systems programming";
+
+        let encoded = utf8_percent_encode(input, DEFAULT_ENCODE_SET).to_string();
+        assert_eq!(encoded, "confident,%20productive%20systems%20programming");
+
+        let decoded = percent_decode(encoded.as_bytes()).decode_utf8().unwrap();
+        assert_eq!(decoded, "confident, productive systems programming");
     }
 
     #[test]

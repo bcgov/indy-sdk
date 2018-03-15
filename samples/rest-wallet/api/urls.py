@@ -39,9 +39,9 @@ user_detail = UserViewSet.as_view({
 })
 
 urlpatterns = format_suffix_patterns([
-    url(r'^keyval/(?P<wallet_name>[A-Z,a-z,0-9,-_.:]+)/(?P<item_type>[A-Z,a-z,0-9,-_]+)/(?P<item_id>[A-Z,a-z,0-9,-_]+)/$',
+    url(r'^keyval/(?P<wallet_name>[A-Z,a-z,0-9,-_.:\%\ \$]+)/(?P<item_type>[A-Z,a-z,0-9,-_.:\%\ \$]+)/(?P<item_id>[A-Z,a-z,0-9,-_]+)/$',
         wallet_item_detail_search, name='walletitemdetail-search'),
-    url(r'^keyval/(?P<wallet_name>[A-Z,a-z,0-9,-_.:]+)/(?P<item_type>[A-Z,a-z,0-9,-_]+)/$',
+    url(r'^keyval/(?P<wallet_name>[A-Z,a-z,0-9,-_.:\%\ \$]+)/(?P<item_type>[A-Z,a-z,0-9,-_.:\%\ \$]+)/$',
         wallet_item_search, name='walletitem-search'),
     # url(r'^keyval/(?P<pk>[0-9]+)/highlight/$', wallet_item_highlight, name='walletitem-highlight'),
     url(r'^keyval/(?P<pk>[0-9]+)/$', wallet_item_detail, name='walletitem-detail'),

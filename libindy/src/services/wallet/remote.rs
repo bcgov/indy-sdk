@@ -1128,6 +1128,93 @@ mod tests {
     }
 
     #[test]
+    fn remote_virtual_wallet_list_with_encoding_works() {
+        TestUtils::cleanup_indy_home();
+
+        // set configuration, including endpoint
+        let cf_str = default_config_for_test();
+
+        // verify server is running and get a token
+        let token = verify_rest_server();
+
+        // build credentials before creating and opening wallet
+        let ac_str = default_credentials_for_test(&token);
+
+        let wallet_type = RemoteWalletType::new();
+        wallet_type.create("wallet1 name", Some(&cf_str), Some(&ac_str)).unwrap();
+        let mut my_type = rand_type("type");
+        let my_key = rand_key(&my_type, "key_:$_.schema.");
+        let mut my_key1 = my_key.clone();
+        my_key1.push_str("1");
+        let mut my_key2 = my_key.clone();
+        my_key2.push_str("2");
+        let mut my_key3 = my_key.clone();
+        my_key3.push_str("3");
+        let mut my_key4 = my_key.clone();
+        my_key4.push_str("4");
+        let mut my_key5 = my_key.clone();
+        my_key5.push_str("5");
+
+        let credentials1 = default_virtual_credentials_for_test(&token, "client1");
+        let credentials2 = default_virtual_credentials_for_test(&token, "client2");
+
+        {
+            let wallet = wallet_type.open("wallet1 name", "pool1", None, Some(&cf_str), Some(&credentials1)).unwrap();
+
+            wallet.set(&my_key1, "value1").unwrap();
+            wallet.set(&my_key2, "value2").unwrap();
+        }
+
+        {
+            let wallet = wallet_type.open("wallet1 name", "pool1", None, Some(&cf_str), Some(&credentials2)).unwrap();
+
+            wallet.set(&my_key3, "value3").unwrap();
+            wallet.set(&my_key4, "value4").unwrap();
+            wallet.set(&my_key5, "value5").unwrap();
+        }
+
+        my_type.push_str("::");
+
+        {
+            let wallet = wallet_type.open("wallet1 name", "pool1", None, Some(&cf_str), Some(&credentials1)).unwrap();
+
+            let mut key_values = wallet.list(&my_type).unwrap();
+            key_values.sort();
+            assert_eq!(2, key_values.len());
+
+            let (key, value) = key_values.pop().unwrap();
+            assert_eq!(my_key2, key);
+            assert_eq!("value2", value);
+
+            let (key, value) = key_values.pop().unwrap();
+            assert_eq!(my_key1, key);
+            assert_eq!("value1", value);
+        }
+
+        {
+            let wallet = wallet_type.open("wallet1 name", "pool1", None, Some(&cf_str), Some(&credentials2)).unwrap();
+
+            let mut key_values = wallet.list(&my_type).unwrap();
+            key_values.sort();
+            assert_eq!(3, key_values.len());
+
+            let (key, value) = key_values.pop().unwrap();
+            assert_eq!(my_key5, key);
+            assert_eq!("value5", value);
+
+            let (key, value) = key_values.pop().unwrap();
+            assert_eq!(my_key4, key);
+            assert_eq!("value4", value);
+
+            let (key, value) = key_values.pop().unwrap();
+            assert_eq!(my_key3, key);
+            assert_eq!("value3", value);
+        }
+
+        TestUtils::cleanup_indy_home();
+    }
+
+    #[test]
     fn remote_wallet_get_pool_name_works() {
         TestUtils::cleanup_indy_home();
 
