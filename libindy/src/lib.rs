@@ -18,6 +18,7 @@ extern crate reqwest;
 extern crate rand;
 
 extern crate url;
+extern crate backtrace;
 
 
 // Note that to use macroses from util inside of other modules it must me loaded first!
