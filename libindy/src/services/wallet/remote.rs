@@ -17,7 +17,7 @@ use self::time::Timespec;
 use utils::proxy;
 
 use std::str;
-use std::path::PathBuf;
+//use std::path::PathBuf;
 use std::ops::Sub;
 
 use self::indy_crypto::utils::json::JsonDecodable;
@@ -469,11 +469,11 @@ impl WalletType for RemoteWalletType {
     fn create(&self, name: &str, config: Option<&str>, credentials: Option<&str>) -> Result<(), WalletError> {
         trace!("RemoteWalletType.create >> {}, with config {:?} and credentials {:?}", name, config, credentials);
         let root_name = root_wallet_name(&name);
-        let path = _db_path(&root_name);
-        if path.exists() {
-            trace!("RemoteWalletType.create << path exists");
-            return Err(WalletError::AlreadyExists(root_name.to_string()));
-        }
+        //let path = _db_path(&root_name);
+        //if path.exists() {
+        //    trace!("RemoteWalletType.create << path exists");
+        //    return Err(WalletError::AlreadyExists(root_name.to_string()));
+        //}
 
         let runtime_config = match config {
             Some(config) => RemoteWalletRuntimeConfig::from_json(config)?,
@@ -554,11 +554,11 @@ impl WalletType for RemoteWalletType {
     }
 }
 
-fn _db_path(name: &str) -> PathBuf {
-    let mut path = EnvironmentUtils::wallet_path(name);
-    path.push("sqlite.db");
-    path
-}
+//fn _db_path(name: &str) -> PathBuf {
+//    let mut path = EnvironmentUtils::wallet_path(name);
+//    path.push("sqlite.db");
+//    path
+//}
 
 
 #[cfg(test)]
