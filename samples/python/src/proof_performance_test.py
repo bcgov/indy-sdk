@@ -28,7 +28,11 @@ async def run(wallet_type):
 
     if wallet_type == "remote":
         remote_token = await remote_rest_auth(remote_base_url, remote_userid, remote_password)
-        wallet_config = '{"endpoint":"' + remote_item_url + '", "freshness_time":0}'
+        wallet_config = '{"endpoint":"' + remote_base_url + '", ' \
+                          '"ping":"schema/", ' \
+                          '"auth":"api-token-auth/", ' \
+                          '"keyval":"keyval/", ' \
+                          '"freshness_time":0}'
         wallet_credentials = '{"auth_token":"' + remote_token + '"}'
 
     logger.info("Open Pool Ledger")
