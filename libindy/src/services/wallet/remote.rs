@@ -48,6 +48,9 @@ use self::indy_crypto::utils::json::JsonDecodable;
 #[derive(Deserialize, Serialize)]
 struct RemoteWalletRuntimeConfig {
     endpoint: String,
+    ping: String,
+    auth: String,
+    keyval: String,
     freshness_time: i64
 }
 
@@ -56,7 +59,10 @@ impl<'a> JsonDecodable<'a> for RemoteWalletRuntimeConfig {}
 impl Default for RemoteWalletRuntimeConfig {
     fn default() -> Self {
         RemoteWalletRuntimeConfig { 
-            endpoint: String::from("http://localhost:8000/api/v1/keyval/"), 
+            endpoint: String::from("http://localhost:8000/api/v1/"),
+            ping: String::from("schema/"),
+            auth: String::from("api-token-auth/"),
+            keyval: String::from("keyval/"),
             freshness_time: 1000 
         }
     }
@@ -135,21 +141,24 @@ fn in_virtual_wallet(root_wallet_name: &str, virtual_wallet_name: &str) -> bool 
 fn rest_endpoint(config: &RemoteWalletRuntimeConfig, 
                     credentials: &RemoteWalletCredentials, 
                     wallet_name: &str) -> String {
-    proxy::rest_endpoint(&config.endpoint, Some(&virtual_wallet_name(wallet_name, credentials)))
+    let keyval_endpoint = proxy::rest_endpoint(&config.endpoint, Some(&config.keyval));
+    proxy::rest_endpoint(&keyval_endpoint, Some(&virtual_wallet_name(wallet_name, credentials)))
 }
 
 // Helper function to construct the endpoint for a REST request
 fn rest_endpoint_for_set(config: &RemoteWalletRuntimeConfig, 
                         credentials: &RemoteWalletCredentials,
                         id: Option<&str>) -> String {
-    proxy::rest_endpoint(&config.endpoint, id)
+    let keyval_endpoint = proxy::rest_endpoint(&config.endpoint, Some(&config.keyval));
+    proxy::rest_endpoint(&keyval_endpoint, id)
 }
 
 // Helper function to construct the endpoint for a REST request for a specific resource (wallet item)
 fn rest_endpoint_for_resource(config: &RemoteWalletRuntimeConfig, 
                     credentials: &RemoteWalletCredentials, 
                     item_wallet_name: &str, item_key: &str) -> String {
-    let endpoint = proxy::rest_endpoint(&config.endpoint, Some(item_wallet_name));
+    let keyval_endpoint = proxy::rest_endpoint(&config.endpoint, Some(&config.keyval));
+    let endpoint = proxy::rest_endpoint(&keyval_endpoint, Some(item_wallet_name));
     proxy::rest_resource_endpoint(&endpoint, item_key)
 }
 
@@ -157,7 +166,8 @@ fn rest_endpoint_for_resource(config: &RemoteWalletRuntimeConfig,
 fn rest_endpoint_for_resource_id(config: &RemoteWalletRuntimeConfig, 
                     credentials: &RemoteWalletCredentials, 
                     item_wallet_name: &str, item_type: &str, item_id: &str) -> String {
-    let endpoint = proxy::rest_endpoint(&config.endpoint, Some(item_wallet_name));
+    let keyval_endpoint = proxy::rest_endpoint(&config.endpoint, Some(&config.keyval));
+    let endpoint = proxy::rest_endpoint(&keyval_endpoint, Some(item_wallet_name));
     let endpoint = proxy::rest_resource_endpoint(&endpoint, item_type);
     proxy::rest_resource_endpoint(&endpoint, item_id)
 }
@@ -477,7 +487,7 @@ impl WalletType for RemoteWalletType {
 
         // the wallet should exist, let's try to ping the server and make sure it exists(?)
         // we'll do a schema request, verify that it returns an "OK" status
-        let endpoint = proxy::rest_append_path("http://localhost:8000/api/v1/", "schema");
+        let endpoint = proxy::rest_append_path(&runtime_config.endpoint, &runtime_config.ping);
         let response = proxy::rest_get_request(&endpoint, None);
         match response {
             Ok(r) => {
@@ -519,7 +529,7 @@ impl WalletType for RemoteWalletType {
         let root_name = root_wallet_name(&name);
 
         // we'll do a schema request, verify that it returns an "OK" status
-        let endpoint = proxy::rest_append_path("http://localhost:8000/api/v1/", "schema");
+        let endpoint = proxy::rest_append_path(&runtime_config.endpoint, &runtime_config.ping);
         let response = proxy::rest_get_request(&endpoint, None);
         match response {
             Ok(r) => {
@@ -613,7 +623,16 @@ mod tests {
     }
 
     fn verify_rest_server() -> String {
-        let auth_endpoint = proxy::rest_endpoint("http://localhost:8000/api/v1/", Some("api-token-auth"));
+        // set configuration, including endpoint
+        let runtime_config = RemoteWalletRuntimeConfig { 
+            endpoint: String::from("http://localhost:8000/api/v1/"), 
+            ping: String::from("schema/"),
+            auth: String::from("api-token-auth/"),
+            keyval: String::from("keyval/"),
+            freshness_time: 1
+        };
+
+        let auth_endpoint = proxy::rest_endpoint(&runtime_config.endpoint, Some(&runtime_config.auth));
         let response = proxy::rest_post_request_auth(&auth_endpoint, "ian", "pass1234");
         match response {
             Ok(s) => s,
@@ -949,7 +968,10 @@ mod tests {
 
         // set configuration, including endpoint
         let config = RemoteWalletRuntimeConfig { 
-            endpoint: String::from("http://localhost:8000/api/v1/keyval/"), 
+            endpoint: String::from("http://localhost:8000/api/v1/"), 
+            ping: String::from("schema/"),
+            auth: String::from("api-token-auth/"),
+            keyval: String::from("keyval/"),
             freshness_time: 1
         };
         let cf_str = serde_json::to_string(&config).unwrap();
