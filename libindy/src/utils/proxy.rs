@@ -369,7 +369,7 @@ mod tests {
     #[test]
     fn validate_rest_authenticate_works() {
         let endpoint = "http://localhost:8000/api/v1/api-token-auth/";
-        let response = rest_post_request_auth(endpoint, "ian", "pass1234");
+        let response = rest_post_request_auth(endpoint, "wall-e", "pass1234");
         match response {
             Ok(_s) => (), // ok, returned a token
             Err(e) => assert!(false, format!("{:?}", e))
@@ -392,7 +392,7 @@ mod tests {
         }
 
         let auth_endpoint = "http://localhost:8000/api/v1/api-token-auth/";
-        let response = rest_post_request_auth(auth_endpoint, "ian", "pass1234");
+        let response = rest_post_request_auth(auth_endpoint, "wall-e", "pass1234");
         match response {
             Ok(s) => {     // ok, returned a token, try the "GET" again
                 let token = s;
@@ -445,7 +445,7 @@ mod tests {
         }
 
         let auth_endpoint = "http://localhost:8000/api/v1/api-token-auth/";
-        let response = rest_post_request_auth(auth_endpoint, "ian", "pass1234");
+        let response = rest_post_request_auth(auth_endpoint, "wall-e", "pass1234");
         match response {
             Ok(s) => {     // ok, returned a token, try the "GET" again
                 let token = s;
@@ -495,7 +495,7 @@ mod tests {
             \"item_type\":\"rust_claim\",
             \"item_id\":\"888\",
             \"item_value\":\"{\\\"this\\\":\\\"is\\\", \\\"a\\\":\\\"claim\\\", \\\"from\\\":\\\"rust\\\"}\",
-            \"creator\":\"ian\"},
+            \"creator\":\"wall-e\"},
             {\"url\":\"http://localhost:8000/api/v1/keyval/2/\",
             \"id\":2,
             \"created\":\"2018-02-27T17:17:17.635730Z\",
@@ -505,7 +505,7 @@ mod tests {
          body.push_str(&snum);
          body.push_str("\",
             \"item_value\":\"{\\\"this\\\":\\\"is\\\", \\\"a\\\":\\\"claim\\\", \\\"from\\\":\\\"rust\\\"}\",
-            \"creator\":\"ian\"}
+            \"creator\":\"wall-e\"}
             ]");
 
         let mut keys: Vec<&str> = Vec::new();
@@ -534,7 +534,7 @@ mod tests {
     #[test]
     fn validate_rest_auth_get_list_works() {
         let auth_endpoint = "http://localhost:8000/api/v1/api-token-auth/";
-        let response = rest_post_request_auth(auth_endpoint, "ian", "pass1234");
+        let response = rest_post_request_auth(auth_endpoint, "wall-e", "pass1234");
         match response {
             Ok(s) => {     // ok, returned a token, try the "GET" again
                 let token = s;

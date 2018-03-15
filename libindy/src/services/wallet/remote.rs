@@ -5,6 +5,7 @@ extern crate serde_json;
 extern crate reqwest;
 extern crate indy_crypto;
 extern crate rand;
+extern crate backtrace;
 
 use super::{Wallet, WalletType};
 
@@ -15,6 +16,7 @@ use hyper::header::{Headers};
 use std::collections::HashMap;
 use self::time::Timespec;
 use utils::proxy;
+use backtrace::Backtrace;
 
 use std::str;
 //use std::path::PathBuf;
@@ -280,7 +282,12 @@ impl Wallet for RemoteWallet {
                                         &self.config, &self.credentials, key);
         let tmp_id = match result {
             Ok((id, _s)) => id,
-            Err(_e) => "".to_owned()
+            Err(e) => {
+                error!("Got an error: {:?}", e);
+                let bt = Backtrace::new();
+                error!("Backtrace: {:?}", bt);
+                "".to_owned()
+            }
         };
         //println!("Found existing id (?) {}", tmp_id);
         let tmp2_id: &str = &tmp_id[..];
@@ -319,10 +326,20 @@ impl Wallet for RemoteWallet {
                 let result = proxy::rest_check_result(r);
                 match result {
                     Ok(()) => Ok(()),
-                    Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
+                    Err(why) => {
+                error!("Got an error: {:?}", why);
+                let bt = Backtrace::new();
+                error!("Backtrace: {:?}", bt);
+                        Err(WalletError::NotFound(format!("{:?}", why)))
+                    }
                 }
             },
-            Err(why) => Err(WalletError::NotFound(format!("{:?}", why)))
+            Err(why) => {
+                error!("Got an error: {:?}", why);
+                let bt = Backtrace::new();
+                error!("Backtrace: {:?}", bt);
+                Err(WalletError::NotFound(format!("{:?}", why)))
+            }
         }
     }
 
@@ -633,7 +650,7 @@ mod tests {
         };
 
         let auth_endpoint = proxy::rest_endpoint(&runtime_config.endpoint, Some(&runtime_config.auth));
-        let response = proxy::rest_post_request_auth(&auth_endpoint, "ian", "pass1234");
+        let response = proxy::rest_post_request_auth(&auth_endpoint, "wall-e", "pass1234");
         match response {
             Ok(s) => s,
             Err(e) => {

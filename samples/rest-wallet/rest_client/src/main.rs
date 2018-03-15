@@ -58,7 +58,7 @@ fn main() {
     map.insert("item_value", "{\"this\":\"is\", \"a\":\"claim\", \"from\":\"rust\"}");
     let mut headers3 = Headers::new();
     headers3.set(Authorization(Basic {
-           username: "ian".to_owned(),
+           username: "wall-e".to_owned(),
            password: Some("pass1234".to_owned())
        }));
     let res3 = client.post("http://localhost:8000/items/")
@@ -70,7 +70,7 @@ fn main() {
 */
     println!("Try to login to get a DRF token");
     let mut map = HashMap::new();
-    map.insert("username", "ian");
+    map.insert("username", "wall-e");
     map.insert("password", "pass1234");
     let res3 = client.post("http://localhost:8000/api-token-auth/")
         .json(&map)
@@ -120,7 +120,7 @@ fn main() {
 /*
     println!("Try to register a new user using a JWT token");
     let mut map = HashMap::new();
-    map.insert("username", "ian66");
+    map.insert("username", "wall-e");
     map.insert("password1", "pass1234");
     map.insert("password2", "pass1234");
     let res5 = client.post("http://localhost:8000/rest-auth/registration/")
@@ -131,7 +131,7 @@ fn main() {
 
     println!("Try to login using a JWT token");
     let mut map = HashMap::new();
-    map.insert("username", "ian66");
+    map.insert("username", "wall-e");
     map.insert("password", "pass1234");
     let res6 = client.post("http://localhost:8000/rest-auth/login/")
         .json(&map)

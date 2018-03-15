@@ -8,7 +8,7 @@ class OpportunityAPITests(APITestCase):
     # With fixture
     fixtures = ['test_data.json']
 
-    test_userid = "ian"
+    test_userid = "wall-e"
     test_password = "pass1234"
 
     def get_auth_token(self, userid, password):

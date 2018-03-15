@@ -67,7 +67,7 @@ sqlite> select * from authtoken_token;
 sqlite>
 ```
 
-In the above example the DRF token is "71bee00fa76f08e5f17ceed783a9addd2619bc21" for my superuser (ian).
+In the above example the DRF token is "71bee00fa76f08e5f17ceed783a9addd2619bc21" for my superuser (wall-e).
 
 I can issue the following request using httpie:
 
@@ -89,7 +89,7 @@ There are a bunch of places in the code with comments for "the following is for 
 * urls.py
 
 ```
-$ echo '{"username":"ian2", "password1":"pass1234", "password2":"pass1234"}' | http POST 127.0.0.1:8000/rest-auth/registration/
+$ echo '{"username":"wall-e", "password1":"pass1234", "password2":"pass1234"}' | http POST 127.0.0.1:8000/rest-auth/registration/
 ...
 {
     "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6ImlhbjIiLCJleHAiOjE1MTk2OTE0OTQsImVtYWlsIjoiIiwib3JpZ19pYXQiOjE1MTk2ODc4OTR9.bBIgczb4yJwqX0uUX5Pls3fPlyUkkHf3-eDz_RHIl14",
@@ -98,11 +98,11 @@ $ echo '{"username":"ian2", "password1":"pass1234", "password2":"pass1234"}' | h
         "first_name": "",
         "last_name": "",
         "pk": 2,
-        "username": "ian2"
+        "username": "wall-e"
     }
 }
 
-$ echo '{"username":"ian2", "password":"pass1234"}' | http POST 127.0.0.1:8000/rest-auth/login/
+$ echo '{"username":"wall-e", "password":"pass1234"}' | http POST 127.0.0.1:8000/rest-auth/login/
 ...
 {
     "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6ImlhbjIiLCJleHAiOjE1MTk3MDI1OTgsImVtYWlsIjoiIiwib3JpZ19pYXQiOjE1MTk2OTg5OTh9.TqLbm6j7FuO6KZnf5gouX8utwnu7DTGuFVq4jiuEato",
@@ -111,7 +111,7 @@ $ echo '{"username":"ian2", "password":"pass1234"}' | http POST 127.0.0.1:8000/r
         "first_name": "",
         "last_name": "",
         "pk": 2,
-        "username": "ian2"
+        "username": "wall-e"
     }
 }
 
@@ -119,7 +119,7 @@ $ echo '{"wallet_name":"IanWallet", "item_type":"claim", "item_id":"098", "item_
 ...
 {
     "created": "2018-02-27T02:37:05.035804Z",
-    "creator": "ian2",
+    "creator": "wall-e",
     "id": 1,
     "item_id": "098",
     "item_type": "claim",
@@ -133,7 +133,7 @@ $ http GET 127.0.0.1:8000/items/ 'Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJ
 [
     {
         "created": "2018-02-27T02:37:05.035804Z",
-        "creator": "ian2",
+        "creator": "wall-e",
         "id": 1,
         "item_id": "098",
         "item_type": "claim",
