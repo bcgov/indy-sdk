@@ -19,7 +19,6 @@ async def run(wallet_type):
     logger.info("Wallet Type --> " + wallet_type)
 
     remote_base_url = "http://localhost:8000/api/v1/"
-    remote_item_url = remote_base_url + "keyval/"
     remote_userid = "wall-e"
     remote_password = "pass1234"
     remote_token = ""
