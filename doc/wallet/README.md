@@ -97,6 +97,12 @@ self.instance = VonVerifier(
 TheOrgBook Holder is configured to use either the 'virtual' (default) or 'remote' wallet, based on a command-line parameter:
 
 ```
+$ ./manage start seed=my_seed.... wallet=remote
+```
+
+TOB will use the appropriate configuration for the selected wallet type:
+
+```
 holder_type   = os.environ.get('INDY_WALLET_TYPE')
 if holder_type == 'remote':
     holder_url = os.environ.get('INDY_WALLET_URL')
