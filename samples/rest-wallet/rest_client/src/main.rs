@@ -27,13 +27,13 @@ fn main() {
     let client = reqwest::Client::new();
 
     println!("Try to do an un-authenticated GET schema (should work)");
-    let res1 = client.get("http://localhost:8000/schema/")
+    let res1 = client.get("http://localhost:8000/api/v1/schema/")
         .send()
         .unwrap();
     check_result(res1);
 
     println!("Try to do an un-authenticated GET list of items");
-    let res1 = client.get("http://localhost:8000/items/")
+    let res1 = client.get("http://localhost:8000/api/v1/keyval/")
         .send()
         .unwrap();
     check_result(res1);
@@ -44,7 +44,7 @@ fn main() {
     map.insert("item_type", "rust_claim");
     map.insert("item_id", "666");
     map.insert("item_value", "{\"this\":\"is\", \"a\":\"claim\", \"from\":\"rust\"}");
-    let res2 = client.post("http://localhost:8000/items/")
+    let res2 = client.post("http://localhost:8000/api/v1/keyval/")
         .json(&map)
         .send()
         .unwrap();
@@ -61,7 +61,7 @@ fn main() {
            username: "wall-e".to_owned(),
            password: Some("pass1234".to_owned())
        }));
-    let res3 = client.post("http://localhost:8000/items/")
+    let res3 = client.post("http://localhost:8000/api/v1/keyval/")
         .headers(headers3)
         .json(&map)
         .send()
@@ -72,7 +72,7 @@ fn main() {
     let mut map = HashMap::new();
     map.insert("username", "wall-e");
     map.insert("password", "pass1234");
-    let res3 = client.post("http://localhost:8000/api-token-auth/")
+    let res3 = client.post("http://localhost:8000/api/v1/api-token-auth/")
         .json(&map)
         .send()
         .unwrap();
@@ -96,7 +96,7 @@ fn main() {
     headers4.set(Authorization(auth_str));
     let mut headers4a = Headers::new();
     headers4a.set(reqwest::header::ContentType::json());
-    let res4 = client.post("http://localhost:8000/items/")
+    let res4 = client.post("http://localhost:8000/api/v1/keyval/")
         .headers(headers4)
         //.json(&map)
         .headers(headers4a)
@@ -110,7 +110,7 @@ fn main() {
     let mut auth_str = "Token ".to_owned();
     auth_str.push_str(&drf_token);
     headers5.set(Authorization(auth_str));
-    let res8 = client.get("http://localhost:8000/items/")
+    let res8 = client.get("http://localhost:8000/api/v1/keyval/Rust_Wallet/rust_claim/")
         .headers(headers5)
         .send()
         .unwrap();
@@ -123,7 +123,7 @@ fn main() {
     map.insert("username", "wall-e");
     map.insert("password1", "pass1234");
     map.insert("password2", "pass1234");
-    let res5 = client.post("http://localhost:8000/rest-auth/registration/")
+    let res5 = client.post("http://localhost:8000/api/v1/rest-auth/registration/")
         .json(&map)
         .send()
         .unwrap();
@@ -133,7 +133,7 @@ fn main() {
     let mut map = HashMap::new();
     map.insert("username", "wall-e");
     map.insert("password", "pass1234");
-    let res6 = client.post("http://localhost:8000/rest-auth/login/")
+    let res6 = client.post("http://localhost:8000/api/v1/rest-auth/login/")
         .json(&map)
         .send()
         .unwrap();
@@ -149,7 +149,7 @@ fn main() {
     let mut auth_str = "JWT ".to_owned();
     auth_str.push_str(&jwt_token);
     headers7.set(Authorization(auth_str));
-    let res7 = client.post("http://localhost:8000/items/")
+    let res7 = client.post("http://localhost:8000/api/v1/keyval/")
         .headers(headers7)
         .json(&map)
         .send()
@@ -161,7 +161,7 @@ fn main() {
     let mut auth_str = "JWT ".to_owned();
     auth_str.push_str(&jwt_token);
     headers8.set(Authorization(auth_str));
-    let res8 = client.get("http://localhost:8000/items/")
+    let res8 = client.get("http://localhost:8000/api/v1/keyval/")
         .headers(headers8)
         .send()
         .unwrap();
