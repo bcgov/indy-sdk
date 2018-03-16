@@ -3,7 +3,17 @@
 
 ## REST Client
 
-Client code is in the rest_client sub-directory.  This is a Rust application - there is a separate README.md file describing how to build and run this application.
+Demo client code is in the rest_client sub-directory.
+
+The Client is a Rust application - it was developed to do the initial integration testing of the Django wallet server and Rust code (http client).  To build and run the client:
+
+```
+# ensure the rest server is running first
+cargo build
+cargo run
+```
+
+That's it!  The code is pretty simplistic, but it provides a demo/test of the REST service outside of the SDK code.
 
 ## REST Server
 
@@ -19,7 +29,7 @@ http://cheng.logdown.com/posts/2015/10/27/how-to-use-django-rest-frameworks-toke
 
 http://www.django-rest-framework.org/api-guide/filtering/
 
-Note that Django Rest Logging is installed for debugging requests on the server side:
+Note that Django Rest Logging is installed for debugging requests on the server side (this is very very verbose):
 
 https://github.com/Rhumbix/django-request-logging
 
@@ -33,14 +43,15 @@ To build and run the server:
 git checkout https://github.com/ianco/indy-sdk.git
 cd samples/rest-wallet
 pip install -r requirements.txt
-python manage.py makemigrations api
-python manage.py migrate
-python manage.py createsuperuser
-# enter id, email and password
-python manage.py runserver
+./start-server.sh
+# python manage.py makemigrations api
+# python manage.py migrate
+# python manage.py createsuperuser
+# enters id, email and password
+# python manage.py runserver 0.0.0.0:
 ```
 
-You can now open a browser and connect to http://localhost:8000/ and browse the api (depending on your security settings).
+You can now open a browser and connect to http://localhost:8000/ and browse the api (depending on your security settings - note that by default all api access must be authenticated).
 
 By default the code uses DRF, but you can edit to use basic auth, and then browse the api using the superuser id and password (see the code in the rest_client).
 
@@ -50,9 +61,31 @@ If you login as your superuser (using the login link in the top right) you can c
 
 This is the default how the code is checked in.
 
-There are a bunch of places in the code with comments for "the following is for DRF tokens" ... un-comment all this code.
+There are a bunch of places in the code with comments for "the following is for DRF tokens" ... un-comment all this code.  For example:
 
-There are a bunch of places in the code with comments for "the following is for JWT tokens" ... comment out this code!
+```
+INSTALLED_APPS = [
+    ...
+    # the following app is for DRT tokens, comment out for JWT tokens
+    'rest_framework.authtoken',
+    ...
+]
+```
+
+There are a bunch of places in the code with comments for "the following is for JWT tokens" ... comment out this code!  For example:
+
+```
+INSTALLED_APPS = [
+...
+    # the following 5 apps are for JWT tokens, comment out for DRF tokens
+    # 'rest_auth',
+    # 'django.contrib.sites',
+    # 'allauth',
+    # 'allauth.account',
+    # 'rest_auth.registration',
+    ...
+]
+```
 
 Note that the DRF token is created automatically when your user is created, so you need to make sure all the above DRF code is enabled before you run your migrations and create your superuser.
 
@@ -69,19 +102,19 @@ sqlite>
 
 In the above example the DRF token is "71bee00fa76f08e5f17ceed783a9addd2619bc21" for my superuser (wall-e).
 
-I can issue the following request using httpie:
+Once you authenticate you can issue the following request (for example) using httpie:
 
 ```
-http GET 127.0.0.1:8000/items/ 'Authorization: Token 71bee00fa76f08e5f17ceed783a9addd2619bc21'
+http GET 127.0.0.1:8000/api/vi/keyval/ 'Authorization: Token 71bee00fa76f08e5f17ceed783a9addd2619bc21'
 ```
 
 Likewise for POST operations, etc.
 
 ### Using JWT Tokens
 
-There are a bunch of places in the code with comments for "the following is for JWT tokens" ... un-comment all this code.
+There are a bunch of places in the code with comments for "the following is for JWT tokens" ... un-comment all this code.  (See above example.)
 
-There are a bunch of places in the code with comments for "the following is for DRF tokens" ... comment out this code!
+There are a bunch of places in the code with comments for "the following is for DRF tokens" ... comment out this code!  (See above example.)
 
 * settings.py
 * models.py
@@ -124,7 +157,7 @@ $ echo '{"wallet_name":"IanWallet", "item_type":"claim", "item_id":"098", "item_
     "item_id": "098",
     "item_type": "claim",
     "item_value": "{ashdkajhsdh}",
-    "url": "http://127.0.0.1:8000/items/1/",
+    "url": "http://127.0.0.1:8000/api/vi/keyval/1/",
     "wallet_name": "IanWallet"
 }
 
@@ -138,7 +171,7 @@ $ http GET 127.0.0.1:8000/items/ 'Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJ
         "item_id": "098",
         "item_type": "claim",
         "item_value": "{ashdkajhsdh}",
-        "url": "http://127.0.0.1:8000/items/1/",
+        "url": "http://127.0.0.1:8000/api/vi/keyval/1/",
         "wallet_name": "IanWallet"
     }
 ]
