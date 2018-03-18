@@ -281,6 +281,8 @@ pub fn rest_body_to_items(body: &str) -> Result<Vec<HashMap<String, String>>, Wa
 
 impl Wallet for RemoteWallet {
     fn set(&self, key: &str, value: &str) -> Result<(), WalletError> {
+        info!("wallet.set >>> key: {}, value: {}", key, value);
+
         let (item_type, item_id) = key_to_item_type_id(key);
 
         // check if we are doing  create or update
@@ -354,6 +356,8 @@ impl Wallet for RemoteWallet {
     // will *also* check the root wallet
     // keys shared between all virtual wallets can be stored once in the root
     fn get(&self, key: &str) -> Result<String, WalletError> {
+        info!("wallet.get >>> key: {}", key);
+
         let (item_type, item_id) = key_to_item_type_id(key);
         let result = call_get_internal(&root_wallet_name(&self.wallet_name), 
                                         &virtual_wallet_name(&self.wallet_name, &self.credentials, &item_type),
@@ -379,6 +383,8 @@ impl Wallet for RemoteWallet {
 
     // list will return records only from the selected wallet (root or virtual)
     fn list(&self, key_prefix: &str) -> Result<Vec<(String, String)>, WalletError> {
+        info!("wallet.list >>> key_prefix: {}", key_prefix);
+
         let item_type = key_prefix_to_type(key_prefix);
 
         // build request URL
@@ -426,6 +432,8 @@ impl Wallet for RemoteWallet {
     // will *also* check the root wallet
     // keys shared between all virtual wallets can be stored once in the root
     fn get_not_expired(&self, key: &str) -> Result<String, WalletError> {
+        info!("wallet.get_not_expired >>> key: {}", key);
+
         let (item_type, item_id) = key_to_item_type_id(key);
         
         // build request URL

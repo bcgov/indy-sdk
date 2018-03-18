@@ -146,6 +146,8 @@ fn call_get_internal(root_wallet_name: &str, wallet_name: &str,
 
 impl Wallet for VirtualWallet {
     fn set(&self, key: &str, value: &str) -> Result<(), WalletError> {
+        info!("wallet.set >>> key: {}, value: {}", key, value);
+
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
@@ -167,6 +169,8 @@ impl Wallet for VirtualWallet {
     // will *also* check the root wallet
     // keys shared between all virtual wallets can be stored once in the root
     fn get(&self, key: &str) -> Result<String, WalletError> {
+        info!("wallet.get >>> key: {}", key);
+
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
@@ -193,6 +197,8 @@ impl Wallet for VirtualWallet {
 
     // list will return records only from the selected wallet (root or virtual)
     fn list(&self, key_prefix: &str) -> Result<Vec<(String, String)>, WalletError> {
+        info!("wallet.list >>> key_prefix: {}", key_prefix);
+
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
@@ -225,6 +231,8 @@ impl Wallet for VirtualWallet {
     // will *also* check the root wallet
     // keys shared between all virtual wallets can be stored once in the root
     fn get_not_expired(&self, key: &str) -> Result<String, WalletError> {
+        info!("wallet.get_not_expired >>> key: {}", key);
+
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
@@ -252,7 +260,11 @@ impl Wallet for VirtualWallet {
         return Ok(record.value);
     }
 
-    fn close(&self) -> Result<(), WalletError> { Ok(()) }
+    fn close(&self) -> Result<(), WalletError> { 
+        info!("wallet.close >>>");
+
+        Ok(()) 
+     }
 
     fn get_pool_name(&self) -> String {
         self.pool_name.clone()
@@ -275,7 +287,7 @@ impl VirtualWalletType {
 
 impl WalletType for VirtualWalletType {
     fn create(&self, name: &str, config: Option<&str>, credentials: Option<&str>) -> Result<(), WalletError> {
-        trace!("VirtualWalletType.create >> {}, with config {:?} and credentials {:?}", name, config, credentials);
+        info!("VirtualWalletType.create >> {}, with config {:?} and credentials {:?}", name, config, credentials);
         let root_name = root_wallet_name(&name);
         let path = _db_path(&root_name);
         if path.exists() {
@@ -309,7 +321,7 @@ impl WalletType for VirtualWalletType {
     }
 
     fn delete(&self, name: &str, config: Option<&str>, credentials: Option<&str>) -> Result<(), WalletError> {
-        trace!("VirtualWalletType.delete {}, with config {:?} and credentials {:?}", name, config, credentials);
+        info!("VirtualWalletType.delete {}, with config {:?} and credentials {:?}", name, config, credentials);
         // FIXME: parse and implement credentials!!!
         let root_name = root_wallet_name(&name);
         Ok(fs::remove_file(_db_path(&root_name)).map_err(map_err_trace!())?)
