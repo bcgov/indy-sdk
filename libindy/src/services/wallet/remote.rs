@@ -187,9 +187,12 @@ fn rest_auth_header(config: &RemoteWalletRuntimeConfig,
 // helper function to convert "key" to "item_type" and "item_id"
 fn key_to_item_type_id(key: &str) -> (String, String) {
     let split = key.split("::");
-    let vec: Vec<&str> = split.collect();
-    if vec.len() == 2 {
-        (vec[0].to_owned(), vec[1].to_owned())
+    let mut vec: Vec<&str> = split.collect();
+    if vec.len() >= 2 {
+        let item_type = vec[0];
+        vec.remove(0);
+        let item_id = vec.join("::");
+        (item_type.to_string(), item_id.to_string())
     } else {
         panic!(format!("Error invalid key {}", key));
     }
