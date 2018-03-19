@@ -75,6 +75,8 @@ impl DefaultWallet {
 
 impl Wallet for DefaultWallet {
     fn set(&self, key: &str, value: &str) -> Result<(), WalletError> {
+        info!("wallet.set >>> key: {}, value: {}", key, value);
+
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
@@ -87,6 +89,8 @@ impl Wallet for DefaultWallet {
     }
 
     fn get(&self, key: &str) -> Result<String, WalletError> {
+        info!("wallet.get >>> key: {}", key);
+
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
@@ -105,6 +109,8 @@ impl Wallet for DefaultWallet {
     }
 
     fn list(&self, key_prefix: &str) -> Result<Vec<(String, String)>, WalletError> {
+        info!("wallet.list >>> key_prefix: {}", key_prefix);
+
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
@@ -130,6 +136,8 @@ impl Wallet for DefaultWallet {
     }
 
     fn get_not_expired(&self, key: &str) -> Result<String, WalletError> {
+        info!("wallet.get_not_expired >>> key: {}", key);
+
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }

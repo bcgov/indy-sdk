@@ -15,6 +15,7 @@ use self::time::Timespec;
 use std::fs;
 use std::path::PathBuf;
 use std::ops::Sub;
+use std::sync::{Mutex, Arc};
 
 use self::indy_crypto::utils::json::JsonDecodable;
 
@@ -76,8 +77,10 @@ struct VirtualWalletRecord {
     time_created: Timespec
 }
 
+// Data struct for virtual wallet
+// Notice that wallet_name is wrapped in a Mutex to force single-threading
 struct VirtualWallet {
-    wallet_name: String,
+    wallet_name: Arc<Mutex<String>>,
     pool_name: String,
     config: VirtualWalletRuntimeConfig,
     credentials: VirtualWalletCredentials
@@ -89,7 +92,7 @@ impl VirtualWallet {
            config: VirtualWalletRuntimeConfig,
            credentials: VirtualWalletCredentials) -> VirtualWallet {
         VirtualWallet {
-            wallet_name: name.to_string(),
+            wallet_name: Arc::new(Mutex::new(name.to_string())),
             pool_name: pool_name.to_string(),
             config: config,
             credentials: credentials
@@ -103,9 +106,19 @@ fn root_wallet_name(wallet_name: &str) -> String {
 }
 
 // Helper function to extract the virtual wallet name from the credentials
-fn virtual_wallet_name(wallet_name: &str, credentials: &VirtualWalletCredentials) -> String {
+fn virtual_wallet_name(wallet_name: &str, credentials: &VirtualWalletCredentials, key: &str) -> String {
     match credentials.virtual_wallet {
-        Some(ref s) => s.to_string(),
+        Some(ref s) => {
+            if key.starts_with("my_did::") || key.starts_with("their_did::") || key.starts_with("did::") {
+                // special case for did's (for now)
+                wallet_name.to_string()
+            } else {
+                let mut v_w = wallet_name.to_string();
+                v_w.push_str("::");
+                v_w.push_str(s);
+                v_w
+            }
+        },
         None => wallet_name.to_string()
     }
 }
@@ -133,17 +146,22 @@ fn call_get_internal(root_wallet_name: &str, wallet_name: &str,
 
 impl Wallet for VirtualWallet {
     fn set(&self, key: &str, value: &str) -> Result<(), WalletError> {
+        info!("wallet.set >>> key: {}, value: {}", key, value);
+
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
         
-        _open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?
+        let wallet_name_ref = self.wallet_name.clone();
+        let wallet_name_guard = wallet_name_ref.lock().unwrap();
+
+        _open_connection(root_wallet_name(&wallet_name_guard).as_str(), &self.credentials)?
             .execute(
                 "INSERT OR REPLACE INTO wallet 
                 (virtual_wallet, key, value, time_created) 
                 VALUES 
                 (?1, ?2, ?3, ?4)",
-                &[&virtual_wallet_name(&self.wallet_name, &self.credentials).as_str(), &key.to_string(), &value.to_string(), &time::get_time()])?;
+                &[&virtual_wallet_name(&wallet_name_guard, &self.credentials, &key).as_str(), &key.to_string(), &value.to_string(), &time::get_time()])?;
         Ok(())
     }
 
@@ -151,18 +169,23 @@ impl Wallet for VirtualWallet {
     // will *also* check the root wallet
     // keys shared between all virtual wallets can be stored once in the root
     fn get(&self, key: &str) -> Result<String, WalletError> {
+        info!("wallet.get >>> key: {}", key);
+
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
 
-        let result = call_get_internal(&root_wallet_name(&self.wallet_name), 
-                                        &virtual_wallet_name(&self.wallet_name, &self.credentials),
+        let wallet_name_ref = self.wallet_name.clone();
+        let wallet_name_guard = wallet_name_ref.lock().unwrap();
+
+        let result = call_get_internal(&root_wallet_name(&wallet_name_guard), 
+                                        &virtual_wallet_name(&wallet_name_guard, &self.credentials, &key),
                                         &self.credentials, key);
         match result {
             Ok(record) => Ok(record),
             Err(why) => {
-                let result2 = call_get_internal(&root_wallet_name(&self.wallet_name), 
-                                                &root_wallet_name(&self.wallet_name),
+                let result2 = call_get_internal(&root_wallet_name(&wallet_name_guard), 
+                                                &root_wallet_name(&wallet_name_guard),
                                                 &self.credentials, key);
                 match result2 {
                     Ok(record2) => Ok(record2),
@@ -174,14 +197,19 @@ impl Wallet for VirtualWallet {
 
     // list will return records only from the selected wallet (root or virtual)
     fn list(&self, key_prefix: &str) -> Result<Vec<(String, String)>, WalletError> {
+        info!("wallet.list >>> key_prefix: {}", key_prefix);
+
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
 
-        let connection = _open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?;
+        let wallet_name_ref = self.wallet_name.clone();
+        let wallet_name_guard = wallet_name_ref.lock().unwrap();
+
+        let connection = _open_connection(root_wallet_name(&wallet_name_guard).as_str(), &self.credentials)?;
         let mut stmt = connection.prepare("SELECT key, value, time_created 
                 FROM wallet WHERE virtual_wallet = ?1 AND key like ?2 order by key")?;
-        let records = stmt.query_map(&[&virtual_wallet_name(&self.wallet_name, &self.credentials).as_str(), &format!("{}%", key_prefix)], |row| {
+        let records = stmt.query_map(&[&virtual_wallet_name(&wallet_name_guard, &self.credentials, &key_prefix).as_str(), &format!("{}%", key_prefix)], |row| {
             VirtualWalletRecord {
                 key: row.get(0),
                 value: row.get(1),
@@ -203,15 +231,20 @@ impl Wallet for VirtualWallet {
     // will *also* check the root wallet
     // keys shared between all virtual wallets can be stored once in the root
     fn get_not_expired(&self, key: &str) -> Result<String, WalletError> {
+        info!("wallet.get_not_expired >>> key: {}", key);
+
         if self.credentials.rekey.is_some() {
             return Err(WalletError::CommonError(CommonError::InvalidStructure(format!("Invalid wallet credentials json"))));
         }
 
-        let record = _open_connection(root_wallet_name(&self.wallet_name).as_str(), &self.credentials)?
+        let wallet_name_ref = self.wallet_name.clone();
+        let wallet_name_guard = wallet_name_ref.lock().unwrap();
+
+        let record = _open_connection(root_wallet_name(&wallet_name_guard).as_str(), &self.credentials)?
             .query_row(
                 "SELECT key, value, time_created 
                 FROM wallet WHERE virtual_wallet = ?1 AND key = ?2 LIMIT 1",
-                &[&virtual_wallet_name(&self.wallet_name, &self.credentials).as_str(), &key.to_string()], |row| {
+                &[&virtual_wallet_name(&wallet_name_guard, &self.credentials, &key).as_str(), &key.to_string()], |row| {
                     VirtualWalletRecord {
                         key: row.get(0),
                         value: row.get(1),
@@ -227,14 +260,20 @@ impl Wallet for VirtualWallet {
         return Ok(record.value);
     }
 
-    fn close(&self) -> Result<(), WalletError> { Ok(()) }
+    fn close(&self) -> Result<(), WalletError> { 
+        info!("wallet.close >>>");
+
+        Ok(()) 
+     }
 
     fn get_pool_name(&self) -> String {
         self.pool_name.clone()
     }
 
     fn get_name(&self) -> String {
-        self.wallet_name.clone()
+        let wallet_name_ref = self.wallet_name.clone();
+        let wallet_name_guard = wallet_name_ref.lock().unwrap();
+        wallet_name_guard.clone()
     }
 }
 
@@ -248,7 +287,7 @@ impl VirtualWalletType {
 
 impl WalletType for VirtualWalletType {
     fn create(&self, name: &str, config: Option<&str>, credentials: Option<&str>) -> Result<(), WalletError> {
-        trace!("VirtualWalletType.create >> {}, with config {:?} and credentials {:?}", name, config, credentials);
+        info!("VirtualWalletType.create >> {}, with config {:?} and credentials {:?}", name, config, credentials);
         let root_name = root_wallet_name(&name);
         let path = _db_path(&root_name);
         if path.exists() {
@@ -282,7 +321,7 @@ impl WalletType for VirtualWalletType {
     }
 
     fn delete(&self, name: &str, config: Option<&str>, credentials: Option<&str>) -> Result<(), WalletError> {
-        trace!("VirtualWalletType.delete {}, with config {:?} and credentials {:?}", name, config, credentials);
+        info!("VirtualWalletType.delete {}, with config {:?} and credentials {:?}", name, config, credentials);
         // FIXME: parse and implement credentials!!!
         let root_name = root_wallet_name(&name);
         Ok(fs::remove_file(_db_path(&root_name)).map_err(map_err_trace!())?)
@@ -422,15 +461,24 @@ mod tests {
         
         let credentials1 = VirtualWalletCredentials{key: String::from("key"), rekey: None, 
                             virtual_wallet: Some(String::from("virtual"))};
-        let w2 = virtual_wallet_name("root", &credentials1);
-        assert_eq!("virtual", w2);
+        let w2 = virtual_wallet_name("root", &credentials1, "some::key");
+        assert_eq!("root::virtual", w2);
+
+        let w2a = virtual_wallet_name("root", &credentials1, "my_did::some_key");
+        assert_eq!("root", w2a);
+        let w2b = virtual_wallet_name("root", &credentials1, "their_did::some_key");
+        assert_eq!("root", w2b);
+        let w2c = virtual_wallet_name("root", &credentials1, "did::some_key");
+        assert_eq!("root", w2c);
+        let w2d = virtual_wallet_name("root", &credentials1, "claim_metadata::some_key::more_data");
+        assert_eq!("root::virtual", w2d);
         
         let w3 = root_wallet_name("root");
         assert_eq!("root", w3);
         
         let credentials2 = VirtualWalletCredentials{key: String::from("key"), rekey: None, 
                             virtual_wallet: None};
-        let w4 = virtual_wallet_name("root", &credentials2);
+        let w4 = virtual_wallet_name("root", &credentials2, "some::key");
         assert_eq!("root", w4);
     }
 

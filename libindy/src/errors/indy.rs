@@ -1,3 +1,5 @@
+extern crate backtrace;
+
 use errors::anoncreds::AnoncredsError;
 use errors::common::CommonError;
 use errors::ledger::LedgerError;
@@ -11,6 +13,8 @@ use errors::ToErrorCode;
 
 use std::error;
 use std::fmt;
+use backtrace::Backtrace;
+
 
 #[derive(Debug)]
 pub enum IndyError {
@@ -66,6 +70,8 @@ impl error::Error for IndyError {
 impl ToErrorCode for IndyError {
     fn to_error_code(&self) -> ErrorCode {
         error!("Casting error to ErrorCode: {}", self);
+        let bt = Backtrace::new();
+        error!("Backtrace: {:?}", bt);
         match *self {
             IndyError::AnoncredsError(ref err) => err.to_error_code(),
             IndyError::CommonError(ref err) => err.to_error_code(),

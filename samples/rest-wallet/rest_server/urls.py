@@ -19,5 +19,5 @@ from django.conf.urls import include
 urlpatterns = [
     # the next line is for DRF tokens, comment out for JWT tokens
     url(r'^api-auth/', include('rest_framework.urls')),
-    url(r'^', include('api.urls')),
+    url(r'^api/v1/', include('api.urls')),
 ]

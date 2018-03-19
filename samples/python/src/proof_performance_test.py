@@ -4,8 +4,11 @@ import json
 import logging
 from typing import Optional
 import time
+import requests
+from requests.auth import HTTPBasicAuth
 
 from src.utils import get_pool_genesis_txn_path
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -14,6 +17,22 @@ logging.basicConfig(level=logging.INFO)
 async def run(wallet_type):
     logger.info("Getting started -> started")
     logger.info("Wallet Type --> " + wallet_type)
+
+    remote_base_url = "http://localhost:8000/api/v1/"
+    remote_userid = "wall-e"
+    remote_password = "pass1234"
+    remote_token = ""
+    wallet_config = None
+    wallet_credentials = '{"key":""}'
+
+    if wallet_type == "remote":
+        remote_token = await remote_rest_auth(remote_base_url, remote_userid, remote_password)
+        wallet_config = '{"endpoint":"' + remote_base_url + '", ' \
+                          '"ping":"schema/", ' \
+                          '"auth":"api-token-auth/", ' \
+                          '"keyval":"keyval/", ' \
+                          '"freshness_time":0}'
+        wallet_credentials = '{"auth_token":"' + remote_token + '"}'
 
     logger.info("Open Pool Ledger")
     pool_name = 'pool1'
@@ -41,7 +60,8 @@ async def run(wallet_type):
 
     government_wallet, government_wallet_name, steward_government_key, government_steward_did, government_steward_key, _ \
         = await onboarding(pool_handle, pool_name, "Sovrin Steward", steward_wallet,
-                           steward_did, "Government", None, 'government_wallet', wallet_type)
+                           steward_did, "Government",
+                           None, 'government_wallet', 'default', None, None)
 
     logger.info("==============================")
     logger.info("== Getting Trust Anchor credentials - Government getting Verinym  ==")
@@ -56,7 +76,7 @@ async def run(wallet_type):
     logger.info("------------------------------")
     faber_wallet, faber_wallet_name, steward_faber_key, faber_steward_did, faber_steward_key, _ = \
         await onboarding(pool_handle, pool_name, "Sovrin Steward", steward_wallet, steward_did,
-                         "Faber", None, 'faber_wallet', wallet_type)
+                         "Faber", None, 'faber_wallet', 'default', None, None)
 
     logger.info("==============================")
     logger.info("== Getting Trust Anchor credentials - Faber getting Verinym  ==")
@@ -71,7 +91,7 @@ async def run(wallet_type):
 
     acme_wallet, acme_wallet_name, steward_acme_key, acme_steward_did, acme_steward_key, _ = \
         await onboarding(pool_handle, pool_name, "Sovrin Steward", steward_wallet, steward_did,
-                         "Acme", None, 'acme_wallet', wallet_type)
+                         "Acme", None, 'acme_wallet', 'default', None, None)
 
     logger.info("==============================")
     logger.info("== Getting Trust Anchor credentials - Acme getting Verinym  ==")
@@ -86,7 +106,7 @@ async def run(wallet_type):
 
     thrift_wallet, thrift_wallet_name, steward_thrift_key, thrift_steward_did, thrift_steward_key, _ = \
         await onboarding(pool_handle, pool_name, "Sovrin Steward", steward_wallet, steward_did,
-                         "Thrift", None, 'thrift_wallet', wallet_type)
+                         "Thrift", None, 'thrift_wallet', 'default', None, None)
 
     logger.info("==============================")
     logger.info("== Getting Trust Anchor credentials - Thrift getting Verinym  ==")
@@ -180,10 +200,11 @@ async def run(wallet_type):
     logger.info("------------------------------")
 
     alice_wallet, alice_wallet_name, faber_alice_key, alice_faber_did, alice_faber_key, faber_alice_connection_response \
-        = await onboarding(pool_handle, pool_name, "Faber", faber_wallet, faber_did, "Alice", None, 'alice_wallet', wallet_type)
+        = await onboarding(pool_handle, pool_name, "Faber", faber_wallet, faber_did, "Alice", None,
+                           'alice_wallet', wallet_type, wallet_config, wallet_credentials)
     alice_root_wallet = alice_wallet_name
 
-    if wallet_type == "virtual":
+    if wallet_type == "virtual" or wallet_type == "remote":
         # we will open a virtual wallet per transcript
         logger.info("Closing Alice wallet")
         await wallet.close_wallet(alice_wallet)
@@ -199,13 +220,16 @@ async def run(wallet_type):
         logger.info("------------------------------")
 
         # for enterprise wallet scenario, open a virtual wallet for each transcript
-        if wallet_type == "virtual":
+        alice_wallet_credentials = None
+        if wallet_type == "virtual" or wallet_type == "remote":
             alice_wallet_name = alice_root_wallet
-            alice_wallet_credentials = '{"key":"", "virtual_wallet":"v' + str(i) + '"}'
-            # '{"key":"testkey", "virtual_wallet":"newwallet"}'
-            logger.info("Opening Alice Virtual Wallet --> " + alice_wallet_name)
+            if wallet_type == "virtual":
+                alice_wallet_credentials = '{"key":"", "virtual_wallet":"vw_' + str(i) + '"}'
+            if wallet_type == "remote":
+                alice_wallet_credentials = '{"auth_token":"' + remote_token + '", "virtual_wallet":"vw_' + str(i) + '"}'
+            logger.info("Opening Alice " + wallet_type + " Wallet --> " + alice_wallet_name)
             logger.info("Alice Virtual Wallet Creds --> " + alice_wallet_credentials)
-            alice_wallet = await wallet.open_wallet(alice_wallet_name, None, alice_wallet_credentials)
+            alice_wallet = await wallet.open_wallet(alice_wallet_name, wallet_config, alice_wallet_credentials)
 
         logger.info("\"Faber\" -> Create \"Transcript\" Claim Offer for Alice")
         transcript_claim_offer_json = \
@@ -301,7 +325,8 @@ async def run(wallet_type):
         logger.info("------------------------------")
 
         alice_wallet, alice_wallet_name, acme_alice_key, alice_acme_did, alice_acme_key, acme_alice_connection_response = \
-            await onboarding(pool_handle, pool_name, "Acme", acme_wallet, acme_did, "Alice", alice_wallet, ' alice_wallet', wallet_type)
+            await onboarding(pool_handle, pool_name, "Acme", acme_wallet, acme_did, "Alice", alice_wallet,
+                             'alice_wallet', wallet_type, wallet_config, alice_wallet_credentials)
 
         logger.info("==============================")
         logger.info("== Apply for the job with Acme - Transcript proving ==")
@@ -554,7 +579,7 @@ async def run(wallet_type):
         # await anoncreds.prover_store_claim(alice_wallet, authdecrypted_job_certificate_claim_json, None)
 
         # for enterprise wallet scenario, close virtual wallet
-        if wallet_type == "virtual":
+        if wallet_type == "virtual" or wallet_type == "remote":
             logger.info("Closing Alice Virtual Wallet --> " + alice_wallet_name)
             await wallet.close_wallet(alice_wallet)
             alice_wallet_name = alice_root_wallet
@@ -569,7 +594,8 @@ async def run(wallet_type):
     #
     # alice_wallet, alice_wallet_name, thrift_alice_key, alice_thrift_did, alice_thrift_key, \
     # thrift_alice_connection_response = await onboarding(pool_handle, pool_name, "Thrift", thrift_wallet, thrift_did,
-    #                                                     "Alice", alice_wallet, ' alice_wallet', wallet_type)
+    #                                                     "Alice", alice_wallet,
+    #                                                     'alice_wallet', wallet_type, wallet_config, alice_wallet_credentials)
     #
     # logger.info("==============================")
     # logger.info("== Apply for the loan with Thrift - Job-Certificate proving  ==")
@@ -791,7 +817,7 @@ async def run(wallet_type):
     await wallet.delete_wallet(thrift_wallet_name, None)
 
     logger.info("\"Alice\" -> Close and Delete wallet")
-    if wallet_type != "virtual":
+    if wallet_type != "virtual" and wallet_type != "remote":
         # already dealt with this for enterprise scenario
         await wallet.close_wallet(alice_wallet)
     await wallet.delete_wallet(alice_wallet_name, '{"key":""}')
@@ -806,7 +832,9 @@ async def run(wallet_type):
 async def onboarding(pool_handle, pool_name, _from, from_wallet, from_did, to,
                      to_wallet: Optional[str],
                      to_wallet_name: Optional[str],
-                     to_wallet_type: Optional[str]):
+                     to_wallet_type: Optional[str],
+                     to_wallet_config: Optional[str],
+                     to_wallet_creds: Optional[str]):
     logger.info("\"{}\" -> Create and store in Wallet \"{} {}\" DID".format(_from, _from, to))
     (from_to_did, from_to_key) = await did.create_and_store_my_did(from_wallet, "{}")
 
@@ -820,9 +848,18 @@ async def onboarding(pool_handle, pool_name, _from, from_wallet, from_did, to,
     }
 
     if not to_wallet:
+        if not to_wallet_config:
+            to_wallet_config = None
+        if not to_wallet_creds:
+            to_wallet_creds = '{"key":""}'
         logger.info("\"{}\" -> Create wallet".format(to))
-        await wallet.create_wallet(pool_name, to_wallet_name, to_wallet_type, None, '{"key":""}')
-        to_wallet = await wallet.open_wallet(to_wallet_name, None, '{"key":""}')
+        logger.info("Opening Wallet --> " + to_wallet_name)
+        if to_wallet_config:
+            logger.info("Wallet Config --> " + to_wallet_config)
+        if to_wallet_creds:
+            logger.info("Wallet Creds --> " + to_wallet_creds)
+        await wallet.create_wallet(pool_name, to_wallet_name, to_wallet_type, to_wallet_config, to_wallet_creds)
+        to_wallet = await wallet.open_wallet(to_wallet_name, to_wallet_config, to_wallet_creds)
 
     logger.info("\"{}\" -> Create and store in Wallet \"{} {}\" DID".format(to, to, _from))
     (to_from_did, to_from_key) = await did.create_and_store_my_did(to_wallet, "{}")
@@ -942,3 +979,12 @@ async def auth_decrypt(wallet_handle, key, message):
     # logger.info(decrypted_message_json)
     decrypted_message = json.loads(decrypted_message_json)
     return from_verkey, decrypted_message_json, decrypted_message
+
+
+async def remote_rest_auth(url, userid, password):
+    my_url = url + "api-token-auth/"
+    response = requests.post(my_url, data = {"username":userid, "password":password})
+    json_data = response.json()
+    token = json_data["token"]
+    logger.info("Authenticated remote wallet server: " + token)
+    return token
