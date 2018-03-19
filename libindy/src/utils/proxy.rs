@@ -136,7 +136,8 @@ pub fn rest_post_request_auth(req_url: &str, userid: &str, password: &str) -> Re
 }
 
 pub fn rest_check_result(mut res: Response) -> Result<(), RestError> {
-    if res.status().is_success() {
+    debug!("Got response status {}", res.status());
+        if res.status().is_success() {
         let mut buf: Vec<u8> = vec![];
         let _cres = res.copy_to(&mut buf);
         match str::from_utf8(buf.as_slice()) {
@@ -156,12 +157,20 @@ pub fn rest_extract_response_body(mut res: Response) -> Result<String, RestError
         let mut buf: Vec<u8> = vec![];
         let _cres = res.copy_to(&mut buf);
         match str::from_utf8(buf.as_slice()) {
-            Ok(v) => Ok(v.to_owned()),
-            Err(e) => Err(RestError::RestInvalidResponse(format!("Invalid UTF-8 sequence: {:?}", e)))
+            Ok(v) => {
+                debug!("Got response body {}", v);
+                Ok(v.to_owned())
+            },
+            Err(e) => {
+                error!(">>>>> Rest server invalid response format");
+                Err(RestError::RestInvalidResponse(format!("Invalid UTF-8 sequence: {:?}", e)))
+            }
         }
     } else if res.status().is_server_error() {
+        error!(">>>>> Rest server error: {}", res.status());
         Err(RestError::RestServerError(format!("Server error {:?}", res.status())))
     } else {
+        error!(">>>>> Rest server error: {}", res.status());
         Err(RestError::RestOtherError(format!("Something else happened {:?}", res.status())))
     }
 }
@@ -176,13 +185,19 @@ pub fn rest_extract_response_item(mut res: Response, item_name: &str) -> Result<
                 let v: Value = serde_json::from_str(v).unwrap();
                 // Access parts of the data by indexing with square brackets.
                 let ss = v[item_name].as_str().unwrap();
+                info!("Returning value {} for item {}", ss, item_name);
                 return Ok(ss.to_owned())
             },
-            Err(e) => return Err(RestError::RestInvalidResponse(format!("Invalid UTF-8 sequence: {:?}", e)))
+            Err(e) => {
+                error!(">>>>> Rest server invalid response format");
+                return Err(RestError::RestInvalidResponse(format!("Invalid UTF-8 sequence: {:?}", e)))
+            }
         };
     } else if res.status().is_server_error() {
+        error!(">>>>> Rest server error: {}", res.status());
         Err(RestError::RestServerError(format!("Server error {:?}", res.status())))
     } else {
+         error!(">>>>> Rest server error: {}", res.status());
         Err(RestError::RestOtherError(format!("Something else happened {:?}", res.status())))
     }
 }
@@ -214,10 +229,12 @@ pub fn body_as_vec(body: &str, keys: &Vec<&str>) -> Result<Vec<HashMap<String, S
         Ok(v) => {
             match v {
                 serde_json::Value::String(s) => {
+                    info!(">>>>> Rest response format error: {}", body);
                     return Err(RestError::RestResponseFormatError(format!("Expecting an object or array but got a string {}", s)));
                 },
                 serde_json::Value::Object(o) => {
                     let om = object_as_hashmap(&o, keys);
+                    info!(">>>>> Rest response object: {:?}", om);
                     r_values.push(om);
                     ()
                 },
@@ -227,16 +244,20 @@ pub fn body_as_vec(body: &str, keys: &Vec<&str>) -> Result<Vec<HashMap<String, S
                             let om = object_as_hashmap(a[i].as_object().unwrap(), keys);
                             r_values.push(om);
                         } else {
+                            info!(">>>>> Rest response format error: {}", body);
                             return Err(RestError::RestResponseFormatError(format!("Expecting an array of objects {:?}", a[i])));
                         }
                     }
+                    info!(">>>>> Rest response array: {:?}", r_values);
                 },
                 _ => {
+                    info!(">>>>> Rest response format error: {}", body);
                     return Err(RestError::RestResponseFormatError(format!("Expecting an array of objects {:?}", v)));
                 } 
             }
         },
         Err(e) => {
+            info!(">>>>> Rest response format error: {}", body);
             return Err(RestError::RestResponseFormatError(format!("Expecting a json object or array {:?}", e)));
         }
     }
