@@ -199,10 +199,16 @@ The deliverables for phase 2 and 3 of this project are summarized below.
 ## Phase 2 - Large Scale Wallet solution
 
 * indy-sdk reference implementations for virtual and remote wallets
+    * 'virtual' and 'remote' wallet types added to indy-sdk
+    * reference implementation of a RESTful wallet server, implemented using Django and SQLite
 * unit tests for the above, and any other required sdk changes
 * TOB wallet server, including PostgreSQL implementation
+    * PostgreSQL wallet implementation added to TheorgBook project
 * updates to TOB-API and von-agent to integrate with the new TOB wallet
+    * code updated and merged March 19
+    * testing and stability improvements are in progress
 * performance testing scripts for TOB Wallet and TOB-API
+    * performance testing scripts are in progress
 * updates to the design documents for any changes that occur during the development phase
 
 ## Phase 3 - Claims filtering
