@@ -173,7 +173,7 @@ impl WalletUtils {
                                         "auth": "api-token-auth/",
                                         "keyval": "keyval/",
                                         "freshness_time": 0}"#.to_owned());
-                        my_credentials_str = format!("{{\"auth_token\": \"Token {}\"}}", token);
+                        my_credentials_str = format!("{{\"auth_token\": \"{}\"}}", token);
                         credentials = Some(my_credentials_str.clone());
                     },
                     _ => ()
