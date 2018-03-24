@@ -3,6 +3,7 @@ from indy import anoncreds, crypto, did, ledger, pool, wallet
 import json
 import logging
 from typing import Optional
+import time
 
 from src.utils import get_pool_genesis_txn_path
 
@@ -331,8 +332,12 @@ async def run():
         await auth_decrypt(alice_wallet, alice_acme_key, authcrypted_job_application_proof_request_json)
 
     logger.info("\"Alice\" -> Get claims for \"Job-Application\" Proof Request")
+    time1 = time.time()
     claims_for_job_application_proof_request = json.loads(
         await anoncreds.prover_get_claims_for_proof_req(alice_wallet, authdecrypted_job_application_proof_request_json))
+    time2 = time.time()
+    etime = 1000 * (time2 - time1)
+    logger.info("anoncreds.prover_get_claims_for_proof_req()," + str(etime))
 
     claim_for_attr1 = claims_for_job_application_proof_request['attrs']['attr1_referent'][0]
     claim_for_attr2 = claims_for_job_application_proof_request['attrs']['attr2_referent'][0]
@@ -366,10 +371,14 @@ async def run():
         'requested_predicates': {'predicate1_referent': claim_for_predicate1['referent']}
     })
 
+    time1 = time.time()
     job_application_proof_json = \
         await anoncreds.prover_create_proof(alice_wallet, authdecrypted_job_application_proof_request_json,
                                             job_application_requested_claims_json, schemas_json,
                                             alice_master_secret_name, claim_defs_json, revoc_regs_json)
+    time2 = time.time()
+    etime = 1000 * (time2 - time1)
+    logger.info("anoncreds.prover_create_proof()," + str(etime))
 
     logger.info("\"Alice\" -> Authcrypt \"Job-Application\" Proof for Acme")
     authcrypted_job_application_proof_json = await crypto.auth_crypt(alice_wallet, alice_acme_key, acme_alice_verkey,

@@ -11,7 +11,6 @@ use super::{Wallet, WalletType};
 
 use errors::common::CommonError;
 use errors::wallet::WalletError;
-use utils::environment::EnvironmentUtils;
 use hyper::header::{Headers};
 use std::collections::HashMap;
 use self::time::Timespec;
