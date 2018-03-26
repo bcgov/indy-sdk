@@ -9,7 +9,7 @@ Examples of EKM solutions include SafeNet (https://safenet.gemalto.com/data-encr
 
 EKM Solutions can use Hardware Security Modules (HSMs) to securely store cryptographic keys and other secrets.  HSMs provide "hardened" storage and are designed for access by a limited number of individuals.
 
-EKM is used in conjunction with Enterprise Key Integration (or EKI) Solutions.  EKI provides the integration of cryptographic keys and secrets with business applications and solutions, which include the requirement to :
+EKM is used in conjunction with Enterprise Key Integration (EKI) Solutions.  EKI provides the integration of cryptographic keys and secrets with business applications and solutions, which can include:
 
 * Store encrypted data, in database, on disk, via email, etc.
 * Cryptographically sign materials
@@ -21,6 +21,22 @@ An enterprise solution includes all three of these components:
 * Multiple EKI solutions, to integrate the overall enterprise solution with the individual line of business applications
 
 ![EKM/EKI Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/ekm-overview.png "EKM/EKI Integration")
+
+An HSM provides the maximum security for sensitive cryptographic keys, however the wider these keys are distributed, the less value the HSM provides.  If the HSM is used in a point solution (EKI), then the applications will have access to the keys stored on the HSM, and this increases the risk of exposure of these keys.
+
+One option is to use the HSM to store "root" certificates (for a CA for example) and distribute keys issues by the CA:
+
+![EKM/CA/EKI Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/ekm-overview2.png "EKM/CA/EKI Integration")
+
+* Access to the HSM is restricted - only a small number of individuals have access to the root certificates
+* Any certificates which must be supplied to point-EKI implementations:
+    * Must be signed certificates issued by the CA (and can be revoked if the "root" certificates are compromised)
+    * Must be encrypted with keys issued by the EKM
+* Keys used by EKI solutions can be:
+    * encrypted
+    * supplied by the EKM solution
+* Procedures for rotating and revoking keys and certificates must be defined
+* Must have backup processes in case the "root" certificates are lost or compromised.
 
 ## Enterprise Key Management Examples
 
@@ -35,7 +51,7 @@ CyberArk, which manages passwords for privileged accounts rather than encryption
 
 Another example of an EKM/EKI systems uses SafeNet as the EKM, and uses and HSM to store "root" certificates for a CA:
 
-![SafeNet Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/sfenet-overview.png "SafeNet Integration")
+![SafeNet Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/safenet-overview.png "SafeNet Integration")
 
 In this example the HSM is used to store the "root" certificates of the CA, and the CA is used to provide keys to applications like Protegrity Database Protector (http://www.protegrity.com/products/protegrity-protectors/protegrity-database-protector/) (for example, which supports encrypted content within an Oracle database).  
 
@@ -43,30 +59,19 @@ In this example Protegrity is implementing EKI.  Protegrity must be supplied key
 
 * https://www.scmagazine.com/enterprise-key-management-deciphered/article/555359/
 
-A Hardware Storage Module can be used to provide the maximum security for sensitive cryptographic keys, however the wider these keys are used, the less value the HSM provides.  If the HSM is used in a point solution, then the applications (such as Protegrity) have access to the keys stored on the HSM, and this increases the risk of exposure of these keys.
-
-* CA "root" certificates and other "sensitive" keys are stored on an HSM
-* Access to the HSM is restricted - only a small number of individuals have access to the root certificates
-* Any certificates which must be supplied to point-EKI implementations:
-    * Must be signed certificates issued by the CA (and can be revoked if the "root" certificates are compromised)
-    * Must be encrypted with keys issued by the EKM
-* Keys used by EKI solutions can be:
-    * encrypted
-    * supplied by the EKM solution
-* Procedures for rotating and revoking keys and certificates must be defined
-* Must have backup processes in case the "root" certificates are lost or compromised.
-
 ## TheOrgBook and Indy DID's (Private Keys)
 
 Distributed IDentifiers (DID's) are used within Hyperledger Indy to manage identities and communications between network participants.
 
 A DID consists of a private key (the DID) and a public key (the "verkey").  A network participant will have multiple DID's - one DID that is used to uniquely identify their organization, and one DID per each relationship they have with other network participants.  The subject uses their DID to sign content and affirm their relationship, so this data needs to be secured.
 
-For TheOrgBook implementation, the DID's are generated based on a SEED and stored in the Enterprise Wallet.  The contents of the Wallet are not encrypted, although the SDK supports this with the 'default' (and 'virtual') wallets, which use SQLCrypt as their back-end storage.
+For TheOrgBook implementation, the DID's are generated based on a SEED and stored in the Enterprise Wallet.  The contents of the Wallet are not (currently) encrypted, although the SDK supports this with the 'default' (and 'virtual') wallets, which use SQLCrypt as their back-end storage.
 
 The TOB Solution overview is shown below:
 
-TBD picture to follow ...
+![TheOrgBook Overview](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/tob-overview.png "TheOrgBook Overview")
+
+In TheOrgBook solution, DIDs (cryptographic secrets) are stored in each wallet, and in the Ledger.
 
 TOB is deployed within OpenShift, and runs in a collection of Containers.  OpenShift Containers run under Service Accounts that are granted permission to access resources.  "Secrets" can be attached to Service Accounts, in order to provide passwords or other credentials that the Service Accounts need to access protected resources (such as a user id and password, required to connect to a database).
 
@@ -75,7 +80,7 @@ TOB is deployed within OpenShift, and runs in a collection of Containers.  OpenS
 * https://docs.openshift.com/container-platform/3.3/architecture/index.html
 * Keycloak (not sure if relevant) https://developers.redhat.com/blog/2018/03/19/sso-made-easy-keycloak-rhsso/
 
-## DID Key Management
+## TOB/DID Key Management
 
 TheOrgBook and Permitify are provided a SEED on startup, and this SEED is used to calculate the DID for the organization.  This DID is stored in the SDK Wallet, so an alternate method of securing the startup process is possible.  (Since the DID is available in the Wallet, the application can read the DID on startup.  However in this scenario a startup password or key should be required.)
 

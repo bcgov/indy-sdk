@@ -1,0 +1,13 @@
+@startuml
+
+node EKM {
+  component HSM
+  component CA
+}
+
+node EKI
+
+HSM -right- CA
+CA -right- EKI
+
+@enduml

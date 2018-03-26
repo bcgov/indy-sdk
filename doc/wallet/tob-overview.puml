@@ -1,0 +1,53 @@
+@startuml
+
+actor User
+
+cloud OpenShift {
+  node Ledger
+  database ledger_storage {
+    folder crypto3
+  }
+
+  node TOB {
+    component tob_web
+    component tob_api
+    component tob_sdk
+  }
+  folder openshift_tob_secrets
+  database tob_search {
+    folder claims
+  }
+  database tob_wallet {
+    folder crypto1
+  }
+
+  node permitify {
+    component permitify_web
+    component permitify_sdk
+  }
+  folder openshift_permitify_secrets
+  database permitify_wallet {
+    folder crypto2
+  }
+}
+
+User -down- tob_web
+User -down- permitify_web
+
+tob_web -down- tob_api
+tob_api -down- tob_sdk
+tob_sdk -down- Ledger
+tob_api -left- tob_search
+tob_sdk -left- tob_wallet
+
+permitify_web -down- permitify_sdk
+permitify_sdk -down- Ledger
+permitify_web -left- tob_api
+permitify_sdk -left- permitify_wallet
+
+TOB -down- openshift_tob_secrets
+permitify -down- openshift_permitify_secrets
+
+Ledger -down- ledger_storage
+
+@enduml
