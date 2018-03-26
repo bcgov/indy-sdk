@@ -82,12 +82,18 @@ TOB is deployed within OpenShift, and runs in a collection of Containers.  OpenS
 
 ## TOB/DID Key Management
 
-TheOrgBook and Permitify are provided a SEED on startup, and this SEED is used to calculate the DID for the organization.  This DID is stored in the SDK Wallet, so an alternate method of securing the startup process is possible.  (Since the DID is available in the Wallet, the application can read the DID on startup.  However in this scenario a startup password or key should be required.)
+TheOrgBook and Permitify are provided a SEED on startup, and this SEED is used to calculate the DID for the organization.  This DID is stored in the SDK Wallet.
 
 Additional DID's are created for any submitting service (e.g. BC Registries) - TheOrgBook will require pairwise DID's for each relationship (one DID identifying each participant) - these DID's are used only for this relationship.  These DID's are created through a manual process, and must also be available in the Wallet.
 
-TODO picture to follow ...
+There are two options of securing TheOrgBook DID's:
 
-Options for securing the creation and storage/retrieval of DID's includes:
+1. Store DID's (or SEEDs) in an HSM, and integrate with OpenShift:
 
-TBD options
+![TheOrgBook HSM Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/tob-integraion-1.png "TheOrgBook HSM Integration")
+
+1. Store root Crypto materials in an HSM, and implement some sort of EKM to generate SEEDs to integrate to OpenShift:
+
+![TheOrgBook EKM Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/tob-integraion-2.png "TheOrgBook EKM Integration")
+
+In either scenario, the capabilities to generate, rotate and delete keys must be considered.

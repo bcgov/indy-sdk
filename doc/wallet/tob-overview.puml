@@ -2,6 +2,8 @@
 
 actor User
 
+node Other_Org
+
 cloud OpenShift {
   node Ledger
   database ledger_storage {
@@ -21,7 +23,7 @@ cloud OpenShift {
     folder crypto1
   }
 
-  node permitify {
+  node Permitify {
     component permitify_web
     component permitify_sdk
   }
@@ -33,6 +35,7 @@ cloud OpenShift {
 
 User -down- tob_web
 User -down- permitify_web
+Other_Org -down- TOB
 
 tob_web -down- tob_api
 tob_api -down- tob_sdk
@@ -46,7 +49,7 @@ permitify_web -left- tob_api
 permitify_sdk -left- permitify_wallet
 
 TOB -down- openshift_tob_secrets
-permitify -down- openshift_permitify_secrets
+Permitify -down- openshift_permitify_secrets
 
 Ledger -down- ledger_storage
 
