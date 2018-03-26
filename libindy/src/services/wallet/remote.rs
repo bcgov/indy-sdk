@@ -11,7 +11,6 @@ use super::{Wallet, WalletType};
 
 use errors::common::CommonError;
 use errors::wallet::WalletError;
-use utils::environment::EnvironmentUtils;
 use hyper::header::{Headers};
 use std::collections::HashMap;
 use self::time::Timespec;
@@ -122,13 +121,18 @@ fn root_wallet_name(wallet_name: &str) -> String {
 }
 
 // Helper function to extract the virtual wallet name from the credentials
-fn virtual_wallet_name(wallet_name: &str, credentials: &RemoteWalletCredentials) -> String {
+fn virtual_wallet_name(wallet_name: &str, credentials: &RemoteWalletCredentials, key: &str) -> String {
     match credentials.virtual_wallet {
         Some(ref s) => {
-            let mut v_w = wallet_name.to_string();
-            v_w.push_str("::");
-            v_w.push_str(s);
-            v_w
+            if key.eq_ignore_ascii_case("my_did") || key.eq_ignore_ascii_case("their_did") || key.eq_ignore_ascii_case("did") {
+                // special case for did's (for now)
+                wallet_name.to_string()
+            } else {
+                let mut v_w = wallet_name.to_string();
+                v_w.push_str("::");
+                v_w.push_str(s);
+                v_w
+            }
         },
         None => wallet_name.to_string()
     }
@@ -141,10 +145,9 @@ fn in_virtual_wallet(root_wallet_name: &str, virtual_wallet_name: &str) -> bool 
 
 // Helper function to construct the endpoint for a REST request
 fn rest_endpoint(config: &RemoteWalletRuntimeConfig, 
-                    credentials: &RemoteWalletCredentials, 
                     wallet_name: &str) -> String {
     let keyval_endpoint = proxy::rest_endpoint(&config.endpoint, Some(&config.keyval));
-    proxy::rest_endpoint(&keyval_endpoint, Some(&virtual_wallet_name(wallet_name, credentials)))
+    proxy::rest_endpoint(&keyval_endpoint, Some(wallet_name))
 }
 
 // Helper function to construct the endpoint for a REST request
@@ -187,9 +190,12 @@ fn rest_auth_header(config: &RemoteWalletRuntimeConfig,
 // helper function to convert "key" to "item_type" and "item_id"
 fn key_to_item_type_id(key: &str) -> (String, String) {
     let split = key.split("::");
-    let vec: Vec<&str> = split.collect();
-    if vec.len() == 2 {
-        (vec[0].to_owned(), vec[1].to_owned())
+    let mut vec: Vec<&str> = split.collect();
+    if vec.len() >= 2 {
+        let item_type = vec[0];
+        vec.remove(0);
+        let item_id = vec.join("::");
+        (item_type.to_string(), item_id.to_string() )
     } else {
         panic!(format!("Error invalid key {}", key));
     }
@@ -274,11 +280,13 @@ pub fn rest_body_to_items(body: &str) -> Result<Vec<HashMap<String, String>>, Wa
 
 impl Wallet for RemoteWallet {
     fn set(&self, key: &str, value: &str) -> Result<(), WalletError> {
+        info!("wallet.set >>> key: {}, value: {}", key, value);
+
         let (item_type, item_id) = key_to_item_type_id(key);
 
         // check if we are doing  create or update
         let result = call_get_internal(&root_wallet_name(&self.wallet_name), 
-                                        &virtual_wallet_name(&self.wallet_name, &self.credentials),
+                                        &virtual_wallet_name(&self.wallet_name, &self.credentials, &item_type),
                                         &self.config, &self.credentials, key);
         let tmp_id = match result {
             Ok((id, _s)) => id,
@@ -307,7 +315,7 @@ impl Wallet for RemoteWallet {
         let headers = rest_auth_header(&self.config, &self.credentials);
 
         // build payload
-        let wallet_name = &virtual_wallet_name(&self.wallet_name, &self.credentials)[..];
+        let wallet_name = &virtual_wallet_name(&self.wallet_name, &self.credentials, &item_type)[..];
         let mut map = HashMap::new();
         map.insert("wallet_name", wallet_name);
         map.insert("item_type", &item_type);
@@ -347,14 +355,17 @@ impl Wallet for RemoteWallet {
     // will *also* check the root wallet
     // keys shared between all virtual wallets can be stored once in the root
     fn get(&self, key: &str) -> Result<String, WalletError> {
+        info!("wallet.get >>> key: {}", key);
+
+        let (item_type, item_id) = key_to_item_type_id(key);
         let result = call_get_internal(&root_wallet_name(&self.wallet_name), 
-                                        &virtual_wallet_name(&self.wallet_name, &self.credentials),
+                                        &virtual_wallet_name(&self.wallet_name, &self.credentials, &item_type),
                                         &self.config, &self.credentials, key);
         match result {
             Ok((_s, record)) => Ok(record),
             Err(why) => {
                 if in_virtual_wallet(&root_wallet_name(&self.wallet_name), 
-                                        &virtual_wallet_name(&self.wallet_name, &self.credentials)) {
+                                        &virtual_wallet_name(&self.wallet_name, &self.credentials, &item_type)) {
                     let result2 = call_get_internal(&root_wallet_name(&self.wallet_name), 
                                                     &root_wallet_name(&self.wallet_name),
                                                     &self.config, &self.credentials, key);
@@ -371,11 +382,13 @@ impl Wallet for RemoteWallet {
 
     // list will return records only from the selected wallet (root or virtual)
     fn list(&self, key_prefix: &str) -> Result<Vec<(String, String)>, WalletError> {
+        info!("wallet.list >>> key_prefix: {}", key_prefix);
+
         let item_type = key_prefix_to_type(key_prefix);
 
         // build request URL
         let req_url = rest_endpoint_for_resource(&self.config, &self.credentials, 
-                        &virtual_wallet_name(&self.wallet_name, &self.credentials), &item_type);
+                        &virtual_wallet_name(&self.wallet_name, &self.credentials, &item_type), &item_type);
 
         // build auth headers
         let headers = rest_auth_header(&self.config, &self.credentials);
@@ -418,11 +431,13 @@ impl Wallet for RemoteWallet {
     // will *also* check the root wallet
     // keys shared between all virtual wallets can be stored once in the root
     fn get_not_expired(&self, key: &str) -> Result<String, WalletError> {
+        info!("wallet.get_not_expired >>> key: {}", key);
+
         let (item_type, item_id) = key_to_item_type_id(key);
         
         // build request URL
         let req_url = rest_endpoint_for_resource_id(&self.config, &self.credentials, 
-                        &virtual_wallet_name(&self.wallet_name, &self.credentials), 
+                        &virtual_wallet_name(&self.wallet_name, &self.credentials, &item_type), 
                         &item_type, &item_id);
 
         // build auth headers
@@ -667,15 +682,24 @@ mod tests {
         
         let credentials1 = RemoteWalletCredentials{auth_token: Some(String::from("Token 1234567890")), 
                             virtual_wallet: Some(String::from("virtual"))};
-        let w2 = virtual_wallet_name("root", &credentials1);
+        let w2 = virtual_wallet_name("root", &credentials1, "some");
         assert_eq!("root::virtual", w2);
+        
+        let w2a = virtual_wallet_name("root", &credentials1, "my_did");
+        assert_eq!("root", w2a);
+        let w2b = virtual_wallet_name("root", &credentials1, "their_did");
+        assert_eq!("root", w2b);
+        let w2c = virtual_wallet_name("root", &credentials1, "did");
+        assert_eq!("root", w2c);
+        let w2d = virtual_wallet_name("root", &credentials1, "claim_metadata");
+        assert_eq!("root::virtual", w2d);
         
         let w3 = root_wallet_name("root");
         assert_eq!("root", w3);
         
         let credentials2 = RemoteWalletCredentials{auth_token: Some(String::from("Token 1234567890")), 
                             virtual_wallet: None};
-        let w4 = virtual_wallet_name("root", &credentials2);
+        let w4 = virtual_wallet_name("root", &credentials2, "some");
         assert_eq!("root", w4);
     }
 
