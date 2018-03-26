@@ -90,10 +90,10 @@ There are two options of securing TheOrgBook DID's:
 
 1. Store DID's (or SEEDs) in an HSM, and integrate with OpenShift:
 
-![TheOrgBook HSM Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/tob-integration-1.png "TheOrgBook HSM Integration")
+![TheOrgBook HSM Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/tob-integrate-1.png "TheOrgBook HSM Integration")
 
 1. Store root Crypto materials in an HSM, and implement some sort of EKM to generate SEEDs to integrate to OpenShift:
 
-![TheOrgBook EKM Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/tob-integration-2.png "TheOrgBook EKM Integration")
+![TheOrgBook EKM Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/tob-integrate-2.png "TheOrgBook EKM Integration")
 
 In either scenario, the capabilities to generate, rotate and delete keys must be considered.
