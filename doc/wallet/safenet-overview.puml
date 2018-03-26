@@ -1,0 +1,19 @@
+@startuml
+
+actor Admin
+
+node SafeNet {
+   component HSM
+   component CA
+}
+
+Admin -right- SafeNet
+HSM -right- CA
+
+node Protegrity
+database App_Database
+
+CA -right- Protegrity
+Protegrity -right- App_Database
+
+@enduml
