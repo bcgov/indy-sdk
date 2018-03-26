@@ -20,7 +20,7 @@ An enterprise solution includes all three of these components:
 * An EKM to manage the issuance, distribution, rotation, etc. of these cryptographic materials to users and business applications
 * Multiple EKI solutions, to integrate the overall enterprise solution with the individual line of business applications
 
-![EKM/EKI Integration](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/ekm-overview.png "EKM/EKI Integration")
+![EKM/EKI Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/ekm-overview.png "EKM/EKI Integration")
 
 ## Enterprise Key Management Examples
 
@@ -31,11 +31,11 @@ CyberArk, which manages passwords for privileged accounts rather than encryption
 * Application Integration Manager (AIM) - service accounts connect to applications and databases using AIM to retrieve the password from CyberArk.  The passwords are not stored on the application systems and are not available to developers and administrators.
 * CyberArk Admin - users can login to CyberArk and (if the policy allows) "check out" and "check in" passwords.  This is used in a "break the glass" scenario where access to the application is required.  When the user checks the password back in, CyberArk will rotate the password.
 
-![CyberArk Integration](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/cyberark-overview.png "CyberArk Integration")
+![CyberArk Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/cyberark-overview.png "CyberArk Integration")
 
 Another example of an EKM/EKI systems uses SafeNet as the EKM, and uses and HSM to store "root" certificates for a CA:
 
-![SafeNet Integration](https://github.com/ianco/indy-sdk/raw/master/doc/wallet/sfenet-overview.png "SafeNet Integration")
+![SafeNet Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/sfenet-overview.png "SafeNet Integration")
 
 In this example the HSM is used to store the "root" certificates of the CA, and the CA is used to provide keys to applications like Protegrity Database Protector (http://www.protegrity.com/products/protegrity-protectors/protegrity-database-protector/) (for example, which supports encrypted content within an Oracle database).  
 
