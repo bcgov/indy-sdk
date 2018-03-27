@@ -197,7 +197,7 @@ mod high_cases {
 
             TestUtils::cleanup_storage();
         }
-
+/*
         #[test]
         fn indy_open_wallet_works_twice_for_remote() {
             TestUtils::cleanup_storage();
@@ -233,7 +233,7 @@ mod high_cases {
 
             TestUtils::cleanup_storage();
         }
-
+*/
         #[test]
         fn indy_open_wallet_works_for_plugged() {
             TestUtils::cleanup_storage();
