@@ -109,7 +109,11 @@ fn root_wallet_name(wallet_name: &str) -> String {
 fn virtual_wallet_name(wallet_name: &str, credentials: &VirtualWalletCredentials, key: &str) -> String {
     match credentials.virtual_wallet {
         Some(ref s) => {
-            if key.starts_with("my_did::") || key.starts_with("their_did::") || key.starts_with("did::") {
+            if key.starts_with("my_did::") || 
+                key.starts_with("their_did::") || 
+                key.starts_with("did::") ||
+                key.starts_with("master_secret::") ||
+                key.starts_with("key::") {
                 // special case for did's (for now)
                 wallet_name.to_string()
             } else {

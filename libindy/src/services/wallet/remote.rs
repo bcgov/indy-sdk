@@ -127,7 +127,11 @@ fn root_wallet_name(wallet_name: &str) -> String {
 fn virtual_wallet_name(wallet_name: &str, credentials: &RemoteWalletCredentials, key: &str) -> String {
     match credentials.virtual_wallet {
         Some(ref s) => {
-            if key.eq_ignore_ascii_case("my_did") || key.eq_ignore_ascii_case("their_did") || key.eq_ignore_ascii_case("did") {
+            if key.eq_ignore_ascii_case("my_did") || 
+                key.eq_ignore_ascii_case("their_did") || 
+                key.eq_ignore_ascii_case("did") ||
+                key.eq_ignore_ascii_case("master_secret") ||
+                key.eq_ignore_ascii_case("key") {
                 // special case for did's (for now)
                 wallet_name.to_string()
             } else {
