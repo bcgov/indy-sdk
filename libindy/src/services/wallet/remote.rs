@@ -96,6 +96,7 @@ struct RemoteWalletRecord {
 
 struct RemoteWallet {
     wallet_name: String,
+    wallet_thread: String,  // default to "0" if not provided
     pool_name: String,
     config: RemoteWalletRuntimeConfig,
     credentials: RemoteWalletCredentials
@@ -103,11 +104,13 @@ struct RemoteWallet {
 
 impl RemoteWallet {
     fn new(name: &str,
+           thread: &str,
            pool_name: &str,
            config: RemoteWalletRuntimeConfig,
            credentials: RemoteWalletCredentials) -> RemoteWallet {
         RemoteWallet {
             wallet_name: name.to_string(),
+            wallet_thread: thread.to_string(),
             pool_name: pool_name.to_string(),
             config: config,
             credentials: credentials
@@ -558,7 +561,18 @@ impl WalletType for RemoteWalletType {
             None => RemoteWalletCredentials::default()
         };
 
-        let root_name = root_wallet_name(&name);
+        let wallet_name;
+        let wallet_thread;
+        let split = name.split("$$");
+        let vec: Vec<&str> = split.collect();
+        if vec.len() >= 2 {
+            wallet_name = vec[0];
+            wallet_thread = vec[0];
+        } else {
+            wallet_name = name;
+            wallet_thread = "0";
+        }
+        let root_name = root_wallet_name(&wallet_name);
 
         // we'll do a schema request, verify that it returns an "OK" status
         let endpoint = proxy::rest_append_path(&runtime_config.endpoint, &runtime_config.ping);
@@ -573,7 +587,8 @@ impl WalletType for RemoteWalletType {
 
                         Ok(Box::new(
                             RemoteWallet::new(
-                                name,
+                                wallet_name,
+                                wallet_thread,
                                 pool_name,
                                 runtime_config,
                                 runtime_auth)))

@@ -183,6 +183,58 @@ mod high_cases {
         }
 
         #[test]
+        fn indy_open_wallet_works_twice() {
+            TestUtils::cleanup_storage();
+
+            let wallet_name = "indy_open_wallet_works_twice";
+            WalletUtils::create_wallet(POOL, wallet_name, None, None, None).unwrap();
+            WalletUtils::open_wallet(wallet_name, None, None).unwrap();
+            let res = WalletUtils::open_wallet(wallet_name, None, None);
+            match res {
+                Ok(_) => assert!(false),
+                Err(_) => ()
+            }
+
+            TestUtils::cleanup_storage();
+        }
+
+        #[test]
+        fn indy_open_wallet_works_twice_for_remote() {
+            TestUtils::cleanup_storage();
+
+            let wallet_name_1 = "indy_open_wallet_works_twice$$1";
+            let wallet_name_2 = "indy_open_wallet_works_twice$$2";
+            WalletUtils::create_wallet(POOL, wallet_name_1, Some("remote"), 
+                Some(r#"{"endpoint": "http://localhost:8000/api/v1/",
+                        "ping": "schema/",
+                        "auth": "api-token-auth/",
+                        "keyval": "keyval/",
+                        "freshness_time": 0}"#), None).unwrap();
+            WalletUtils::open_wallet(wallet_name_1, Some(r#"{"endpoint": "http://localhost:8000/api/v1/",
+                        "ping": "schema/",
+                        "auth": "api-token-auth/",
+                        "keyval": "keyval/",
+                        "freshness_time": 0}"#), None).unwrap();
+            WalletUtils::create_wallet(POOL, wallet_name_2, Some("remote"), 
+                Some(r#"{"endpoint": "http://localhost:8000/api/v1/",
+                        "ping": "schema/",
+                        "auth": "api-token-auth/",
+                        "keyval": "keyval/",
+                        "freshness_time": 0}"#), None).unwrap();
+            let res = WalletUtils::open_wallet(wallet_name_2, Some(r#"{"endpoint": "http://localhost:8000/api/v1/",
+                        "ping": "schema/",
+                        "auth": "api-token-auth/",
+                        "keyval": "keyval/",
+                        "freshness_time": 0}"#), None);
+            match res {
+                Ok(_) => (),
+                Err(_) => assert!(false)
+            }
+
+            TestUtils::cleanup_storage();
+        }
+
+        #[test]
         fn indy_open_wallet_works_for_plugged() {
             TestUtils::cleanup_storage();
             InmemWallet::cleanup();
