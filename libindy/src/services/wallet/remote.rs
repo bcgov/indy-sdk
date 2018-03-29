@@ -11,7 +11,6 @@ use super::{Wallet, WalletType};
 
 use errors::common::CommonError;
 use errors::wallet::WalletError;
-use utils::environment::EnvironmentUtils;
 use hyper::header::{Headers};
 use std::collections::HashMap;
 use self::time::Timespec;
@@ -97,6 +96,7 @@ struct RemoteWalletRecord {
 
 struct RemoteWallet {
     wallet_name: String,
+    //wallet_thread: String,  // default to "0" if not provided
     pool_name: String,
     config: RemoteWalletRuntimeConfig,
     credentials: RemoteWalletCredentials
@@ -104,11 +104,13 @@ struct RemoteWallet {
 
 impl RemoteWallet {
     fn new(name: &str,
+           //thread: &str,
            pool_name: &str,
            config: RemoteWalletRuntimeConfig,
            credentials: RemoteWalletCredentials) -> RemoteWallet {
         RemoteWallet {
             wallet_name: name.to_string(),
+            //wallet_thread: thread.to_string(),
             pool_name: pool_name.to_string(),
             config: config,
             credentials: credentials
@@ -125,7 +127,11 @@ fn root_wallet_name(wallet_name: &str) -> String {
 fn virtual_wallet_name(wallet_name: &str, credentials: &RemoteWalletCredentials, key: &str) -> String {
     match credentials.virtual_wallet {
         Some(ref s) => {
-            if key.eq_ignore_ascii_case("my_did") || key.eq_ignore_ascii_case("their_did") || key.eq_ignore_ascii_case("did") {
+            if key.eq_ignore_ascii_case("my_did") || 
+                key.eq_ignore_ascii_case("their_did") || 
+                key.eq_ignore_ascii_case("did") ||
+                key.eq_ignore_ascii_case("master_secret") ||
+                key.eq_ignore_ascii_case("key") {
                 // special case for did's (for now)
                 wallet_name.to_string()
             } else {
@@ -558,9 +564,20 @@ impl WalletType for RemoteWalletType {
             Some(auth) => RemoteWalletCredentials::from_json(auth)?,
             None => RemoteWalletCredentials::default()
         };
-
-        let root_name = root_wallet_name(&name);
-
+/*
+        let wallet_name;
+        let wallet_thread;
+        let split = name.split("$$");
+        let vec: Vec<&str> = split.collect();
+        if vec.len() >= 2 {
+            wallet_name = vec[0];
+            wallet_thread = vec[0];
+        } else {
+            wallet_name = name;
+            wallet_thread = "0";
+        }
+        let root_name = root_wallet_name(&wallet_name);
+*/
         // we'll do a schema request, verify that it returns an "OK" status
         let endpoint = proxy::rest_append_path(&runtime_config.endpoint, &runtime_config.ping);
         let response = proxy::rest_get_request(&endpoint, None);
@@ -574,7 +591,8 @@ impl WalletType for RemoteWalletType {
 
                         Ok(Box::new(
                             RemoteWallet::new(
-                                name,
+                                name, //wallet_name,
+                                //wallet_thread,
                                 pool_name,
                                 runtime_config,
                                 runtime_auth)))

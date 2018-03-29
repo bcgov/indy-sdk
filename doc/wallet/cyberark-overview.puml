@@ -1,0 +1,28 @@
+@startuml
+
+actor User
+actor Service_Account
+actor Break_The_Glass
+
+database App_Database
+
+node CyberArk {
+   database Vault
+}
+
+node PSM
+node AIM
+node User_Application
+node Batch_Application
+
+User -down- PSM
+PSM -right- User_Application
+PSM -- CyberArk
+Service_Account -down- AIM
+Batch_Application -- AIM
+Batch_Application -- App_Database
+AIM -- CyberArk
+
+Break_The_Glass -left- CyberArk
+
+@enduml

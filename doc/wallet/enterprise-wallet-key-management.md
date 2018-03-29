@@ -1,0 +1,99 @@
+
+# Key Management for Indy-SDK Enterprise Wallets
+
+## Enterprise Key Management Solutions
+
+Enterprise Key Management (or EKM) refers to the process and solution for managing cryptographic keys within an organization.  EKM solutions manage the issuance, storage, distribution, rotation, revocation and deletion of cryptographic keys and other secrets.
+
+Examples of EKM solutions include SafeNet (https://safenet.gemalto.com/data-encryption/enterprise-key-management/key-secure/) and Google KMS (https://cloud.google.com/kms/).
+
+EKM Solutions can use Hardware Security Modules (HSMs) to securely store cryptographic keys and other secrets.  HSMs provide "hardened" storage and are designed for access by a limited number of individuals.
+
+EKM is used in conjunction with Enterprise Key Integration (EKI) Solutions.  EKI provides the integration of cryptographic keys and secrets with business applications and solutions, which can include:
+
+* Store encrypted data, in database, on disk, via email, etc.
+* Cryptographically sign materials
+
+An enterprise solution includes all three of these components:
+
+* An HSM to store the root cryptographic keys used by the organization
+* An EKM to manage the issuance, distribution, rotation, etc. of these cryptographic materials to users and business applications
+* Multiple EKI solutions, to integrate the overall enterprise solution with the individual line of business applications
+
+![EKM/EKI Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/ekm-overview.png "EKM/EKI Integration")
+
+An HSM provides the maximum security for sensitive cryptographic keys, however the wider these keys are distributed, the less value the HSM provides.  If the HSM is used in a point solution (EKI), then the applications will have access to the keys stored on the HSM, and this increases the risk of exposure of these keys.
+
+One option is to use the HSM to store "root" certificates (for a CA for example) and distribute keys issues by the CA:
+
+![EKM/CA/EKI Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/ekm-overview2.png "EKM/CA/EKI Integration")
+
+* Access to the HSM is restricted - only a small number of individuals have access to the root certificates
+* Any certificates which must be supplied to point-EKI implementations:
+    * Must be signed certificates issued by the CA (and can be revoked if the "root" certificates are compromised)
+    * Must be encrypted with keys issued by the EKM
+* Keys used by EKI solutions can be:
+    * encrypted
+    * supplied by the EKM solution
+* Procedures for rotating and revoking keys and certificates must be defined
+* Must have backup processes in case the "root" certificates are lost or compromised.
+
+## Enterprise Key Management Examples
+
+CyberArk, which manages passwords for privileged accounts rather than encryption keys, is an example of a system which provides similar functionality.  CyberArk consists of:
+
+* Password Vault - a secure, hardened database that stores the passwords for privileged application and database accounts.  CyberArk manages password rotation based on policies (e.g. passwords can be automatically rotated every 3 or 12 months, or even on every use).
+* Privileged Session Manager (PSM) - users connect to applications through PSM.  They authenticate using their (2-factor) CyberArk credentials, and identify the application and user account they want to access.  CyberArk authenticates in the background, and provides the user with a privileged session.  This session is logged and audited.  The user never sees the account password.
+* Application Integration Manager (AIM) - service accounts connect to applications and databases using AIM to retrieve the password from CyberArk.  The passwords are not stored on the application systems and are not available to developers and administrators.
+* CyberArk Admin - users can login to CyberArk and (if the policy allows) "check out" and "check in" passwords.  This is used in a "break the glass" scenario where access to the application is required.  When the user checks the password back in, CyberArk will rotate the password.
+
+![CyberArk Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/cyberark-overview.png "CyberArk Integration")
+
+Another example of an EKM/EKI systems uses SafeNet as the EKM, and uses and HSM to store "root" certificates for a CA:
+
+![SafeNet Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/safenet-overview.png "SafeNet Integration")
+
+In this example the HSM is used to store the "root" certificates of the CA, and the CA is used to provide keys to applications like Protegrity Database Protector (http://www.protegrity.com/products/protegrity-protectors/protegrity-database-protector/) (for example, which supports encrypted content within an Oracle database).  
+
+In this example Protegrity is implementing EKI.  Protegrity must be supplied keys to perform the encryption and decryption operations - these keys are generated by the CA, which allows the keys stored on the HSM to stay within the "secure zone".
+
+* https://www.scmagazine.com/enterprise-key-management-deciphered/article/555359/
+
+## TheOrgBook and Indy DID's (Private Keys)
+
+Distributed IDentifiers (DID's) are used within Hyperledger Indy to manage identities and communications between network participants.
+
+A DID consists of a private key (the DID) and a public key (the "verkey").  A network participant will have multiple DID's - one DID that is used to uniquely identify their organization, and one DID per each relationship they have with other network participants.  The subject uses their DID to sign content and affirm their relationship, so this data needs to be secured.
+
+For TheOrgBook implementation, the DID's are generated based on a SEED and stored in the Enterprise Wallet.  The contents of the Wallet are not (currently) encrypted, although the SDK supports this with the 'default' (and 'virtual') wallets, which use SQLCrypt as their back-end storage.
+
+The TOB Solution overview is shown below:
+
+![TheOrgBook Overview](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/tob-overview.png "TheOrgBook Overview")
+
+In TheOrgBook solution, DIDs (cryptographic secrets) are stored in each wallet, and in the Ledger.
+
+TOB is deployed within OpenShift, and runs in a collection of Containers.  OpenShift Containers run under Service Accounts that are granted permission to access resources.  "Secrets" can be attached to Service Accounts, in order to provide passwords or other credentials that the Service Accounts need to access protected resources (such as a user id and password, required to connect to a database).
+
+* https://docs.openshift.com/container-platform/3.3/dev_guide/secrets.html
+* https://docs.openshift.com/container-platform/3.3/dev_guide/service_accounts.html
+* https://docs.openshift.com/container-platform/3.3/architecture/index.html
+* Keycloak (not sure if relevant) https://developers.redhat.com/blog/2018/03/19/sso-made-easy-keycloak-rhsso/
+
+## TOB/DID Key Management
+
+TheOrgBook and Permitify are provided a SEED on startup, and this SEED is used to calculate the DID for the organization.  This DID is stored in the SDK Wallet.
+
+Additional DID's are created for any submitting service (e.g. BC Registries) - TheOrgBook will require pairwise DID's for each relationship (one DID identifying each participant) - these DID's are used only for this relationship.  These DID's are created through a manual process, and must also be available in the Wallet.
+
+There are two options of securing TheOrgBook DID's:
+
+1. Store DID's (or SEEDs) in an HSM, and integrate with OpenShift:
+
+![TheOrgBook HSM Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/tob-integrate-1.png "TheOrgBook HSM Integration")
+
+1. Store root Crypto materials in an HSM, and implement some sort of EKM to generate SEEDs to integrate to OpenShift:
+
+![TheOrgBook EKM Integration](https://github.com/ianco/indy-sdk/raw/ew_wallet_dev/doc/wallet/tob-integrate-2.png "TheOrgBook EKM Integration")
+
+In either scenario, the capabilities to generate, rotate and delete keys must be considered.

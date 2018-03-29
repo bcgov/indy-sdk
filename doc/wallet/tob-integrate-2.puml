@@ -1,0 +1,35 @@
+@startuml
+
+node EKM {
+  node HSM
+  node SEED_Generation
+}
+
+cloud OpenShift {
+  node TOB {
+    component tob_web
+    component tob_api
+    component tob_sdk
+  }
+  folder openshift_tob_secrets
+
+  node Permitify {
+    component permitify_web
+    component permitify_sdk
+  }
+  folder openshift_permitify_secrets
+}
+
+tob_web -down- tob_api
+tob_api -down- tob_sdk
+
+permitify_web -down- permitify_sdk
+permitify_web -left- tob_api
+
+HSM -down- SEED_Generation
+SEED_Generation -down- openshift_tob_secrets
+SEED_Generation -down- openshift_permitify_secrets
+TOB -down- openshift_tob_secrets
+Permitify -down- openshift_permitify_secrets
+
+@enduml

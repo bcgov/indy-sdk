@@ -20,4 +20,4 @@ python-dateutil==2.6.1
 simplejson==3.13.2
 uritemplate==3.0.0
 requests==2.7.0
-# django-requestlogging-redux==1.2.1
+django-request-logging
