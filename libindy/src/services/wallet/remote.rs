@@ -591,7 +591,7 @@ impl WalletType for RemoteWalletType {
 
                         Ok(Box::new(
                             RemoteWallet::new(
-                                name, //wallet_name,
+                                wallet_name,
                                 wallet_thread,
                                 pool_name,
                                 runtime_config,
