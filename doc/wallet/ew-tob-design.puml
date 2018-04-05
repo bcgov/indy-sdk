@@ -1,14 +1,32 @@
 @startuml
-node "Foo" {
-folder "TheOrgBook" {
-[TOB Application]
+node "TOB" {
+folder "TheOrgBook-Web" {
+[TOB Web Application]
 }
-folder "TOB API" {
+folder "TheOrgBook-API" {
 [TOB API Application]
 [VON Agent]
 }
 }
+folder "Permitify" {
+  [BC Registries]
+  [Fraser Health Authority]
+  [Ministry of Finance]
+}
+[BC Registries] .down.> [Fraser Health Authority]
+[Fraser Health Authority] .down.> [Ministry of Finance]
+
+[Data Loader] -left-> [BC Registries]
+[Data Loader] -left-> [Fraser Health Authority]
+[Data Loader] -left-> [Ministry of Finance]
+
+[BC Registries] -left-> [TOB API Application]
+[Fraser Health Authority] -left-> [TOB API Application]
+[Ministry of Finance] -left-> [TOB API Application]
+
 [TOB API Application] --> [VON Agent]
+[TOB Web Application] -left-> [TOB API Application]
+
 folder "Indy SDK" {
 [Ledger API]
 [Anoncreds API]
@@ -39,7 +57,7 @@ folder "Remote Wallet DB" {
 [Identity n]
 }
 }
-[TOB Application] --> [Claims]
+[TOB Web Application] --> [Claims]
 [TOB API Application] --> [Claims]
 [Remote Wallet] --> [Root Identity]
 [Remote Wallet] --> [Identity 1]
