@@ -571,7 +571,7 @@ impl WalletType for RemoteWalletType {
         let vec: Vec<&str> = split.collect();
         if vec.len() >= 2 {
             wallet_name = vec[0];
-            wallet_thread = vec[0];
+            wallet_thread = vec[1];
         } else {
             wallet_name = name;
             wallet_thread = "0";
