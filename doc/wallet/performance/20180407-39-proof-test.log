@@ -1,0 +1,5632 @@
+Data for TheOrgBook is now loading via the loading of claims. Details to come...
+Environment = 'local'
+Processing input directory 'Claims'
+Threads = 2
+Randomizing!
+Starting Thread-0
+==============================================
+FileName: ./Claims/Claims_1.json
+
+
+
+==============================================
+Registering new business: Warner Canteen-0-ed09c3c3333
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '2553 Holdom Avenue-0-54f6ff07c2', 'address_line_2': '', 'addressee': 'Lillian Warner-0-7c59d45353', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Warner Canteen-0-ed09c3c3333', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+Starting Thread-1
+==============================================
+FileName: ./Claims/Claims_1.json
+
+
+
+==============================================
+Registering new business: Warner Canteen-1-39229d9c1522
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '2553 Holdom Avenue-1-33baa0781', 'address_line_2': '', 'addressee': 'Lillian Warner-1-152af029', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Warner Canteen-1-39229d9c1522', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.4898879528045654,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Warner Canteen-0-ed09c3c3333', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 152, 'jurisdictionId': 1, 'orgId': '848d84d3-83e0-4aca-91c1-359c5ff567a4'}, 'success': True}
+
+
+Requesting Proof:
+
+637
+Timing,Proof elapsed time,1.284287929534912,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '2553 Holdom Avenue-0-d59b0b26', 'address_line_2': '', 'addressee': 'Lillian Warner-0-32bc02ec5', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Warner Canteen-0-eca9ff2c', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '848d84d3-83e0-4aca-91c1-359c5ff567a4'}
+<Response [200]>
+Timing,Claim elapsed time,2.477288007736206,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Warner Canteen-1-39229d9c1522', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 153, 'jurisdictionId': 1, 'orgId': '6161395c-790e-4086-b002-be7fc0ad2381'}, 'success': True}
+
+
+Requesting Proof:
+
+6
+<Response [200]>
+Timing,Claim elapsed time,1.9050259590148926,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 152, 'orgId': '848d84d3-83e0-4aca-91c1-359c5ff567a4', 'effectiveDate': '2018-04-07', 'legalName': 'Warner Canteen-0-ed09c3c3333', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+62
+Timing,Proof elapsed time,1.4248762130737305,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '2553 Holdom Avenue-1-f7ba4b39a4', 'address_line_2': '', 'addressee': 'Lillian Warner-1-7130f12b8d1', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Warner Canteen-1-6a9116d03d', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '6161395c-790e-4086-b002-be7fc0ad2381'}
+Timing,Proof elapsed time,1.0070481300354004,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': 'Miller & Rhoads-0-ef793857bf', 'legal_name': 'Warner Canteen-0-d732f3d5', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '848d84d3-83e0-4aca-91c1-359c5ff567a4', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.1373660564422607,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 153, 'orgId': '6161395c-790e-4086-b002-be7fc0ad2381', 'effectiveDate': '2018-04-07', 'legalName': 'Warner Canteen-1-39229d9c1522', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+498
+<Response [200]>
+Timing,Claim elapsed time,2.0020689964294434,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '848d84d3-83e0-4aca-91c1-359c5ff567a4', 'id': 152, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Warner Canteen-0-ed09c3c3333', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+309
+Timing,Proof elapsed time,1.1423192024230957,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': 'Miller & Rhoads-1-22a1fc575', 'legal_name': 'Warner Canteen-1-59832fdd1e', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '6161395c-790e-4086-b002-be7fc0ad2381', 'address_line_2': ''}
+Timing,Proof elapsed time,1.0754899978637695,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '80', 'effective_date': '1460246400', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '848d84d3-83e0-4aca-91c1-359c5ff567a4', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.152956962585449,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '6161395c-790e-4086-b002-be7fc0ad2381', 'id': 153, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Warner Canteen-1-39229d9c1522', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+367
+<Response [200]>
+Timing,Claim elapsed time,2.137856960296631,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Warner Canteen-0-ed09c3c3333', 'orgId': '848d84d3-83e0-4aca-91c1-359c5ff567a4', 'orgTypeId': 1, 'id': 152, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+448
+Timing,Proof elapsed time,1.3387360572814941,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '80', 'effective_date': '1460246400', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '6161395c-790e-4086-b002-be7fc0ad2381', 'address_line_2': ''}
+Timing,Proof elapsed time,1.156749963760376,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1460246400', 'number_of_employees': '20', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '848d84d3-83e0-4aca-91c1-359c5ff567a4', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.0663888454437256,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Warner Canteen-1-39229d9c1522', 'orgId': '6161395c-790e-4086-b002-be7fc0ad2381', 'orgTypeId': 1, 'id': 153, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+670
+<Response [200]>
+Timing,Claim elapsed time,2.1105430126190186,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '848d84d3-83e0-4aca-91c1-359c5ff567a4', 'effectiveDate': '2018-04-07', 'id': 152, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Warner Canteen-0-ed09c3c3333', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+431
+Timing,Proof elapsed time,1.1832811832427979,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1460246400', 'number_of_employees': '20', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '6161395c-790e-4086-b002-be7fc0ad2381', 'address_line_2': ''}
+Timing,Proof elapsed time,1.0485799312591553,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '20', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '848d84d3-83e0-4aca-91c1-359c5ff567a4', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.0436019897460938,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '6161395c-790e-4086-b002-be7fc0ad2381', 'effectiveDate': '2018-04-07', 'id': 153, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Warner Canteen-1-39229d9c1522', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+853
+<Response [200]>
+Timing,Claim elapsed time,2.1542792320251465,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '848d84d3-83e0-4aca-91c1-359c5ff567a4', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Warner Canteen-0-ed09c3c3333', 'effectiveDate': '2018-04-07', 'id': 152, 'endDate': None}}
+
+
+Requesting Proof:
+
+640
+Timing,Proof elapsed time,1.1391980648040771,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '20', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '6161395c-790e-4086-b002-be7fc0ad2381', 'address_line_2': ''}
+Timing,Proof elapsed time,1.1245341300964355,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_10.json
+
+
+
+==============================================
+Registering new business: Colbert Charcuterie-0-f2c40cf4
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '2461 Holdom Avenue-0-4bc85b6d0a7', 'address_line_2': '', 'addressee': 'Michael Colbert-0-e9221e969960', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Colbert Charcuterie-0-f2c40cf4', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,2.2600278854370117,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '6161395c-790e-4086-b002-be7fc0ad2381', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Warner Canteen-1-39229d9c1522', 'effectiveDate': '2018-04-07', 'id': 153, 'endDate': None}}
+
+
+Requesting Proof:
+
+452
+<Response [200]>
+Timing,Claim elapsed time,2.4794328212738037,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Colbert Charcuterie-0-f2c40cf4', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 154, 'jurisdictionId': 1, 'orgId': 'a137182d-000b-43a5-856e-03241e922dc9'}, 'success': True}
+
+
+Requesting Proof:
+
+732
+Timing,Proof elapsed time,1.4828307628631592,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_10.json
+
+
+
+==============================================
+Registering new business: Colbert Charcuterie-1-2173e47bcdf1
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '2461 Holdom Avenue-1-8c450e06b', 'address_line_2': '', 'addressee': 'Michael Colbert-1-a1b08b8514', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Colbert Charcuterie-1-2173e47bcdf1', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+Timing,Proof elapsed time,1.330575942993164,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '2461 Holdom Avenue-0-c697f73ddf03', 'address_line_2': '', 'addressee': 'Michael Colbert-0-d60d0829018', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Colbert Charcuterie-0-6169d55b', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'a137182d-000b-43a5-856e-03241e922dc9'}
+<Response [200]>
+Timing,Claim elapsed time,2.6803178787231445,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Colbert Charcuterie-1-2173e47bcdf1', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 155, 'jurisdictionId': 1, 'orgId': '688e579c-fb7e-40fd-a7f8-682728045379'}, 'success': True}
+
+
+Requesting Proof:
+
+89
+<Response [200]>
+Timing,Claim elapsed time,2.718240976333618,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 154, 'orgId': 'a137182d-000b-43a5-856e-03241e922dc9', 'effectiveDate': '2018-04-07', 'legalName': 'Colbert Charcuterie-0-f2c40cf4', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+20
+Timing,Proof elapsed time,1.3537790775299072,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '2461 Holdom Avenue-1-59696fb07', 'address_line_2': '', 'addressee': 'Michael Colbert-1-59efbbcb55', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Colbert Charcuterie-1-d772a5af041b', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '688e579c-fb7e-40fd-a7f8-682728045379'}
+Timing,Proof elapsed time,1.3163588047027588,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-62d6a86c5', 'legal_name': 'Colbert Charcuterie-0-ee9973d4710', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'a137182d-000b-43a5-856e-03241e922dc9', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.354398012161255,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 155, 'orgId': '688e579c-fb7e-40fd-a7f8-682728045379', 'effectiveDate': '2018-04-07', 'legalName': 'Colbert Charcuterie-1-2173e47bcdf1', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+610
+<Response [200]>
+Timing,Claim elapsed time,2.3820419311523438,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'a137182d-000b-43a5-856e-03241e922dc9', 'id': 154, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Colbert Charcuterie-0-f2c40cf4', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+257
+Timing,Proof elapsed time,1.4120492935180664,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-1-09722010bd', 'legal_name': 'Colbert Charcuterie-1-968b961c8c9', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '688e579c-fb7e-40fd-a7f8-682728045379', 'address_line_2': ''}
+Timing,Proof elapsed time,1.2260758876800537,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '56', 'effective_date': '1487894400', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': 'a137182d-000b-43a5-856e-03241e922dc9', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.6225929260253906,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '688e579c-fb7e-40fd-a7f8-682728045379', 'id': 155, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Colbert Charcuterie-1-2173e47bcdf1', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+755
+<Response [200]>
+Timing,Claim elapsed time,2.8094630241394043,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Colbert Charcuterie-0-f2c40cf4', 'orgId': 'a137182d-000b-43a5-856e-03241e922dc9', 'orgTypeId': 1, 'id': 154, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+133
+Timing,Proof elapsed time,1.6342508792877197,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '56', 'effective_date': '1487894400', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '688e579c-fb7e-40fd-a7f8-682728045379', 'address_line_2': ''}
+Timing,Proof elapsed time,1.4659597873687744,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1487894400', 'number_of_employees': '14', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'a137182d-000b-43a5-856e-03241e922dc9', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.3539929389953613,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Colbert Charcuterie-1-2173e47bcdf1', 'orgId': '688e579c-fb7e-40fd-a7f8-682728045379', 'orgTypeId': 1, 'id': 155, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+9
+<Response [200]>
+Timing,Claim elapsed time,2.802927017211914,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'a137182d-000b-43a5-856e-03241e922dc9', 'effectiveDate': '2018-04-07', 'id': 154, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Colbert Charcuterie-0-f2c40cf4', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+835
+Timing,Proof elapsed time,1.3759608268737793,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1487894400', 'number_of_employees': '14', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '688e579c-fb7e-40fd-a7f8-682728045379', 'address_line_2': ''}
+Timing,Proof elapsed time,1.3778660297393799,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'True', 'is_owner': 'True', 'number_of_employees': '14', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'a137182d-000b-43a5-856e-03241e922dc9', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.6019232273101807,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '688e579c-fb7e-40fd-a7f8-682728045379', 'effectiveDate': '2018-04-07', 'id': 155, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Colbert Charcuterie-1-2173e47bcdf1', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+546
+<Response [200]>
+Timing,Claim elapsed time,2.3431129455566406,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'a137182d-000b-43a5-856e-03241e922dc9', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Colbert Charcuterie-0-f2c40cf4', 'effectiveDate': '2018-04-07', 'id': 154, 'endDate': None}}
+
+
+Requesting Proof:
+
+879
+Timing,Proof elapsed time,1.3332297801971436,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'True', 'is_owner': 'True', 'number_of_employees': '14', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '688e579c-fb7e-40fd-a7f8-682728045379', 'address_line_2': ''}
+Timing,Proof elapsed time,1.231234073638916,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_11.json
+
+
+
+==============================================
+Registering new business: Lisi Palace-0-b0453a9928
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '2415 Glover Road-0-a78fc459c6e', 'address_line_2': '', 'addressee': 'Marion Lisi-0-f89449b5', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Lisi Palace-0-b0453a9928', 'postal_code': 'V3S 4C4', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,2.3846371173858643,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '688e579c-fb7e-40fd-a7f8-682728045379', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Colbert Charcuterie-1-2173e47bcdf1', 'effectiveDate': '2018-04-07', 'id': 155, 'endDate': None}}
+
+
+Requesting Proof:
+
+320
+<Response [200]>
+Timing,Claim elapsed time,2.71465802192688,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Lisi Palace-0-b0453a9928', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 156, 'jurisdictionId': 1, 'orgId': 'd9b4c9ed-360e-418d-b190-c5e6a870bf18'}, 'success': True}
+
+
+Requesting Proof:
+
+232
+Timing,Proof elapsed time,1.3662419319152832,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_11.json
+
+
+
+==============================================
+Registering new business: Lisi Palace-1-6e599b34d1d2
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '2415 Glover Road-1-945d60816fb', 'address_line_2': '', 'addressee': 'Marion Lisi-1-d794415bd', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Lisi Palace-1-6e599b34d1d2', 'postal_code': 'V3S 4C4', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+Timing,Proof elapsed time,1.279430866241455,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '2415 Glover Road-0-189d61ba', 'address_line_2': '', 'addressee': 'Marion Lisi-0-fad3a5324', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3S 4C4', 'province': 'BC', 'restaurant_name': 'Lisi Palace-0-f696404f', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'd9b4c9ed-360e-418d-b190-c5e6a870bf18'}
+<Response [200]>
+Timing,Claim elapsed time,2.6402711868286133,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Lisi Palace-1-6e599b34d1d2', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 157, 'jurisdictionId': 1, 'orgId': '53bb2f6d-b86a-42e4-8d42-14c33176ab86'}, 'success': True}
+
+
+Requesting Proof:
+
+222
+<Response [200]>
+Timing,Claim elapsed time,2.4947776794433594,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 156, 'orgId': 'd9b4c9ed-360e-418d-b190-c5e6a870bf18', 'effectiveDate': '2018-04-07', 'legalName': 'Lisi Palace-0-b0453a9928', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+894
+Timing,Proof elapsed time,1.5483908653259277,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '2415 Glover Road-1-01a543e16db', 'address_line_2': '', 'addressee': 'Marion Lisi-1-d689dc0cd', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3S 4C4', 'province': 'BC', 'restaurant_name': 'Lisi Palace-1-bef4c577a83', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '53bb2f6d-b86a-42e4-8d42-14c33176ab86'}
+Timing,Proof elapsed time,1.4214279651641846,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-62f198e22b', 'legal_name': 'Lisi Palace-0-d28a6ab9b6', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'd9b4c9ed-360e-418d-b190-c5e6a870bf18', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.2834689617156982,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 157, 'orgId': '53bb2f6d-b86a-42e4-8d42-14c33176ab86', 'effectiveDate': '2018-04-07', 'legalName': 'Lisi Palace-1-6e599b34d1d2', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+60
+<Response [200]>
+Timing,Claim elapsed time,2.5739150047302246,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'd9b4c9ed-360e-418d-b190-c5e6a870bf18', 'id': 156, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Lisi Palace-0-b0453a9928', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+178
+Timing,Proof elapsed time,1.449233055114746,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-1-ab6f6c4e', 'legal_name': 'Lisi Palace-1-4a84f5e0b', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '53bb2f6d-b86a-42e4-8d42-14c33176ab86', 'address_line_2': ''}
+Timing,Proof elapsed time,1.1978611946105957,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '16', 'effective_date': '1502755200', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': 'd9b4c9ed-360e-418d-b190-c5e6a870bf18', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.1512022018432617,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '53bb2f6d-b86a-42e4-8d42-14c33176ab86', 'id': 157, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Lisi Palace-1-6e599b34d1d2', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+376
+<Response [200]>
+Timing,Claim elapsed time,2.0746519565582275,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Lisi Palace-0-b0453a9928', 'orgId': 'd9b4c9ed-360e-418d-b190-c5e6a870bf18', 'orgTypeId': 1, 'id': 156, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+273
+Timing,Proof elapsed time,1.1991090774536133,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '16', 'effective_date': '1502755200', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '53bb2f6d-b86a-42e4-8d42-14c33176ab86', 'address_line_2': ''}
+Timing,Proof elapsed time,1.108889102935791,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1502755200', 'number_of_employees': '4', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'd9b4c9ed-360e-418d-b190-c5e6a870bf18', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.115354061126709,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Lisi Palace-1-6e599b34d1d2', 'orgId': '53bb2f6d-b86a-42e4-8d42-14c33176ab86', 'orgTypeId': 1, 'id': 157, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+854
+<Response [200]>
+Timing,Claim elapsed time,2.2453691959381104,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'd9b4c9ed-360e-418d-b190-c5e6a870bf18', 'effectiveDate': '2018-04-07', 'id': 156, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Lisi Palace-0-b0453a9928', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+901
+Timing,Proof elapsed time,1.1736230850219727,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1502755200', 'number_of_employees': '4', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '53bb2f6d-b86a-42e4-8d42-14c33176ab86', 'address_line_2': ''}
+Timing,Proof elapsed time,1.1955301761627197,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '4', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'd9b4c9ed-360e-418d-b190-c5e6a870bf18', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.9849998950958252,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '53bb2f6d-b86a-42e4-8d42-14c33176ab86', 'effectiveDate': '2018-04-07', 'id': 157, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Lisi Palace-1-6e599b34d1d2', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+121
+<Response [200]>
+Timing,Claim elapsed time,2.266453981399536,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'd9b4c9ed-360e-418d-b190-c5e6a870bf18', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Lisi Palace-0-b0453a9928', 'effectiveDate': '2018-04-07', 'id': 156, 'endDate': None}}
+
+
+Requesting Proof:
+
+278
+Timing,Proof elapsed time,1.301278829574585,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '4', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '53bb2f6d-b86a-42e4-8d42-14c33176ab86', 'address_line_2': ''}
+Timing,Proof elapsed time,1.031458854675293,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_12.json
+
+
+
+==============================================
+Registering new business: Williams Dining Hall-0-2c75e4fe47
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '2481 Holdom Avenue-0-1eb45c9f473', 'address_line_2': '', 'addressee': 'Anthony Williams-0-d08b66761e97', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Williams Dining Hall-0-2c75e4fe47', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,2.099532127380371,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '53bb2f6d-b86a-42e4-8d42-14c33176ab86', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Lisi Palace-1-6e599b34d1d2', 'effectiveDate': '2018-04-07', 'id': 157, 'endDate': None}}
+
+
+Requesting Proof:
+
+785
+<Response [200]>
+Timing,Claim elapsed time,2.2435288429260254,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Williams Dining Hall-0-2c75e4fe47', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 158, 'jurisdictionId': 1, 'orgId': 'dd8df14d-732a-473c-9764-045f301690a2'}, 'success': True}
+
+
+Requesting Proof:
+
+35
+Timing,Proof elapsed time,1.2934939861297607,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_12.json
+
+
+
+==============================================
+Registering new business: Williams Dining Hall-1-4a63bd23b
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '2481 Holdom Avenue-1-f2277381e', 'address_line_2': '', 'addressee': 'Anthony Williams-1-1b309a18c34', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Williams Dining Hall-1-4a63bd23b', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+Timing,Proof elapsed time,1.0046868324279785,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '2481 Holdom Avenue-0-8ea23b1c83b1', 'address_line_2': '', 'addressee': 'Anthony Williams-0-ecc374756ef8', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Williams Dining Hall-0-2df5248205', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'dd8df14d-732a-473c-9764-045f301690a2'}
+<Response [200]>
+Timing,Claim elapsed time,1.9732940196990967,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Williams Dining Hall-1-4a63bd23b', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 159, 'jurisdictionId': 1, 'orgId': '6908505a-80de-4213-9e08-48c6e4775b44'}, 'success': True}
+
+
+Requesting Proof:
+
+646
+<Response [200]>
+Timing,Claim elapsed time,2.08693790435791,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 158, 'orgId': 'dd8df14d-732a-473c-9764-045f301690a2', 'effectiveDate': '2018-04-07', 'legalName': 'Williams Dining Hall-0-2c75e4fe47', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+150
+Timing,Proof elapsed time,1.1351408958435059,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '2481 Holdom Avenue-1-0a0c3f5608f0', 'address_line_2': '', 'addressee': 'Anthony Williams-1-c7f975592', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Williams Dining Hall-1-3fdca60606', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '6908505a-80de-4213-9e08-48c6e4775b44'}
+Timing,Proof elapsed time,1.0071830749511719,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-33c4395c1', 'legal_name': 'Williams Dining Hall-0-5f8986748a82', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'dd8df14d-732a-473c-9764-045f301690a2', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.8375868797302246,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 159, 'orgId': '6908505a-80de-4213-9e08-48c6e4775b44', 'effectiveDate': '2018-04-07', 'legalName': 'Williams Dining Hall-1-4a63bd23b', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+745
+<Response [200]>
+Timing,Claim elapsed time,2.0222718715667725,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'dd8df14d-732a-473c-9764-045f301690a2', 'id': 158, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Williams Dining Hall-0-2c75e4fe47', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+769
+Timing,Proof elapsed time,1.1304700374603271,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-1-b580c4f4d', 'legal_name': 'Williams Dining Hall-1-3723c205', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '6908505a-80de-4213-9e08-48c6e4775b44', 'address_line_2': ''}
+Timing,Proof elapsed time,1.0712289810180664,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '16', 'effective_date': '1489881600', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': 'dd8df14d-732a-473c-9764-045f301690a2', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.9397039413452148,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '6908505a-80de-4213-9e08-48c6e4775b44', 'id': 159, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Williams Dining Hall-1-4a63bd23b', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+305
+<Response [200]>
+Timing,Claim elapsed time,1.895684003829956,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Williams Dining Hall-0-2c75e4fe47', 'orgId': 'dd8df14d-732a-473c-9764-045f301690a2', 'orgTypeId': 1, 'id': 158, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+798
+Timing,Proof elapsed time,1.1464488506317139,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '16', 'effective_date': '1489881600', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '6908505a-80de-4213-9e08-48c6e4775b44', 'address_line_2': ''}
+Timing,Proof elapsed time,1.0189838409423828,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1489881600', 'number_of_employees': '4', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'dd8df14d-732a-473c-9764-045f301690a2', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.896442174911499,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Williams Dining Hall-1-4a63bd23b', 'orgId': '6908505a-80de-4213-9e08-48c6e4775b44', 'orgTypeId': 1, 'id': 159, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+441
+<Response [200]>
+Timing,Claim elapsed time,2.053041934967041,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'dd8df14d-732a-473c-9764-045f301690a2', 'effectiveDate': '2018-04-07', 'id': 158, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Williams Dining Hall-0-2c75e4fe47', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+917
+Timing,Proof elapsed time,1.0609419345855713,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1489881600', 'number_of_employees': '4', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '6908505a-80de-4213-9e08-48c6e4775b44', 'address_line_2': ''}
+Timing,Proof elapsed time,0.9507050514221191,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'True', 'catering': 'True', 'dancing_permitted': 'True', 'is_owner': 'True', 'number_of_employees': '4', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'True', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'dd8df14d-732a-473c-9764-045f301690a2', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.8339409828186035,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '6908505a-80de-4213-9e08-48c6e4775b44', 'effectiveDate': '2018-04-07', 'id': 159, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Williams Dining Hall-1-4a63bd23b', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+637
+<Response [200]>
+Timing,Claim elapsed time,1.9547638893127441,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'dd8df14d-732a-473c-9764-045f301690a2', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Williams Dining Hall-0-2c75e4fe47', 'effectiveDate': '2018-04-07', 'id': 158, 'endDate': None}}
+
+
+Requesting Proof:
+
+896
+Timing,Proof elapsed time,1.1185991764068604,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'True', 'catering': 'True', 'dancing_permitted': 'True', 'is_owner': 'True', 'number_of_employees': '4', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'True', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '6908505a-80de-4213-9e08-48c6e4775b44', 'address_line_2': ''}
+Timing,Proof elapsed time,0.9947059154510498,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_13.json
+
+
+
+==============================================
+Registering new business: Peirce Trattoria-0-2ec49450608
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '4579 Holdom Avenue-0-1bdd0df6bb', 'address_line_2': '', 'addressee': 'Dee Peirce-0-7bc6efc6', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Peirce Trattoria-0-2ec49450608', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.9898769855499268,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '6908505a-80de-4213-9e08-48c6e4775b44', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Williams Dining Hall-1-4a63bd23b', 'effectiveDate': '2018-04-07', 'id': 159, 'endDate': None}}
+
+
+Requesting Proof:
+
+547
+<Response [200]>
+Timing,Claim elapsed time,2.0841400623321533,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Peirce Trattoria-0-2ec49450608', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 160, 'jurisdictionId': 1, 'orgId': '5a2c91c9-7c7e-4c5d-9cc0-af372d6a82c9'}, 'success': True}
+
+
+Requesting Proof:
+
+924
+Timing,Proof elapsed time,1.2334110736846924,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_13.json
+
+
+
+==============================================
+Registering new business: Peirce Trattoria-1-8a83da2662
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '4579 Holdom Avenue-1-baa10009a9f', 'address_line_2': '', 'addressee': 'Dee Peirce-1-10b10342e955', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Peirce Trattoria-1-8a83da2662', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+Timing,Proof elapsed time,1.0803570747375488,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '4579 Holdom Avenue-0-cb788a01552', 'address_line_2': '', 'addressee': 'Dee Peirce-0-7f851f8bec', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Peirce Trattoria-0-eb7fa093c', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '5a2c91c9-7c7e-4c5d-9cc0-af372d6a82c9'}
+<Response [200]>
+Timing,Claim elapsed time,1.9298770427703857,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Peirce Trattoria-1-8a83da2662', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 161, 'jurisdictionId': 1, 'orgId': '1a810324-af9e-4aaa-a98d-617e87e02bf3'}, 'success': True}
+
+
+Requesting Proof:
+
+254
+<Response [200]>
+Timing,Claim elapsed time,2.083585739135742,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 160, 'orgId': '5a2c91c9-7c7e-4c5d-9cc0-af372d6a82c9', 'effectiveDate': '2018-04-07', 'legalName': 'Peirce Trattoria-0-2ec49450608', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+700
+Timing,Proof elapsed time,1.09849214553833,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '4579 Holdom Avenue-1-31dcf456e', 'address_line_2': '', 'addressee': 'Dee Peirce-1-58eb9f41e71', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Peirce Trattoria-1-32a09e120cd3', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '1a810324-af9e-4aaa-a98d-617e87e02bf3'}
+Timing,Proof elapsed time,1.0216078758239746,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-49b2eca4874c', 'legal_name': 'Peirce Trattoria-0-b8285380', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '5a2c91c9-7c7e-4c5d-9cc0-af372d6a82c9', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.9421229362487793,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 161, 'orgId': '1a810324-af9e-4aaa-a98d-617e87e02bf3', 'effectiveDate': '2018-04-07', 'legalName': 'Peirce Trattoria-1-8a83da2662', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+897
+<Response [200]>
+Timing,Claim elapsed time,2.0145158767700195,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '5a2c91c9-7c7e-4c5d-9cc0-af372d6a82c9', 'id': 160, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Peirce Trattoria-0-2ec49450608', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+40
+Timing,Proof elapsed time,1.169003963470459,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-1-d42a1643b9', 'legal_name': 'Peirce Trattoria-1-5516ae322', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '1a810324-af9e-4aaa-a98d-617e87e02bf3', 'address_line_2': ''}
+Timing,Proof elapsed time,1.017765760421753,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '68', 'effective_date': '1510099200', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '5a2c91c9-7c7e-4c5d-9cc0-af372d6a82c9', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.7055790424346924,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '1a810324-af9e-4aaa-a98d-617e87e02bf3', 'id': 161, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Peirce Trattoria-1-8a83da2662', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+496
+<Response [200]>
+Timing,Claim elapsed time,2.0171329975128174,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Peirce Trattoria-0-2ec49450608', 'orgId': '5a2c91c9-7c7e-4c5d-9cc0-af372d6a82c9', 'orgTypeId': 1, 'id': 160, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+785
+Timing,Proof elapsed time,1.1768639087677002,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '68', 'effective_date': '1510099200', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '1a810324-af9e-4aaa-a98d-617e87e02bf3', 'address_line_2': ''}
+Timing,Proof elapsed time,0.9257900714874268,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1510099200', 'number_of_employees': '17', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '5a2c91c9-7c7e-4c5d-9cc0-af372d6a82c9', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.021433115005493,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Peirce Trattoria-1-8a83da2662', 'orgId': '1a810324-af9e-4aaa-a98d-617e87e02bf3', 'orgTypeId': 1, 'id': 161, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+77
+<Response [200]>
+Timing,Claim elapsed time,2.112859010696411,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '5a2c91c9-7c7e-4c5d-9cc0-af372d6a82c9', 'effectiveDate': '2018-04-07', 'id': 160, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Peirce Trattoria-0-2ec49450608', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+586
+Timing,Proof elapsed time,1.1732349395751953,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1510099200', 'number_of_employees': '17', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '1a810324-af9e-4aaa-a98d-617e87e02bf3', 'address_line_2': ''}
+Timing,Proof elapsed time,1.0723938941955566,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'True', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '17', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'True', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '5a2c91c9-7c7e-4c5d-9cc0-af372d6a82c9', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.871725082397461,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '1a810324-af9e-4aaa-a98d-617e87e02bf3', 'effectiveDate': '2018-04-07', 'id': 161, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Peirce Trattoria-1-8a83da2662', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+642
+<Response [200]>
+Timing,Claim elapsed time,2.2250149250030518,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '5a2c91c9-7c7e-4c5d-9cc0-af372d6a82c9', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Peirce Trattoria-0-2ec49450608', 'effectiveDate': '2018-04-07', 'id': 160, 'endDate': None}}
+
+
+Requesting Proof:
+
+781
+Timing,Proof elapsed time,1.1984200477600098,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'True', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '17', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'True', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '1a810324-af9e-4aaa-a98d-617e87e02bf3', 'address_line_2': ''}
+Timing,Proof elapsed time,1.092951774597168,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_14.json
+
+
+
+==============================================
+Registering new business: Knight Cafe-0-cac4796cd
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '3593 King George Hwy-0-d1496165c0', 'address_line_2': '', 'addressee': 'Ronald Knight-0-88061779', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Knight Cafe-0-cac4796cd', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,2.01407790184021,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '1a810324-af9e-4aaa-a98d-617e87e02bf3', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Peirce Trattoria-1-8a83da2662', 'effectiveDate': '2018-04-07', 'id': 161, 'endDate': None}}
+
+
+Requesting Proof:
+
+906
+<Response [200]>
+Timing,Claim elapsed time,2.1263270378112793,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Knight Cafe-0-cac4796cd', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 162, 'jurisdictionId': 1, 'orgId': '5b1182da-443c-454b-9480-e3c6af9b40bf'}, 'success': True}
+
+
+Requesting Proof:
+
+512
+Timing,Proof elapsed time,1.2429282665252686,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_14.json
+
+
+
+==============================================
+Registering new business: Knight Cafe-1-56fcc32358
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '3593 King George Hwy-1-cc80ccff', 'address_line_2': '', 'addressee': 'Ronald Knight-1-31b04a42a', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Knight Cafe-1-56fcc32358', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+Timing,Proof elapsed time,1.0580101013183594,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '3593 King George Hwy-0-3b4753ab0', 'address_line_2': '', 'addressee': 'Ronald Knight-0-7770fde2b1d', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Knight Cafe-0-c22da2ab5', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '5b1182da-443c-454b-9480-e3c6af9b40bf'}
+<Response [200]>
+Timing,Claim elapsed time,2.060606002807617,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Knight Cafe-1-56fcc32358', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 163, 'jurisdictionId': 1, 'orgId': '1edc43f9-fc8d-4afe-ac66-344a510c8bca'}, 'success': True}
+
+
+Requesting Proof:
+
+945
+<Response [200]>
+Timing,Claim elapsed time,2.0060150623321533,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 162, 'orgId': '5b1182da-443c-454b-9480-e3c6af9b40bf', 'effectiveDate': '2018-04-07', 'legalName': 'Knight Cafe-0-cac4796cd', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+786
+Timing,Proof elapsed time,1.172644853591919,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '3593 King George Hwy-1-6931ea5598d0', 'address_line_2': '', 'addressee': 'Ronald Knight-1-f18708bed', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Knight Cafe-1-3e217d9af7', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '1edc43f9-fc8d-4afe-ac66-344a510c8bca'}
+Timing,Proof elapsed time,1.0595550537109375,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-5b080b97d99', 'legal_name': 'Knight Cafe-0-df3e676ab', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '5b1182da-443c-454b-9480-e3c6af9b40bf', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.7891459465026855,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 163, 'orgId': '1edc43f9-fc8d-4afe-ac66-344a510c8bca', 'effectiveDate': '2018-04-07', 'legalName': 'Knight Cafe-1-56fcc32358', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+520
+<Response [200]>
+Timing,Claim elapsed time,2.084928035736084,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '5b1182da-443c-454b-9480-e3c6af9b40bf', 'id': 162, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Knight Cafe-0-cac4796cd', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+249
+Timing,Proof elapsed time,1.1823959350585938,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-1-5ab25ec7e', 'legal_name': 'Knight Cafe-1-58cdeb5520', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '1edc43f9-fc8d-4afe-ac66-344a510c8bca', 'address_line_2': ''}
+Timing,Proof elapsed time,0.9014968872070312,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '88', 'effective_date': '1482451200', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '5b1182da-443c-454b-9480-e3c6af9b40bf', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.8619332313537598,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '1edc43f9-fc8d-4afe-ac66-344a510c8bca', 'id': 163, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Knight Cafe-1-56fcc32358', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+730
+<Response [200]>
+Timing,Claim elapsed time,2.1168649196624756,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Knight Cafe-0-cac4796cd', 'orgId': '5b1182da-443c-454b-9480-e3c6af9b40bf', 'orgTypeId': 1, 'id': 162, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+11
+Timing,Proof elapsed time,1.2041289806365967,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '88', 'effective_date': '1482451200', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '1edc43f9-fc8d-4afe-ac66-344a510c8bca', 'address_line_2': ''}
+Timing,Proof elapsed time,0.9438986778259277,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1482451200', 'number_of_employees': '22', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '5b1182da-443c-454b-9480-e3c6af9b40bf', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.8769221305847168,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Knight Cafe-1-56fcc32358', 'orgId': '1edc43f9-fc8d-4afe-ac66-344a510c8bca', 'orgTypeId': 1, 'id': 163, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+36
+<Response [200]>
+Timing,Claim elapsed time,2.046293020248413,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '5b1182da-443c-454b-9480-e3c6af9b40bf', 'effectiveDate': '2018-04-07', 'id': 162, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Knight Cafe-0-cac4796cd', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+933
+Timing,Proof elapsed time,1.097585916519165,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1482451200', 'number_of_employees': '22', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '1edc43f9-fc8d-4afe-ac66-344a510c8bca', 'address_line_2': ''}
+Timing,Proof elapsed time,1.0847322940826416,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '22', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '5b1182da-443c-454b-9480-e3c6af9b40bf', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.9493260383605957,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '1edc43f9-fc8d-4afe-ac66-344a510c8bca', 'effectiveDate': '2018-04-07', 'id': 163, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Knight Cafe-1-56fcc32358', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+960
+<Response [200]>
+Timing,Claim elapsed time,1.9892547130584717,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '5b1182da-443c-454b-9480-e3c6af9b40bf', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Knight Cafe-0-cac4796cd', 'effectiveDate': '2018-04-07', 'id': 162, 'endDate': None}}
+
+
+Requesting Proof:
+
+606
+Timing,Proof elapsed time,1.2847042083740234,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '22', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '1edc43f9-fc8d-4afe-ac66-344a510c8bca', 'address_line_2': ''}
+Timing,Proof elapsed time,1.1764557361602783,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_15.json
+
+
+
+==============================================
+Registering new business: Fulford Canteen-0-ac9eb3e6585
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '3490 Glover Road-0-4d920610bad', 'address_line_2': '', 'addressee': 'Monica Fulford-0-85bd7f4e3', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Fulford Canteen-0-ac9eb3e6585', 'postal_code': 'V3S 4C4', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,2.2682271003723145,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '1edc43f9-fc8d-4afe-ac66-344a510c8bca', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Knight Cafe-1-56fcc32358', 'effectiveDate': '2018-04-07', 'id': 163, 'endDate': None}}
+
+
+Requesting Proof:
+
+771
+<Response [200]>
+Timing,Claim elapsed time,2.6418209075927734,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Fulford Canteen-0-ac9eb3e6585', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 164, 'jurisdictionId': 1, 'orgId': '72f54527-bb7e-4910-bbb4-fa1c30d0625f'}, 'success': True}
+
+
+Requesting Proof:
+
+198
+Timing,Proof elapsed time,1.2861382961273193,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_15.json
+
+
+
+==============================================
+Registering new business: Fulford Canteen-1-4a2bdc139
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '3490 Glover Road-1-07828b9a88', 'address_line_2': '', 'addressee': 'Monica Fulford-1-16e02bcb12', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Fulford Canteen-1-4a2bdc139', 'postal_code': 'V3S 4C4', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+Timing,Proof elapsed time,1.167297601699829,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '3490 Glover Road-0-0ec0f65b9', 'address_line_2': '', 'addressee': 'Monica Fulford-0-652933f4f5b', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3S 4C4', 'province': 'BC', 'restaurant_name': 'Fulford Canteen-0-2f162383c977', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '72f54527-bb7e-4910-bbb4-fa1c30d0625f'}
+<Response [200]>
+Timing,Claim elapsed time,2.2970428466796875,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Fulford Canteen-1-4a2bdc139', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 165, 'jurisdictionId': 1, 'orgId': 'b7253415-1b0e-4977-b0f2-2fee4c93a7dd'}, 'success': True}
+
+
+Requesting Proof:
+
+755
+<Response [200]>
+Timing,Claim elapsed time,2.355759859085083,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 164, 'orgId': '72f54527-bb7e-4910-bbb4-fa1c30d0625f', 'effectiveDate': '2018-04-07', 'legalName': 'Fulford Canteen-0-ac9eb3e6585', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+99
+Timing,Proof elapsed time,1.4537091255187988,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '3490 Glover Road-1-c784b37a', 'address_line_2': '', 'addressee': 'Monica Fulford-1-b1cffb0b438', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3S 4C4', 'province': 'BC', 'restaurant_name': 'Fulford Canteen-1-a8423dd19bd', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'b7253415-1b0e-4977-b0f2-2fee4c93a7dd'}
+Timing,Proof elapsed time,1.1217279434204102,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-bc7be3d9928c', 'legal_name': 'Fulford Canteen-0-f1ce90364437', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '72f54527-bb7e-4910-bbb4-fa1c30d0625f', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.0318350791931152,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 165, 'orgId': 'b7253415-1b0e-4977-b0f2-2fee4c93a7dd', 'effectiveDate': '2018-04-07', 'legalName': 'Fulford Canteen-1-4a2bdc139', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+978
+Timing,Proof elapsed time,0.04270529747009277,secs
+<Response [200]>
+Timing,Claim elapsed time,2.059504985809326,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '72f54527-bb7e-4910-bbb4-fa1c30d0625f', 'id': 164, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Fulford Canteen-0-ac9eb3e6585', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+486
+Timing,Proof elapsed time,0.6874759197235107,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '72', 'effective_date': '1478476800', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '72f54527-bb7e-4910-bbb4-fa1c30d0625f', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.5068190097808838,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Fulford Canteen-0-ac9eb3e6585', 'orgId': '72f54527-bb7e-4910-bbb4-fa1c30d0625f', 'orgTypeId': 1, 'id': 164, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+463
+Timing,Proof elapsed time,0.7299602031707764,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1478476800', 'number_of_employees': '18', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '72f54527-bb7e-4910-bbb4-fa1c30d0625f', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4157278537750244,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '72f54527-bb7e-4910-bbb4-fa1c30d0625f', 'effectiveDate': '2018-04-07', 'id': 164, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Fulford Canteen-0-ac9eb3e6585', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+770
+Timing,Proof elapsed time,0.7900259494781494,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '18', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'True', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '72f54527-bb7e-4910-bbb4-fa1c30d0625f', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3942992687225342,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '72f54527-bb7e-4910-bbb4-fa1c30d0625f', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Fulford Canteen-0-ac9eb3e6585', 'effectiveDate': '2018-04-07', 'id': 164, 'endDate': None}}
+
+
+Requesting Proof:
+
+19
+Timing,Proof elapsed time,0.6986739635467529,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_16.json
+
+
+
+==============================================
+Registering new business: Locke Coffee-0-a76f4752
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '2645 King George Hwy-0-2dcefa641914', 'address_line_2': '', 'addressee': 'Jerry Locke-0-8b743dbf', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Locke Coffee-0-a76f4752', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.4991590976715088,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Locke Coffee-0-a76f4752', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 166, 'jurisdictionId': 1, 'orgId': '0c59bfcc-f72d-45c5-b6c7-838e00f6dbda'}, 'success': True}
+
+
+Requesting Proof:
+
+764
+Timing,Proof elapsed time,0.6332497596740723,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '2645 King George Hwy-0-e2864fa7c2', 'address_line_2': '', 'addressee': 'Jerry Locke-0-a70ec323', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Locke Coffee-0-75bb222c', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '0c59bfcc-f72d-45c5-b6c7-838e00f6dbda'}
+<Response [200]>
+Timing,Claim elapsed time,1.4239330291748047,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 166, 'orgId': '0c59bfcc-f72d-45c5-b6c7-838e00f6dbda', 'effectiveDate': '2018-04-07', 'legalName': 'Locke Coffee-0-a76f4752', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+226
+Timing,Proof elapsed time,0.721858024597168,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-bd56003ff0c2', 'legal_name': 'Locke Coffee-0-532c27abe73', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '0c59bfcc-f72d-45c5-b6c7-838e00f6dbda', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3200538158416748,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '0c59bfcc-f72d-45c5-b6c7-838e00f6dbda', 'id': 166, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Locke Coffee-0-a76f4752', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+756
+Timing,Proof elapsed time,0.7136712074279785,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '104', 'effective_date': '1505606400', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '0c59bfcc-f72d-45c5-b6c7-838e00f6dbda', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4455499649047852,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Locke Coffee-0-a76f4752', 'orgId': '0c59bfcc-f72d-45c5-b6c7-838e00f6dbda', 'orgTypeId': 1, 'id': 166, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+264
+Timing,Proof elapsed time,0.7188022136688232,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1505606400', 'number_of_employees': '26', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '0c59bfcc-f72d-45c5-b6c7-838e00f6dbda', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.330549955368042,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '0c59bfcc-f72d-45c5-b6c7-838e00f6dbda', 'effectiveDate': '2018-04-07', 'id': 166, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Locke Coffee-0-a76f4752', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+808
+Timing,Proof elapsed time,0.6872861385345459,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'True', 'catering': 'False', 'dancing_permitted': 'True', 'is_owner': 'True', 'number_of_employees': '26', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'True', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '0c59bfcc-f72d-45c5-b6c7-838e00f6dbda', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.454300880432129,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '0c59bfcc-f72d-45c5-b6c7-838e00f6dbda', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Locke Coffee-0-a76f4752', 'effectiveDate': '2018-04-07', 'id': 166, 'endDate': None}}
+
+
+Requesting Proof:
+
+31
+Timing,Proof elapsed time,0.6990070343017578,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_17.json
+
+
+
+==============================================
+Registering new business: Lloyd Seafood-0-9e3d297dbd5
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '3522 Glover Road-0-cca27ccf', 'address_line_2': '', 'addressee': 'Angela Lloyd-0-075f9e0760a7', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Lloyd Seafood-0-9e3d297dbd5', 'postal_code': 'V3W 4N6', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.580690860748291,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Lloyd Seafood-0-9e3d297dbd5', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 167, 'jurisdictionId': 1, 'orgId': 'c1c72c37-7069-4b6f-87d7-0c2c1eb44426'}, 'success': True}
+
+
+Requesting Proof:
+
+310
+Timing,Proof elapsed time,0.677199125289917,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '3522 Glover Road-0-573c86b58b', 'address_line_2': '', 'addressee': 'Angela Lloyd-0-2d6882d93', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4N6', 'province': 'BC', 'restaurant_name': 'Lloyd Seafood-0-d91a80d2f6b', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'c1c72c37-7069-4b6f-87d7-0c2c1eb44426'}
+<Response [200]>
+Timing,Claim elapsed time,1.5220448970794678,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 167, 'orgId': 'c1c72c37-7069-4b6f-87d7-0c2c1eb44426', 'effectiveDate': '2018-04-07', 'legalName': 'Lloyd Seafood-0-9e3d297dbd5', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+416
+Timing,Proof elapsed time,0.7398190498352051,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-83dd27e53', 'legal_name': 'Lloyd Seafood-0-76c18b37', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'c1c72c37-7069-4b6f-87d7-0c2c1eb44426', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3297059535980225,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'c1c72c37-7069-4b6f-87d7-0c2c1eb44426', 'id': 167, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Lloyd Seafood-0-9e3d297dbd5', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+804
+Timing,Proof elapsed time,0.7055439949035645,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '76', 'effective_date': '1445644800', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': 'c1c72c37-7069-4b6f-87d7-0c2c1eb44426', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.5566930770874023,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Lloyd Seafood-0-9e3d297dbd5', 'orgId': 'c1c72c37-7069-4b6f-87d7-0c2c1eb44426', 'orgTypeId': 1, 'id': 167, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+182
+Timing,Proof elapsed time,0.70672607421875,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1445644800', 'number_of_employees': '19', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'c1c72c37-7069-4b6f-87d7-0c2c1eb44426', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4712259769439697,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'c1c72c37-7069-4b6f-87d7-0c2c1eb44426', 'effectiveDate': '2018-04-07', 'id': 167, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Lloyd Seafood-0-9e3d297dbd5', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+769
+Timing,Proof elapsed time,0.7178750038146973,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'True', 'dancing_permitted': 'True', 'is_owner': 'True', 'number_of_employees': '19', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'True', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'c1c72c37-7069-4b6f-87d7-0c2c1eb44426', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.38578200340271,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'c1c72c37-7069-4b6f-87d7-0c2c1eb44426', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Lloyd Seafood-0-9e3d297dbd5', 'effectiveDate': '2018-04-07', 'id': 167, 'endDate': None}}
+
+
+Requesting Proof:
+
+661
+Timing,Proof elapsed time,0.7451090812683105,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_18.json
+
+
+
+==============================================
+Registering new business: Gleason Canteen-0-f4c688851ee
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '4945 King George Hwy-0-a7e7d2e6f', 'address_line_2': '', 'addressee': 'Albert Gleason-0-0de4822a83cc', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Gleason Canteen-0-f4c688851ee', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.6270473003387451,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Gleason Canteen-0-f4c688851ee', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 168, 'jurisdictionId': 1, 'orgId': 'ed1e875f-e02c-46f7-8960-72ed26cc6066'}, 'success': True}
+
+
+Requesting Proof:
+
+873
+Timing,Proof elapsed time,0.6735341548919678,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '4945 King George Hwy-0-9ce8ed2ef', 'address_line_2': '', 'addressee': 'Albert Gleason-0-01070474fb86', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Gleason Canteen-0-5e2bc2716', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'ed1e875f-e02c-46f7-8960-72ed26cc6066'}
+<Response [200]>
+Timing,Claim elapsed time,1.5319550037384033,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 168, 'orgId': 'ed1e875f-e02c-46f7-8960-72ed26cc6066', 'effectiveDate': '2018-04-07', 'legalName': 'Gleason Canteen-0-f4c688851ee', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+209
+Timing,Proof elapsed time,0.6779358386993408,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-d3b1b5654', 'legal_name': 'Gleason Canteen-0-747f8454612', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'ed1e875f-e02c-46f7-8960-72ed26cc6066', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3287498950958252,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'ed1e875f-e02c-46f7-8960-72ed26cc6066', 'id': 168, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Gleason Canteen-0-f4c688851ee', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+18
+Timing,Proof elapsed time,0.6801259517669678,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '92', 'effective_date': '1512864000', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': 'ed1e875f-e02c-46f7-8960-72ed26cc6066', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4231810569763184,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Gleason Canteen-0-f4c688851ee', 'orgId': 'ed1e875f-e02c-46f7-8960-72ed26cc6066', 'orgTypeId': 1, 'id': 168, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+655
+Timing,Proof elapsed time,0.6752839088439941,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1512864000', 'number_of_employees': '23', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'ed1e875f-e02c-46f7-8960-72ed26cc6066', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3709352016448975,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'ed1e875f-e02c-46f7-8960-72ed26cc6066', 'effectiveDate': '2018-04-07', 'id': 168, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Gleason Canteen-0-f4c688851ee', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+391
+Timing,Proof elapsed time,0.7344927787780762,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'True', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '23', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'ed1e875f-e02c-46f7-8960-72ed26cc6066', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4874770641326904,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'ed1e875f-e02c-46f7-8960-72ed26cc6066', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Gleason Canteen-0-f4c688851ee', 'effectiveDate': '2018-04-07', 'id': 168, 'endDate': None}}
+
+
+Requesting Proof:
+
+280
+Timing,Proof elapsed time,0.6467361450195312,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_19.json
+
+
+
+==============================================
+Registering new business: Bumpers Restaurant-0-dd4afc25
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '1588 King George Hwy-0-16e824b4', 'address_line_2': '', 'addressee': 'Kelly Bumpers-0-743fcca1fdc', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Bumpers Restaurant-0-dd4afc25', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.5661842823028564,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Bumpers Restaurant-0-dd4afc25', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 169, 'jurisdictionId': 1, 'orgId': 'ce720351-5f82-4a2e-9dcd-fa897c22eb60'}, 'success': True}
+
+
+Requesting Proof:
+
+424
+Timing,Proof elapsed time,0.645759105682373,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '1588 King George Hwy-0-ce8e71640f', 'address_line_2': '', 'addressee': 'Kelly Bumpers-0-313a31c8a0', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Bumpers Restaurant-0-824413fe', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'ce720351-5f82-4a2e-9dcd-fa897c22eb60'}
+<Response [200]>
+Timing,Claim elapsed time,1.42519211769104,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 169, 'orgId': 'ce720351-5f82-4a2e-9dcd-fa897c22eb60', 'effectiveDate': '2018-04-07', 'legalName': 'Bumpers Restaurant-0-dd4afc25', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+206
+Timing,Proof elapsed time,0.6498680114746094,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-f67929a071', 'legal_name': 'Bumpers Restaurant-0-2f9bfe4d2', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'ce720351-5f82-4a2e-9dcd-fa897c22eb60', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3243489265441895,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'ce720351-5f82-4a2e-9dcd-fa897c22eb60', 'id': 169, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Bumpers Restaurant-0-dd4afc25', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+395
+Timing,Proof elapsed time,0.6839277744293213,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '36', 'effective_date': '1517184000', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': 'ce720351-5f82-4a2e-9dcd-fa897c22eb60', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4631738662719727,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Bumpers Restaurant-0-dd4afc25', 'orgId': 'ce720351-5f82-4a2e-9dcd-fa897c22eb60', 'orgTypeId': 1, 'id': 169, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+883
+Timing,Proof elapsed time,0.7282841205596924,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1517184000', 'number_of_employees': '9', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'ce720351-5f82-4a2e-9dcd-fa897c22eb60', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.412282943725586,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'ce720351-5f82-4a2e-9dcd-fa897c22eb60', 'effectiveDate': '2018-04-07', 'id': 169, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Bumpers Restaurant-0-dd4afc25', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+282
+Timing,Proof elapsed time,0.6869978904724121,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '9', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'ce720351-5f82-4a2e-9dcd-fa897c22eb60', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4273228645324707,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'ce720351-5f82-4a2e-9dcd-fa897c22eb60', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Bumpers Restaurant-0-dd4afc25', 'effectiveDate': '2018-04-07', 'id': 169, 'endDate': None}}
+
+
+Requesting Proof:
+
+377
+Timing,Proof elapsed time,0.7606241703033447,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_2.json
+
+
+
+==============================================
+Registering new business: Seng Trattoria-0-ad63bf9d48
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '4761 King George Hwy-0-9d602540ce4', 'address_line_2': '', 'addressee': 'Charles Seng-0-19afde0db', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Seng Trattoria-0-ad63bf9d48', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.616628885269165,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Seng Trattoria-0-ad63bf9d48', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 170, 'jurisdictionId': 1, 'orgId': '2e4c8bf9-e4b2-497e-b382-22a8148159d2'}, 'success': True}
+
+
+Requesting Proof:
+
+74
+Timing,Proof elapsed time,0.7022950649261475,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '4761 King George Hwy-0-f22fa184', 'address_line_2': '', 'addressee': 'Charles Seng-0-9c95d498493', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Seng Trattoria-0-d1923e6c5c6e', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '2e4c8bf9-e4b2-497e-b382-22a8148159d2'}
+<Response [200]>
+Timing,Claim elapsed time,1.481105089187622,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 170, 'orgId': '2e4c8bf9-e4b2-497e-b382-22a8148159d2', 'effectiveDate': '2018-04-07', 'legalName': 'Seng Trattoria-0-ad63bf9d48', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+108
+Timing,Proof elapsed time,0.7229681015014648,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': 'Vari-Tec-0-bdc7af0844a', 'legal_name': 'Seng Trattoria-0-b90fecc5e55', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '2e4c8bf9-e4b2-497e-b382-22a8148159d2', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2990949153900146,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '2e4c8bf9-e4b2-497e-b382-22a8148159d2', 'id': 170, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Seng Trattoria-0-ad63bf9d48', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+632
+Timing,Proof elapsed time,0.7186000347137451,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '20', 'effective_date': '1489795200', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '2e4c8bf9-e4b2-497e-b382-22a8148159d2', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.388777256011963,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Seng Trattoria-0-ad63bf9d48', 'orgId': '2e4c8bf9-e4b2-497e-b382-22a8148159d2', 'orgTypeId': 1, 'id': 170, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+562
+Timing,Proof elapsed time,0.6724486351013184,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1489795200', 'number_of_employees': '5', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '2e4c8bf9-e4b2-497e-b382-22a8148159d2', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4662373065948486,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '2e4c8bf9-e4b2-497e-b382-22a8148159d2', 'effectiveDate': '2018-04-07', 'id': 170, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Seng Trattoria-0-ad63bf9d48', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+219
+Timing,Proof elapsed time,0.6730177402496338,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'True', 'dancing_permitted': 'True', 'is_owner': 'True', 'number_of_employees': '5', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '2e4c8bf9-e4b2-497e-b382-22a8148159d2', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3719289302825928,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '2e4c8bf9-e4b2-497e-b382-22a8148159d2', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Seng Trattoria-0-ad63bf9d48', 'effectiveDate': '2018-04-07', 'id': 170, 'endDate': None}}
+
+
+Requesting Proof:
+
+696
+Timing,Proof elapsed time,0.7524409294128418,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_20.json
+
+
+
+==============================================
+Registering new business: Rodriguez Eatry-0-a43a6b0632
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '1172 Holdom Avenue-0-a0be2be1f77', 'address_line_2': '', 'addressee': 'Dorothy Rodriguez-0-42e1580afad9', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Rodriguez Eatry-0-a43a6b0632', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.4426450729370117,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Rodriguez Eatry-0-a43a6b0632', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 171, 'jurisdictionId': 1, 'orgId': 'bf74091d-e635-4a9e-852b-705d7335aff9'}, 'success': True}
+
+
+Requesting Proof:
+
+487
+Timing,Proof elapsed time,0.7371227741241455,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '1172 Holdom Avenue-0-3a70c73fd', 'address_line_2': '', 'addressee': 'Dorothy Rodriguez-0-c1438dac9', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Rodriguez Eatry-0-d6938b17972b', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'bf74091d-e635-4a9e-852b-705d7335aff9'}
+<Response [200]>
+Timing,Claim elapsed time,1.4425020217895508,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 171, 'orgId': 'bf74091d-e635-4a9e-852b-705d7335aff9', 'effectiveDate': '2018-04-07', 'legalName': 'Rodriguez Eatry-0-a43a6b0632', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+351
+Timing,Proof elapsed time,0.700376033782959,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-39460123', 'legal_name': 'Rodriguez Eatry-0-ede2c5c9b', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'bf74091d-e635-4a9e-852b-705d7335aff9', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4098210334777832,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'bf74091d-e635-4a9e-852b-705d7335aff9', 'id': 171, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Rodriguez Eatry-0-a43a6b0632', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+400
+Timing,Proof elapsed time,0.756566047668457,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '96', 'effective_date': '1455840000', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': 'bf74091d-e635-4a9e-852b-705d7335aff9', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4423868656158447,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Rodriguez Eatry-0-a43a6b0632', 'orgId': 'bf74091d-e635-4a9e-852b-705d7335aff9', 'orgTypeId': 1, 'id': 171, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+298
+Timing,Proof elapsed time,0.6779439449310303,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1455840000', 'number_of_employees': '24', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'bf74091d-e635-4a9e-852b-705d7335aff9', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2698948383331299,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'bf74091d-e635-4a9e-852b-705d7335aff9', 'effectiveDate': '2018-04-07', 'id': 171, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Rodriguez Eatry-0-a43a6b0632', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+351
+Timing,Proof elapsed time,0.6822018623352051,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '24', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'True', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'bf74091d-e635-4a9e-852b-705d7335aff9', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.5684740543365479,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'bf74091d-e635-4a9e-852b-705d7335aff9', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Rodriguez Eatry-0-a43a6b0632', 'effectiveDate': '2018-04-07', 'id': 171, 'endDate': None}}
+
+
+Requesting Proof:
+
+54
+Timing,Proof elapsed time,0.6797130107879639,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_21.json
+
+
+
+==============================================
+Registering new business: Martin Coffee House-0-08903147
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '3490 King George Hwy-0-62e928e4', 'address_line_2': '', 'addressee': 'Alice Martin-0-85050432', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Martin Coffee House-0-08903147', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.6277697086334229,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Martin Coffee House-0-08903147', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 172, 'jurisdictionId': 1, 'orgId': '8a1d2821-40a2-4933-bb96-52b6e8bc043b'}, 'success': True}
+
+
+Requesting Proof:
+
+61
+Timing,Proof elapsed time,0.6795797348022461,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '3490 King George Hwy-0-e624d39eba', 'address_line_2': '', 'addressee': 'Alice Martin-0-2601c8bfd', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Martin Coffee House-0-f039f359d099', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '8a1d2821-40a2-4933-bb96-52b6e8bc043b'}
+<Response [200]>
+Timing,Claim elapsed time,1.474951982498169,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 172, 'orgId': '8a1d2821-40a2-4933-bb96-52b6e8bc043b', 'effectiveDate': '2018-04-07', 'legalName': 'Martin Coffee House-0-08903147', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+451
+Timing,Proof elapsed time,0.6357738971710205,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-66129f1d0ab', 'legal_name': 'Martin Coffee House-0-cdddd65ca', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '8a1d2821-40a2-4933-bb96-52b6e8bc043b', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4334468841552734,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '8a1d2821-40a2-4933-bb96-52b6e8bc043b', 'id': 172, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Martin Coffee House-0-08903147', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+826
+Timing,Proof elapsed time,0.6826632022857666,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '72', 'effective_date': '1491696000', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '8a1d2821-40a2-4933-bb96-52b6e8bc043b', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.641646146774292,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Martin Coffee House-0-08903147', 'orgId': '8a1d2821-40a2-4933-bb96-52b6e8bc043b', 'orgTypeId': 1, 'id': 172, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+726
+Timing,Proof elapsed time,0.7049281597137451,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1491696000', 'number_of_employees': '18', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '8a1d2821-40a2-4933-bb96-52b6e8bc043b', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3620679378509521,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '8a1d2821-40a2-4933-bb96-52b6e8bc043b', 'effectiveDate': '2018-04-07', 'id': 172, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Martin Coffee House-0-08903147', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+190
+Timing,Proof elapsed time,0.6877176761627197,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'True', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '18', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '8a1d2821-40a2-4933-bb96-52b6e8bc043b', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.5072648525238037,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '8a1d2821-40a2-4933-bb96-52b6e8bc043b', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Martin Coffee House-0-08903147', 'effectiveDate': '2018-04-07', 'id': 172, 'endDate': None}}
+
+
+Requesting Proof:
+
+401
+Timing,Proof elapsed time,0.7062571048736572,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_22.json
+
+
+
+==============================================
+Registering new business: Wright Cafeteria-0-3e7de196
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '2177 Holdom Avenue-0-b918fd17e63', 'address_line_2': '', 'addressee': 'Casey Wright-0-0a043314e22e', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Wright Cafeteria-0-3e7de196', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.698594093322754,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Wright Cafeteria-0-3e7de196', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 173, 'jurisdictionId': 1, 'orgId': '4e4d6fd9-0fac-4674-a585-279b79875514'}, 'success': True}
+
+
+Requesting Proof:
+
+80
+Timing,Proof elapsed time,0.7129709720611572,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '2177 Holdom Avenue-0-e38ea1be2d72', 'address_line_2': '', 'addressee': 'Casey Wright-0-8b61a3a2d0', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Wright Cafeteria-0-f0e3df0a', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '4e4d6fd9-0fac-4674-a585-279b79875514'}
+<Response [200]>
+Timing,Claim elapsed time,1.4706697463989258,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 173, 'orgId': '4e4d6fd9-0fac-4674-a585-279b79875514', 'effectiveDate': '2018-04-07', 'legalName': 'Wright Cafeteria-0-3e7de196', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+847
+Timing,Proof elapsed time,0.7242648601531982,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-2ec389de0', 'legal_name': 'Wright Cafeteria-0-e3e3d70dc62', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '4e4d6fd9-0fac-4674-a585-279b79875514', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3670828342437744,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '4e4d6fd9-0fac-4674-a585-279b79875514', 'id': 173, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Wright Cafeteria-0-3e7de196', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+958
+Timing,Proof elapsed time,0.776494026184082,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '84', 'effective_date': '1479945600', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '4e4d6fd9-0fac-4674-a585-279b79875514', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3971929550170898,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Wright Cafeteria-0-3e7de196', 'orgId': '4e4d6fd9-0fac-4674-a585-279b79875514', 'orgTypeId': 1, 'id': 173, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+253
+Timing,Proof elapsed time,0.7743160724639893,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1479945600', 'number_of_employees': '21', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '4e4d6fd9-0fac-4674-a585-279b79875514', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3502907752990723,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '4e4d6fd9-0fac-4674-a585-279b79875514', 'effectiveDate': '2018-04-07', 'id': 173, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Wright Cafeteria-0-3e7de196', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+105
+Timing,Proof elapsed time,0.714343786239624,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '21', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'True', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '4e4d6fd9-0fac-4674-a585-279b79875514', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4385030269622803,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '4e4d6fd9-0fac-4674-a585-279b79875514', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Wright Cafeteria-0-3e7de196', 'effectiveDate': '2018-04-07', 'id': 173, 'endDate': None}}
+
+
+Requesting Proof:
+
+254
+Timing,Proof elapsed time,0.639491081237793,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_23.json
+
+
+
+==============================================
+Registering new business: Shook Cafeteria-0-b3b3b55c5
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '3484 Holdom Avenue-0-81739a079', 'address_line_2': '', 'addressee': 'Daniel Shook-0-caff716c7', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Shook Cafeteria-0-b3b3b55c5', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.590575933456421,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Shook Cafeteria-0-b3b3b55c5', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 174, 'jurisdictionId': 1, 'orgId': '63a7e361-7c60-419f-950e-d1c1d5081fda'}, 'success': True}
+
+
+Requesting Proof:
+
+579
+Timing,Proof elapsed time,0.6412532329559326,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '3484 Holdom Avenue-0-38e74e2fffd', 'address_line_2': '', 'addressee': 'Daniel Shook-0-ea76c8b3c37', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Shook Cafeteria-0-0efcc798', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '63a7e361-7c60-419f-950e-d1c1d5081fda'}
+<Response [200]>
+Timing,Claim elapsed time,1.3730080127716064,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 174, 'orgId': '63a7e361-7c60-419f-950e-d1c1d5081fda', 'effectiveDate': '2018-04-07', 'legalName': 'Shook Cafeteria-0-b3b3b55c5', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+76
+Timing,Proof elapsed time,0.7408928871154785,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-ac0c7c1b2f2', 'legal_name': 'Shook Cafeteria-0-6244654704', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '63a7e361-7c60-419f-950e-d1c1d5081fda', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2580010890960693,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '63a7e361-7c60-419f-950e-d1c1d5081fda', 'id': 174, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Shook Cafeteria-0-b3b3b55c5', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+862
+Timing,Proof elapsed time,0.7039470672607422,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '56', 'effective_date': '1486512000', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '63a7e361-7c60-419f-950e-d1c1d5081fda', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.454969882965088,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Shook Cafeteria-0-b3b3b55c5', 'orgId': '63a7e361-7c60-419f-950e-d1c1d5081fda', 'orgTypeId': 1, 'id': 174, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+349
+Timing,Proof elapsed time,0.6568009853363037,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1486512000', 'number_of_employees': '14', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '63a7e361-7c60-419f-950e-d1c1d5081fda', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3589060306549072,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '63a7e361-7c60-419f-950e-d1c1d5081fda', 'effectiveDate': '2018-04-07', 'id': 174, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Shook Cafeteria-0-b3b3b55c5', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+830
+Timing,Proof elapsed time,0.7463071346282959,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'True', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '14', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '63a7e361-7c60-419f-950e-d1c1d5081fda', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4932630062103271,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '63a7e361-7c60-419f-950e-d1c1d5081fda', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Shook Cafeteria-0-b3b3b55c5', 'effectiveDate': '2018-04-07', 'id': 174, 'endDate': None}}
+
+
+Requesting Proof:
+
+545
+Timing,Proof elapsed time,0.7212040424346924,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_24.json
+
+
+
+==============================================
+Registering new business: Cleary Seafood-0-9721eea8
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '3626 Holdom Avenue-0-693cae87', 'address_line_2': '', 'addressee': 'Amanda Cleary-0-b5433047', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Cleary Seafood-0-9721eea8', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.4868240356445312,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Cleary Seafood-0-9721eea8', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 175, 'jurisdictionId': 1, 'orgId': 'e473e772-45b4-4d57-aaa1-75f6ed507058'}, 'success': True}
+
+
+Requesting Proof:
+
+686
+Timing,Proof elapsed time,0.7365140914916992,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '3626 Holdom Avenue-0-0e88570be18a', 'address_line_2': '', 'addressee': 'Amanda Cleary-0-b990bb91661', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Cleary Seafood-0-666d73fc4', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'e473e772-45b4-4d57-aaa1-75f6ed507058'}
+<Response [200]>
+Timing,Claim elapsed time,1.3767011165618896,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 175, 'orgId': 'e473e772-45b4-4d57-aaa1-75f6ed507058', 'effectiveDate': '2018-04-07', 'legalName': 'Cleary Seafood-0-9721eea8', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+1001
+Timing,Proof elapsed time,0.64215087890625,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-e8676c4ad3', 'legal_name': 'Cleary Seafood-0-a5acb9e2', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'e473e772-45b4-4d57-aaa1-75f6ed507058', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.313180923461914,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'e473e772-45b4-4d57-aaa1-75f6ed507058', 'id': 175, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Cleary Seafood-0-9721eea8', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+173
+Timing,Proof elapsed time,0.770280122756958,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '24', 'effective_date': '1480377600', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'True', 'legal_entity_id': 'e473e772-45b4-4d57-aaa1-75f6ed507058', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.595066785812378,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Cleary Seafood-0-9721eea8', 'orgId': 'e473e772-45b4-4d57-aaa1-75f6ed507058', 'orgTypeId': 1, 'id': 175, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+7
+Timing,Proof elapsed time,0.6633672714233398,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1480377600', 'number_of_employees': '6', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'e473e772-45b4-4d57-aaa1-75f6ed507058', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.308406114578247,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'e473e772-45b4-4d57-aaa1-75f6ed507058', 'effectiveDate': '2018-04-07', 'id': 175, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Cleary Seafood-0-9721eea8', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+20
+Timing,Proof elapsed time,0.662553071975708,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '6', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'True', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'e473e772-45b4-4d57-aaa1-75f6ed507058', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4780068397521973,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'e473e772-45b4-4d57-aaa1-75f6ed507058', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Cleary Seafood-0-9721eea8', 'effectiveDate': '2018-04-07', 'id': 175, 'endDate': None}}
+
+
+Requesting Proof:
+
+1030
+Timing,Proof elapsed time,0.5853981971740723,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_25.json
+
+
+
+==============================================
+Registering new business: Bankston Stand-0-f87cec6f4
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '1489 Holdom Avenue-0-4c4f25bf6f36', 'address_line_2': '', 'addressee': 'Joshua Bankston-0-568d049d', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Bankston Stand-0-f87cec6f4', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.3306031227111816,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Bankston Stand-0-f87cec6f4', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 176, 'jurisdictionId': 1, 'orgId': 'af253624-dc83-44ad-b233-bcccceedecab'}, 'success': True}
+
+
+Requesting Proof:
+
+485
+Timing,Proof elapsed time,0.6356806755065918,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '1489 Holdom Avenue-0-017334e2', 'address_line_2': '', 'addressee': 'Joshua Bankston-0-52ec5e6180', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Bankston Stand-0-3e30d77512', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'af253624-dc83-44ad-b233-bcccceedecab'}
+<Response [200]>
+Timing,Claim elapsed time,1.215698003768921,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 176, 'orgId': 'af253624-dc83-44ad-b233-bcccceedecab', 'effectiveDate': '2018-04-07', 'legalName': 'Bankston Stand-0-f87cec6f4', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+487
+Timing,Proof elapsed time,0.6168591976165771,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-cf19ed1e', 'legal_name': 'Bankston Stand-0-dbacb0a0', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'af253624-dc83-44ad-b233-bcccceedecab', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2145328521728516,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'af253624-dc83-44ad-b233-bcccceedecab', 'id': 176, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Bankston Stand-0-f87cec6f4', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+520
+Timing,Proof elapsed time,0.6165521144866943,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '60', 'effective_date': '1477180800', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': 'af253624-dc83-44ad-b233-bcccceedecab', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.1923482418060303,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Bankston Stand-0-f87cec6f4', 'orgId': 'af253624-dc83-44ad-b233-bcccceedecab', 'orgTypeId': 1, 'id': 176, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+15
+Timing,Proof elapsed time,0.5704140663146973,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1477180800', 'number_of_employees': '15', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'af253624-dc83-44ad-b233-bcccceedecab', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2385351657867432,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'af253624-dc83-44ad-b233-bcccceedecab', 'effectiveDate': '2018-04-07', 'id': 176, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Bankston Stand-0-f87cec6f4', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+272
+Timing,Proof elapsed time,0.591113805770874,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'True', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '15', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'af253624-dc83-44ad-b233-bcccceedecab', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.327436923980713,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'af253624-dc83-44ad-b233-bcccceedecab', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Bankston Stand-0-f87cec6f4', 'effectiveDate': '2018-04-07', 'id': 176, 'endDate': None}}
+
+
+Requesting Proof:
+
+773
+Timing,Proof elapsed time,0.6172478199005127,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_26.json
+
+
+
+==============================================
+Registering new business: Pinzon Dive-0-560c99d4d4bb
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '2977 King George Hwy-0-db1cda571', 'address_line_2': '', 'addressee': 'Joyce Pinzon-0-b501a21c7f67', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Pinzon Dive-0-560c99d4d4bb', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.4421820640563965,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Pinzon Dive-0-560c99d4d4bb', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 177, 'jurisdictionId': 1, 'orgId': 'aa11f118-476f-4012-9de9-eee9eef876c5'}, 'success': True}
+
+
+Requesting Proof:
+
+180
+Timing,Proof elapsed time,0.6068799495697021,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '2977 King George Hwy-0-87bea2c8', 'address_line_2': '', 'addressee': 'Joyce Pinzon-0-b4f1f35f88', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Pinzon Dive-0-57fdd85156', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'aa11f118-476f-4012-9de9-eee9eef876c5'}
+<Response [200]>
+Timing,Claim elapsed time,1.27394700050354,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 177, 'orgId': 'aa11f118-476f-4012-9de9-eee9eef876c5', 'effectiveDate': '2018-04-07', 'legalName': 'Pinzon Dive-0-560c99d4d4bb', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+357
+Timing,Proof elapsed time,0.5951910018920898,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-a657bfc915c6', 'legal_name': 'Pinzon Dive-0-1763c73e5ce', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'aa11f118-476f-4012-9de9-eee9eef876c5', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.1830439567565918,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'aa11f118-476f-4012-9de9-eee9eef876c5', 'id': 177, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Pinzon Dive-0-560c99d4d4bb', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+281
+Timing,Proof elapsed time,0.6051018238067627,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '68', 'effective_date': '1479600000', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': 'aa11f118-476f-4012-9de9-eee9eef876c5', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2963547706604004,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Pinzon Dive-0-560c99d4d4bb', 'orgId': 'aa11f118-476f-4012-9de9-eee9eef876c5', 'orgTypeId': 1, 'id': 177, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+71
+Timing,Proof elapsed time,0.6523888111114502,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1479600000', 'number_of_employees': '17', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'aa11f118-476f-4012-9de9-eee9eef876c5', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2069449424743652,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'aa11f118-476f-4012-9de9-eee9eef876c5', 'effectiveDate': '2018-04-07', 'id': 177, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Pinzon Dive-0-560c99d4d4bb', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+817
+Timing,Proof elapsed time,0.6319499015808105,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'True', 'is_owner': 'True', 'number_of_employees': '17', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'aa11f118-476f-4012-9de9-eee9eef876c5', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2271778583526611,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'aa11f118-476f-4012-9de9-eee9eef876c5', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Pinzon Dive-0-560c99d4d4bb', 'effectiveDate': '2018-04-07', 'id': 177, 'endDate': None}}
+
+
+Requesting Proof:
+
+737
+Timing,Proof elapsed time,0.6261799335479736,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_27.json
+
+
+
+==============================================
+Registering new business: Elson Greasy Spoon-0-ee7ff307
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '4246 King George Hwy-0-2f8a3fd78', 'address_line_2': '', 'addressee': 'Michael Elson-0-0d0d32f4', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Elson Greasy Spoon-0-ee7ff307', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.3202059268951416,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Elson Greasy Spoon-0-ee7ff307', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 178, 'jurisdictionId': 1, 'orgId': '23caf1cd-3222-4e73-a1dc-f63197e26a3a'}, 'success': True}
+
+
+Requesting Proof:
+
+789
+Timing,Proof elapsed time,0.5633530616760254,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '4246 King George Hwy-0-3ea1964ec358', 'address_line_2': '', 'addressee': 'Michael Elson-0-6071a0bbe', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Elson Greasy Spoon-0-95e0f3d5b04', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '23caf1cd-3222-4e73-a1dc-f63197e26a3a'}
+<Response [200]>
+Timing,Claim elapsed time,1.2940480709075928,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 178, 'orgId': '23caf1cd-3222-4e73-a1dc-f63197e26a3a', 'effectiveDate': '2018-04-07', 'legalName': 'Elson Greasy Spoon-0-ee7ff307', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+71
+Timing,Proof elapsed time,0.5987200736999512,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-0e422f85ff', 'legal_name': 'Elson Greasy Spoon-0-36ffbb8e024', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '23caf1cd-3222-4e73-a1dc-f63197e26a3a', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.1463308334350586,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '23caf1cd-3222-4e73-a1dc-f63197e26a3a', 'id': 178, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Elson Greasy Spoon-0-ee7ff307', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+981
+Timing,Proof elapsed time,0.6152548789978027,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '80', 'effective_date': '1465171200', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '23caf1cd-3222-4e73-a1dc-f63197e26a3a', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2158641815185547,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Elson Greasy Spoon-0-ee7ff307', 'orgId': '23caf1cd-3222-4e73-a1dc-f63197e26a3a', 'orgTypeId': 1, 'id': 178, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+735
+Timing,Proof elapsed time,0.6517870426177979,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1465171200', 'number_of_employees': '20', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '23caf1cd-3222-4e73-a1dc-f63197e26a3a', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.255915880203247,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '23caf1cd-3222-4e73-a1dc-f63197e26a3a', 'effectiveDate': '2018-04-07', 'id': 178, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Elson Greasy Spoon-0-ee7ff307', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+367
+Timing,Proof elapsed time,0.6066291332244873,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '20', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '23caf1cd-3222-4e73-a1dc-f63197e26a3a', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2744457721710205,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '23caf1cd-3222-4e73-a1dc-f63197e26a3a', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Elson Greasy Spoon-0-ee7ff307', 'effectiveDate': '2018-04-07', 'id': 178, 'endDate': None}}
+
+
+Requesting Proof:
+
+121
+Timing,Proof elapsed time,0.5840160846710205,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_28.json
+
+
+
+==============================================
+Registering new business: Blunt Bar and Grill-0-a855c69a29b1
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '3436 King George Hwy-0-17f6bcb8c64', 'address_line_2': '', 'addressee': 'Patricia Blunt-0-7bfe228a34d', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Blunt Bar and Grill-0-a855c69a29b1', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.3671469688415527,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Blunt Bar and Grill-0-a855c69a29b1', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 179, 'jurisdictionId': 1, 'orgId': '82ca58ed-916f-4f33-beb2-6e3a606eadc0'}, 'success': True}
+
+
+Requesting Proof:
+
+286
+Timing,Proof elapsed time,0.6031696796417236,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '3436 King George Hwy-0-c657a4f152', 'address_line_2': '', 'addressee': 'Patricia Blunt-0-d83a54d0eea', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Blunt Bar and Grill-0-865fdbec077', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '82ca58ed-916f-4f33-beb2-6e3a606eadc0'}
+<Response [200]>
+Timing,Claim elapsed time,1.3249893188476562,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 179, 'orgId': '82ca58ed-916f-4f33-beb2-6e3a606eadc0', 'effectiveDate': '2018-04-07', 'legalName': 'Blunt Bar and Grill-0-a855c69a29b1', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+782
+Timing,Proof elapsed time,0.5776691436767578,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-34f01db0414b', 'legal_name': 'Blunt Bar and Grill-0-9c6622a54', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '82ca58ed-916f-4f33-beb2-6e3a606eadc0', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.1768970489501953,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '82ca58ed-916f-4f33-beb2-6e3a606eadc0', 'id': 179, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Blunt Bar and Grill-0-a855c69a29b1', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+239
+Timing,Proof elapsed time,0.6542460918426514,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '72', 'effective_date': '1516060800', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '82ca58ed-916f-4f33-beb2-6e3a606eadc0', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.208031177520752,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Blunt Bar and Grill-0-a855c69a29b1', 'orgId': '82ca58ed-916f-4f33-beb2-6e3a606eadc0', 'orgTypeId': 1, 'id': 179, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+469
+Timing,Proof elapsed time,0.6477870941162109,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1516060800', 'number_of_employees': '18', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '82ca58ed-916f-4f33-beb2-6e3a606eadc0', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2215991020202637,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '82ca58ed-916f-4f33-beb2-6e3a606eadc0', 'effectiveDate': '2018-04-07', 'id': 179, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Blunt Bar and Grill-0-a855c69a29b1', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+778
+Timing,Proof elapsed time,0.5606358051300049,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '18', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '82ca58ed-916f-4f33-beb2-6e3a606eadc0', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2058038711547852,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '82ca58ed-916f-4f33-beb2-6e3a606eadc0', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Blunt Bar and Grill-0-a855c69a29b1', 'effectiveDate': '2018-04-07', 'id': 179, 'endDate': None}}
+
+
+Requesting Proof:
+
+563
+Timing,Proof elapsed time,0.589123010635376,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_29.json
+
+
+
+==============================================
+Registering new business: Lopez Grill-0-56f95c32ebcb
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '4146 King George Hwy-0-fdf4dd991eb', 'address_line_2': '', 'addressee': 'James Lopez-0-8e48c992', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Lopez Grill-0-56f95c32ebcb', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.3347258567810059,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Lopez Grill-0-56f95c32ebcb', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 180, 'jurisdictionId': 1, 'orgId': '6566870e-d83c-4e7a-bd84-b016a2100de2'}, 'success': True}
+
+
+Requesting Proof:
+
+295
+Timing,Proof elapsed time,0.5719778537750244,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '4146 King George Hwy-0-f01efdf473', 'address_line_2': '', 'addressee': 'James Lopez-0-40c2f56e553', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Lopez Grill-0-e005d219e', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '6566870e-d83c-4e7a-bd84-b016a2100de2'}
+<Response [200]>
+Timing,Claim elapsed time,1.3528730869293213,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 180, 'orgId': '6566870e-d83c-4e7a-bd84-b016a2100de2', 'effectiveDate': '2018-04-07', 'legalName': 'Lopez Grill-0-56f95c32ebcb', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+682
+Timing,Proof elapsed time,0.624218225479126,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-2e294c484', 'legal_name': 'Lopez Grill-0-4a03c62364', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '6566870e-d83c-4e7a-bd84-b016a2100de2', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.1459219455718994,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '6566870e-d83c-4e7a-bd84-b016a2100de2', 'id': 180, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Lopez Grill-0-56f95c32ebcb', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+216
+Timing,Proof elapsed time,0.6249768733978271,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '28', 'effective_date': '1441411200', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '6566870e-d83c-4e7a-bd84-b016a2100de2', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.254094123840332,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Lopez Grill-0-56f95c32ebcb', 'orgId': '6566870e-d83c-4e7a-bd84-b016a2100de2', 'orgTypeId': 1, 'id': 180, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+232
+Timing,Proof elapsed time,0.6596510410308838,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1441411200', 'number_of_employees': '7', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '6566870e-d83c-4e7a-bd84-b016a2100de2', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.379525899887085,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '6566870e-d83c-4e7a-bd84-b016a2100de2', 'effectiveDate': '2018-04-07', 'id': 180, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Lopez Grill-0-56f95c32ebcb', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+405
+Timing,Proof elapsed time,0.6811738014221191,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'True', 'dancing_permitted': 'True', 'is_owner': 'True', 'number_of_employees': '7', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'True', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '6566870e-d83c-4e7a-bd84-b016a2100de2', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2364139556884766,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '6566870e-d83c-4e7a-bd84-b016a2100de2', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Lopez Grill-0-56f95c32ebcb', 'effectiveDate': '2018-04-07', 'id': 180, 'endDate': None}}
+
+
+Requesting Proof:
+
+518
+Timing,Proof elapsed time,0.6488020420074463,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_3.json
+
+
+
+==============================================
+Registering new business: Carter Shack-0-5f4cb05a
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '1979 King George Hwy-0-dbafd04ecf4b', 'address_line_2': '', 'addressee': 'Ronda Carter-0-6bb81eb8e4', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Carter Shack-0-5f4cb05a', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.4703259468078613,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Carter Shack-0-5f4cb05a', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 181, 'jurisdictionId': 1, 'orgId': 'a750b245-e9f7-4dc2-b500-2ddb1ea1a289'}, 'success': True}
+
+
+Requesting Proof:
+
+384
+Timing,Proof elapsed time,0.6134400367736816,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '1979 King George Hwy-0-7e3392dbd21', 'address_line_2': '', 'addressee': 'Ronda Carter-0-116af0b5f85', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Carter Shack-0-ab31863ba2f', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'a750b245-e9f7-4dc2-b500-2ddb1ea1a289'}
+<Response [200]>
+Timing,Claim elapsed time,1.302955150604248,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 181, 'orgId': 'a750b245-e9f7-4dc2-b500-2ddb1ea1a289', 'effectiveDate': '2018-04-07', 'legalName': 'Carter Shack-0-5f4cb05a', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+777
+Timing,Proof elapsed time,0.609809160232544,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': "Tam's Stationers-0-ad161c8e2ecd", 'legal_name': 'Carter Shack-0-755319e9', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'a750b245-e9f7-4dc2-b500-2ddb1ea1a289', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2193989753723145,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'a750b245-e9f7-4dc2-b500-2ddb1ea1a289', 'id': 181, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Carter Shack-0-5f4cb05a', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+257
+Timing,Proof elapsed time,0.6217131614685059,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '52', 'effective_date': '1446595200', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': 'a750b245-e9f7-4dc2-b500-2ddb1ea1a289', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2063267230987549,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Carter Shack-0-5f4cb05a', 'orgId': 'a750b245-e9f7-4dc2-b500-2ddb1ea1a289', 'orgTypeId': 1, 'id': 181, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+229
+Timing,Proof elapsed time,0.570451021194458,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1446595200', 'number_of_employees': '13', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'a750b245-e9f7-4dc2-b500-2ddb1ea1a289', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.244532823562622,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'a750b245-e9f7-4dc2-b500-2ddb1ea1a289', 'effectiveDate': '2018-04-07', 'id': 181, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Carter Shack-0-5f4cb05a', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+430
+Timing,Proof elapsed time,0.6538517475128174,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'True', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '13', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'a750b245-e9f7-4dc2-b500-2ddb1ea1a289', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2956619262695312,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'a750b245-e9f7-4dc2-b500-2ddb1ea1a289', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Carter Shack-0-5f4cb05a', 'effectiveDate': '2018-04-07', 'id': 181, 'endDate': None}}
+
+
+Requesting Proof:
+
+905
+Timing,Proof elapsed time,0.5965099334716797,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_30.json
+
+
+
+==============================================
+Registering new business: Griffin Diner-0-b34aaa8e24d
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '2928 King George Hwy-0-27a147089', 'address_line_2': '', 'addressee': 'Paul Griffin-0-80781bdb4', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Griffin Diner-0-b34aaa8e24d', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.4689228534698486,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Griffin Diner-0-b34aaa8e24d', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 182, 'jurisdictionId': 1, 'orgId': 'd828ee71-8df6-4516-98b2-192d55a3d282'}, 'success': True}
+
+
+Requesting Proof:
+
+891
+Timing,Proof elapsed time,0.5538079738616943,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '2928 King George Hwy-0-c9f5d7d1a1e', 'address_line_2': '', 'addressee': 'Paul Griffin-0-dd0c1519c', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Griffin Diner-0-2cdcf7f6f0c', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'd828ee71-8df6-4516-98b2-192d55a3d282'}
+<Response [200]>
+Timing,Claim elapsed time,1.2774770259857178,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 182, 'orgId': 'd828ee71-8df6-4516-98b2-192d55a3d282', 'effectiveDate': '2018-04-07', 'legalName': 'Griffin Diner-0-b34aaa8e24d', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+987
+Timing,Proof elapsed time,0.682790994644165,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-50d4e05d18d', 'legal_name': 'Griffin Diner-0-02023f9f', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'd828ee71-8df6-4516-98b2-192d55a3d282', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3325011730194092,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'd828ee71-8df6-4516-98b2-192d55a3d282', 'id': 182, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Griffin Diner-0-b34aaa8e24d', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+945
+Timing,Proof elapsed time,0.6438040733337402,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '56', 'effective_date': '1493078400', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': 'd828ee71-8df6-4516-98b2-192d55a3d282', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3495891094207764,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Griffin Diner-0-b34aaa8e24d', 'orgId': 'd828ee71-8df6-4516-98b2-192d55a3d282', 'orgTypeId': 1, 'id': 182, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+751
+Timing,Proof elapsed time,0.6878468990325928,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1493078400', 'number_of_employees': '14', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'd828ee71-8df6-4516-98b2-192d55a3d282', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3478238582611084,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'd828ee71-8df6-4516-98b2-192d55a3d282', 'effectiveDate': '2018-04-07', 'id': 182, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Griffin Diner-0-b34aaa8e24d', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+540
+Timing,Proof elapsed time,0.7399501800537109,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'True', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '14', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'd828ee71-8df6-4516-98b2-192d55a3d282', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3641319274902344,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'd828ee71-8df6-4516-98b2-192d55a3d282', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Griffin Diner-0-b34aaa8e24d', 'effectiveDate': '2018-04-07', 'id': 182, 'endDate': None}}
+
+
+Requesting Proof:
+
+371
+Timing,Proof elapsed time,0.6668579578399658,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_31.json
+
+
+
+==============================================
+Registering new business: Bueno Kitchen-0-fc654d98327
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '4404 King George Hwy-0-1d0fc6827e', 'address_line_2': '', 'addressee': 'Ivan Bueno-0-516a88a6eb3', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Bueno Kitchen-0-fc654d98327', 'postal_code': 'V3W 4E3', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.5188710689544678,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Bueno Kitchen-0-fc654d98327', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 183, 'jurisdictionId': 1, 'orgId': 'da542ce9-4648-41d9-a127-d55252b9c75c'}, 'success': True}
+
+
+Requesting Proof:
+
+462
+Timing,Proof elapsed time,0.6250097751617432,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '4404 King George Hwy-0-c912cfbf3', 'address_line_2': '', 'addressee': 'Ivan Bueno-0-b66dbe93f', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4E3', 'province': 'BC', 'restaurant_name': 'Bueno Kitchen-0-faa33bbce', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'da542ce9-4648-41d9-a127-d55252b9c75c'}
+<Response [200]>
+Timing,Claim elapsed time,1.3738079071044922,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 183, 'orgId': 'da542ce9-4648-41d9-a127-d55252b9c75c', 'effectiveDate': '2018-04-07', 'legalName': 'Bueno Kitchen-0-fc654d98327', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+174
+Timing,Proof elapsed time,0.6903259754180908,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-f45b5df3f', 'legal_name': 'Bueno Kitchen-0-8b08859ac64', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'da542ce9-4648-41d9-a127-d55252b9c75c', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3930542469024658,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'da542ce9-4648-41d9-a127-d55252b9c75c', 'id': 183, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Bueno Kitchen-0-fc654d98327', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+159
+Timing,Proof elapsed time,0.6731710433959961,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '28', 'effective_date': '1452643200', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': 'da542ce9-4648-41d9-a127-d55252b9c75c', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,2.397379159927368,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Bueno Kitchen-0-fc654d98327', 'orgId': 'da542ce9-4648-41d9-a127-d55252b9c75c', 'orgTypeId': 1, 'id': 183, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+379
+Timing,Proof elapsed time,0.6500942707061768,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1452643200', 'number_of_employees': '7', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'da542ce9-4648-41d9-a127-d55252b9c75c', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3378241062164307,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'da542ce9-4648-41d9-a127-d55252b9c75c', 'effectiveDate': '2018-04-07', 'id': 183, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Bueno Kitchen-0-fc654d98327', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+484
+Timing,Proof elapsed time,0.601773738861084,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'True', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '7', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'da542ce9-4648-41d9-a127-d55252b9c75c', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3607568740844727,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'da542ce9-4648-41d9-a127-d55252b9c75c', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Bueno Kitchen-0-fc654d98327', 'effectiveDate': '2018-04-07', 'id': 183, 'endDate': None}}
+
+
+Requesting Proof:
+
+117
+Timing,Proof elapsed time,0.7087979316711426,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_32.json
+
+
+
+==============================================
+Registering new business: Diaz Coffee House-0-17fb242995
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '4652 Holdom Avenue-0-0902d51b', 'address_line_2': '', 'addressee': 'Paula Diaz-0-aeb63d0b3', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Diaz Coffee House-0-17fb242995', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.4788410663604736,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Diaz Coffee House-0-17fb242995', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 184, 'jurisdictionId': 1, 'orgId': 'e1733b79-dd9e-400b-89ea-ef45eb44cff6'}, 'success': True}
+
+
+Requesting Proof:
+
+916
+Timing,Proof elapsed time,0.6061320304870605,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '4652 Holdom Avenue-0-8dfcfa088909', 'address_line_2': '', 'addressee': 'Paula Diaz-0-7209a556d9ab', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Diaz Coffee House-0-06f13fd52828', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': 'e1733b79-dd9e-400b-89ea-ef45eb44cff6'}
+<Response [200]>
+Timing,Claim elapsed time,1.3836948871612549,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 184, 'orgId': 'e1733b79-dd9e-400b-89ea-ef45eb44cff6', 'effectiveDate': '2018-04-07', 'legalName': 'Diaz Coffee House-0-17fb242995', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+707
+Timing,Proof elapsed time,0.6011240482330322,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-31234d878c', 'legal_name': 'Diaz Coffee House-0-fe79d812567', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': 'e1733b79-dd9e-400b-89ea-ef45eb44cff6', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3945138454437256,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'e1733b79-dd9e-400b-89ea-ef45eb44cff6', 'id': 184, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Diaz Coffee House-0-17fb242995', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+985
+Timing,Proof elapsed time,0.780386209487915,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '12', 'effective_date': '1479081600', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': 'e1733b79-dd9e-400b-89ea-ef45eb44cff6', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4449069499969482,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Diaz Coffee House-0-17fb242995', 'orgId': 'e1733b79-dd9e-400b-89ea-ef45eb44cff6', 'orgTypeId': 1, 'id': 184, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+210
+Timing,Proof elapsed time,0.7474532127380371,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1479081600', 'number_of_employees': '3', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': 'e1733b79-dd9e-400b-89ea-ef45eb44cff6', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4663739204406738,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': 'e1733b79-dd9e-400b-89ea-ef45eb44cff6', 'effectiveDate': '2018-04-07', 'id': 184, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Diaz Coffee House-0-17fb242995', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+791
+Timing,Proof elapsed time,0.7060439586639404,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'False', 'is_owner': 'True', 'number_of_employees': '3', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'True', 'patio': 'True', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'False', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': 'e1733b79-dd9e-400b-89ea-ef45eb44cff6', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.493683099746704,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': 'e1733b79-dd9e-400b-89ea-ef45eb44cff6', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Diaz Coffee House-0-17fb242995', 'effectiveDate': '2018-04-07', 'id': 184, 'endDate': None}}
+
+
+Requesting Proof:
+
+173
+Timing,Proof elapsed time,0.6699728965759277,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_33.json
+
+
+
+==============================================
+Registering new business: Robertson Dining Room-0-91b3c4b1a95
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '3818 Holdom Avenue-0-d6c087f86', 'address_line_2': '', 'addressee': 'Morris Robertson-0-114c5822', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Robertson Dining Room-0-91b3c4b1a95', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.606153964996338,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Robertson Dining Room-0-91b3c4b1a95', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 185, 'jurisdictionId': 1, 'orgId': '6d0200c0-d8ca-4c7a-a1ce-e37ae0c04c87'}, 'success': True}
+
+
+Requesting Proof:
+
+772
+Timing,Proof elapsed time,0.653986930847168,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '3818 Holdom Avenue-0-d63a08bc1e16', 'address_line_2': '', 'addressee': 'Morris Robertson-0-b8c8edcf239', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3T 4Y5', 'province': 'BC', 'restaurant_name': 'Robertson Dining Room-0-850756ee', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '6d0200c0-d8ca-4c7a-a1ce-e37ae0c04c87'}
+<Response [200]>
+Timing,Claim elapsed time,1.4578707218170166,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 185, 'orgId': '6d0200c0-d8ca-4c7a-a1ce-e37ae0c04c87', 'effectiveDate': '2018-04-07', 'legalName': 'Robertson Dining Room-0-91b3c4b1a95', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+1006
+Timing,Proof elapsed time,0.703071117401123,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-c1bf28e8b', 'legal_name': 'Robertson Dining Room-0-05f32319d82', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '6d0200c0-d8ca-4c7a-a1ce-e37ae0c04c87', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3087968826293945,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '6d0200c0-d8ca-4c7a-a1ce-e37ae0c04c87', 'id': 185, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Robertson Dining Room-0-91b3c4b1a95', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+921
+Timing,Proof elapsed time,0.7441420555114746,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '80', 'effective_date': '1436572800', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '6d0200c0-d8ca-4c7a-a1ce-e37ae0c04c87', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3948330879211426,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'jurisdictionId': 1, 'endDate': None, 'legalName': 'Robertson Dining Room-0-91b3c4b1a95', 'orgId': '6d0200c0-d8ca-4c7a-a1ce-e37ae0c04c87', 'orgTypeId': 1, 'id': 185, 'effectiveDate': '2018-04-07'}}
+
+
+Requesting Proof:
+
+289
+Timing,Proof elapsed time,0.6545288562774658,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: business_license.city_of_surrey
+
+
+Submitting Claim:
+
+{'effective_date': '1436572800', 'number_of_employees': '20', 'schema': 'business_license.city_of_surrey', 'legal_entity_id': '6d0200c0-d8ca-4c7a-a1ce-e37ae0c04c87', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.4455780982971191,secs
+
+
+ Response from permitify:
+
+{'result': {'orgId': '6d0200c0-d8ca-4c7a-a1ce-e37ae0c04c87', 'effectiveDate': '2018-04-07', 'id': 185, 'endDate': None, 'orgTypeId': 1, 'legalName': 'Robertson Dining Room-0-91b3c4b1a95', 'jurisdictionId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+629
+Timing,Proof elapsed time,0.6169061660766602,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: liquor_license.liquor_control_and_licensing_branch
+
+
+Submitting Claim:
+
+{'brewery': 'False', 'catering': 'False', 'dancing_permitted': 'True', 'is_owner': 'True', 'number_of_employees': '20', 'overlap': 'True', 'owner_agreement': 'True', 'owner_premises': 'False', 'patio': 'False', 'schema': 'liquor_license.liquor_control_and_licensing_branch', 'standalone_patio': 'True', 'third_party': 'False', 'treaty': 'True', 'legal_entity_id': '6d0200c0-d8ca-4c7a-a1ce-e37ae0c04c87', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.3422999382019043,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '6d0200c0-d8ca-4c7a-a1ce-e37ae0c04c87', 'orgTypeId': 1, 'jurisdictionId': 1, 'legalName': 'Robertson Dining Room-0-91b3c4b1a95', 'effectiveDate': '2018-04-07', 'id': 185, 'endDate': None}}
+
+
+Requesting Proof:
+
+564
+Timing,Proof elapsed time,0.6669411659240723,secs
+
+
+ Response from TOB:
+
+
+==============================================
+FileName: ./Claims/Claims_34.json
+
+
+
+==============================================
+Registering new business: Jarmon Canteen-0-76824c59f11
+==============================================
+
+
+Submitting Claim:
+
+{'address_line_1': '1317 Glover Road-0-f3dca3404fdc', 'address_line_2': '', 'addressee': 'Richard Jarmon-0-5ef90726', 'city': 'Surrey', 'country': 'CA', 'legal_name': 'Jarmon Canteen-0-76824c59f11', 'postal_code': 'V3W 4N6', 'province': 'BC', 'schema': 'incorporation.bc_registries'}
+<Response [200]>
+Timing,Claim elapsed time,1.4936089515686035,secs
+
+
+ Response from permitify:
+
+{'result': {'legalName': 'Jarmon Canteen-0-76824c59f11', 'effectiveDate': '2018-04-07', 'endDate': None, 'orgTypeId': 1, 'id': 186, 'jurisdictionId': 1, 'orgId': '2f17a03d-7f56-4fd8-818b-2d1912530ffb'}, 'success': True}
+
+
+Requesting Proof:
+
+502
+Timing,Proof elapsed time,0.7152578830718994,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: restaurant_clearance_letter.worksafe_bc
+
+
+Submitting Claim:
+
+{'address_line_1': '1317 Glover Road-0-71a9d56a', 'address_line_2': '', 'addressee': 'Richard Jarmon-0-5366a07d2', 'city': 'Surrey', 'country': 'CA', 'coverage_description': 'All Employees', 'postal_code': 'V3W 4N6', 'province': 'BC', 'restaurant_name': 'Jarmon Canteen-0-478d1acc51', 'schema': 'restaurant_clearance_letter.worksafe_bc', 'legal_entity_id': '2f17a03d-7f56-4fd8-818b-2d1912530ffb'}
+<Response [200]>
+Timing,Claim elapsed time,1.3475432395935059,secs
+
+
+ Response from permitify:
+
+{'result': {'id': 186, 'orgId': '2f17a03d-7f56-4fd8-818b-2d1912530ffb', 'effectiveDate': '2018-04-07', 'legalName': 'Jarmon Canteen-0-76824c59f11', 'jurisdictionId': 1, 'endDate': None, 'orgTypeId': 1}, 'success': True}
+
+
+Requesting Proof:
+
+927
+Timing,Proof elapsed time,0.6194131374359131,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: pst_number.ministry_of_finance
+
+
+Submitting Claim:
+
+{'doing_business_as_name': '-0-9b6ae999e1', 'legal_name': 'Jarmon Canteen-0-131378177f1', 'schema': 'pst_number.ministry_of_finance', 'legal_entity_id': '2f17a03d-7f56-4fd8-818b-2d1912530ffb', 'address_line_2': ''}
+<Response [200]>
+Timing,Claim elapsed time,1.2897968292236328,secs
+
+
+ Response from permitify:
+
+{'success': True, 'result': {'orgId': '2f17a03d-7f56-4fd8-818b-2d1912530ffb', 'id': 186, 'orgTypeId': 1, 'effectiveDate': '2018-04-07', 'legalName': 'Jarmon Canteen-0-76824c59f11', 'jurisdictionId': 1, 'endDate': None}}
+
+
+Requesting Proof:
+
+337
+Timing,Proof elapsed time,0.6916038990020752,secs
+
+
+ Response from TOB:
+
+
+
+
+
+Issuing permit: operating_permit.fraser_valley_health_authority
+
+
+Submitting Claim:
+
+{'application_type': 'New Facility', 'capacity': '72', 'effective_date': '1481760000', 'schema': 'operating_permit.fraser_valley_health_authority', 'tobacco': 'False', 'legal_entity_id': '2f17a03d-7f56-4fd8-818b-2d1912530ffb', 'address_line_2': ''}
