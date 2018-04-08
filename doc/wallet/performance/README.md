@@ -97,9 +97,9 @@ Results are as follows:
 | 07-Apr | 4747 | 2003234 | 348 | 1.37 | 348 | 0.66 | 1 | Load claims and run proof requests (not thread safe)
 | 07-Apr | 5188 | 2003675 | 2784 | 1.04 | | | 8 | Load claims
 | 07-Apr | 7972 | 2006459 | 348 | 1.36 | 348 | 0.64 | 1 | Load claims and run proof requests (not thread safe)
-| 07-Apr | 8321 | 2006808 | 13920 | 0.93 | | | 8 | 5 loops (12901 secs; 3.6 hrs)
-| 08-Apr | 22241 | 2020728 | 3480 | 1.2 | 3480 | 0.57 | 1 |
-| 08-Apr | 25721 | 2024208 | 13920 | | | | 8 | 5 loops (slowed down to a crawl; terminal was using 12+G; memory leak?)
+| 07-Apr | 8321 | 2006808 | 13920 | 0.93 | | | 8 | 5 loops (12901 secs; 3.6 hrs) ("Standard Response" Graph below)
+| 08-Apr | 22241 | 2020728 | 3480 | 1.2 | 3480 | 0.57 | 1 | ("Claims" and "Proofs" Graphs below)
+| 08-Apr | 25721 | 2024208 | 13920 | | | | 8 | 5 loops (slowed down to a crawl; terminal was using 12+G; memory leak?) ("Memory Leak" Graph below)
 
 ## Scenario 2 - Detailed Results
 
