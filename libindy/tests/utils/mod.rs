@@ -14,6 +14,7 @@ pub mod anoncreds;
 pub mod types;
 pub mod pairwise;
 pub mod constants;
+pub mod blob_storage;
 pub mod results;
 pub mod proxy;
 
@@ -22,7 +23,6 @@ pub mod proxy;
 #[path = "../../src/utils/test.rs"]
 pub mod test;
 
-#[path = "../../src/utils/timeout.rs"]
 pub mod timeout;
 
 #[path = "../../src/utils/sequence.rs"]
@@ -35,3 +35,6 @@ pub mod cstring;
 
 #[path = "../../src/utils/inmem_wallet.rs"]
 pub mod inmem_wallet;
+
+#[path = "../../src/domain/mod.rs"]
+pub mod domain;

@@ -18,7 +18,7 @@ RUN \
            spectool
 
 RUN cd /tmp && \
-   curl https://download.libsodium.org/libsodium/releases/libsodium-1.0.12.tar.gz | tar -xz && \
+   curl https://download.libsodium.org/libsodium/releases/old/libsodium-1.0.12.tar.gz | tar -xz && \
     cd /tmp/libsodium-1.0.12 && \
     ./configure && \
     make && \
@@ -35,7 +35,7 @@ RUN wget https://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-mav
 RUN sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
 RUN yum install -y apache-maven
 
-ENV RUST_ARCHIVE=rust-1.21.0-x86_64-unknown-linux-gnu.tar.gz
+ENV RUST_ARCHIVE=rust-1.25.0-x86_64-unknown-linux-gnu.tar.gz
 ENV RUST_DOWNLOAD_URL=https://static.rust-lang.org/dist/$RUST_ARCHIVE
 
 RUN mkdir -p /rust
