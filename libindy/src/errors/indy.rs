@@ -7,6 +7,7 @@ use errors::pool::PoolError;
 use errors::crypto::CryptoError;
 use errors::wallet::WalletError;
 use errors::did::DidError;
+use errors::payments::PaymentsError;
 
 use api::ErrorCode;
 use errors::ToErrorCode;
@@ -25,6 +26,7 @@ pub enum IndyError {
     CryptoError(CryptoError),
     WalletError(WalletError),
     DidError(DidError),
+    PaymentsError(PaymentsError),
 }
 
 impl fmt::Display for IndyError {
@@ -36,7 +38,8 @@ impl fmt::Display for IndyError {
             IndyError::PoolError(ref err) => err.fmt(f),
             IndyError::CryptoError(ref err) => err.fmt(f),
             IndyError::WalletError(ref err) => err.fmt(f),
-            IndyError::DidError(ref err) => err.fmt(f)
+            IndyError::DidError(ref err) => err.fmt(f),
+            IndyError::PaymentsError(ref err) => err.fmt(f),
         }
     }
 }
@@ -50,7 +53,8 @@ impl error::Error for IndyError {
             IndyError::PoolError(ref err) => err.description(),
             IndyError::CryptoError(ref err) => err.description(),
             IndyError::WalletError(ref err) => err.description(),
-            IndyError::DidError(ref err) => err.description()
+            IndyError::DidError(ref err) => err.description(),
+            IndyError::PaymentsError(ref err) => err.description(),
         }
     }
 
@@ -62,7 +66,8 @@ impl error::Error for IndyError {
             IndyError::PoolError(ref err) => Some(err),
             IndyError::CryptoError(ref err) => Some(err),
             IndyError::WalletError(ref err) => Some(err),
-            IndyError::DidError(ref err) => Some(err)
+            IndyError::DidError(ref err) => Some(err),
+            IndyError::PaymentsError(ref err) => Some(err),
         }
     }
 }
@@ -79,7 +84,8 @@ impl ToErrorCode for IndyError {
             IndyError::PoolError(ref err) => err.to_error_code(),
             IndyError::CryptoError(ref err) => err.to_error_code(),
             IndyError::WalletError(ref err) => err.to_error_code(),
-            IndyError::DidError(ref err) => err.to_error_code()
+            IndyError::DidError(ref err) => err.to_error_code(),
+            IndyError::PaymentsError(ref err) => err.to_error_code(),
         }
     }
 }
@@ -123,5 +129,11 @@ impl From<CryptoError> for IndyError {
 impl From<DidError> for IndyError {
     fn from(err: DidError) -> IndyError {
         IndyError::DidError(err)
+    }
+}
+
+impl From<PaymentsError> for IndyError {
+    fn from(err: PaymentsError) -> IndyError {
+        IndyError::PaymentsError(err)
     }
 }
