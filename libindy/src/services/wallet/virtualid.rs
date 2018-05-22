@@ -376,7 +376,9 @@ fn _open_connection(name: &str, credentials: &VirtualWalletCredentials) -> Resul
     }
 
     let conn = Connection::open(path)?;
-    conn.execute(&format!("PRAGMA key='{}'", credentials.key), &[])?;
+    if credentials.key.len() > 0 {
+        conn.execute_batch(&format!("PRAGMA key='{}'", credentials.key))?;
+    }
 
     match credentials.rekey {
         None => Ok(conn),
@@ -384,7 +386,7 @@ fn _open_connection(name: &str, credentials: &VirtualWalletCredentials) -> Resul
             if credentials.key.len() == 0 && rk.len() > 0 {
                 _export_unencrypted_to_encrypted(conn, name, &rk)
             } else if rk.len() > 0 {
-                conn.execute(&format!("PRAGMA rekey='{}'", rk), &[])?;
+                conn.execute_batch(&format!("PRAGMA rekey='{}'", rk))?;
                 Ok(conn)
             } else {
                 _export_encrypted_to_unencrypted(conn, name)
@@ -429,7 +431,7 @@ fn _export_unencrypted_to_encrypted(conn: Connection, name: &str, key: &str) -> 
         fs::rename(&path, &wallet)?;
 
         let new = Connection::open(wallet)?;
-        new.execute(&format!("PRAGMA key='{}'", key), &[])?;
+        new.execute_batch(&format!("PRAGMA key='{}'", key))?;
         Ok(new)
     }
 }
