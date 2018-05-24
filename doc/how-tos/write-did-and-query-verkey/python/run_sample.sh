@@ -1,0 +1,2 @@
+PYTHONPATH=../../../../wrappers/python:. python $@
+

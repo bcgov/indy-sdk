@@ -182,10 +182,10 @@ impl DefaultWalletType {
 
 impl WalletType for DefaultWalletType {
     fn create(&self, name: &str, config: Option<&str>, credentials: Option<&str>) -> Result<(), WalletError> {
-        trace!("DefaultWalletType.create >> {}, with config {:?} and credentials {:?}", name, config, credentials);
+        info!("DefaultWalletType.create >> {}, with config {:?} and credentials {:?}", name, config, credentials);
         let path = _db_path(name);
         if path.exists() {
-            trace!("DefaultWalletType.create << path exists");
+            info!("DefaultWalletType.create << path exists");
             return Err(WalletError::AlreadyExists(name.to_string()));
         }
 
@@ -201,17 +201,17 @@ impl WalletType for DefaultWalletType {
         _open_connection(name, &runtime_auth).map_err(map_err_trace!())?
             .execute("CREATE TABLE wallet (key TEXT CONSTRAINT constraint_name PRIMARY KEY, value TEXT NOT NULL, time_created TEXT NOT_NULL)", &[])
             .map_err(map_err_trace!())?;
-        trace!("DefaultWalletType.create <<");
+        info!("DefaultWalletType.create <<");
         Ok(())
     }
 
     fn delete(&self, name: &str, config: Option<&str>, credentials: Option<&str>) -> Result<(), WalletError> {
-        trace!("DefaultWalletType.delete {}, with config {:?} and credentials {:?}", name, config, credentials);
+        info!("DefaultWalletType.delete {}, with config {:?} and credentials {:?}", name, config, credentials);
         // FIXME: parse and implement credentials!!!
         Ok(fs::remove_file(_db_path(name)).map_err(map_err_trace!())?)
     }
 
-    fn open(&self, name: &str, pool_name: &str, config: Option<&str>, runtime_config: Option<&str>, credentials: Option<&str>) -> Result<Box<Wallet>, WalletError> {
+    fn open(&self, name: &str, pool_name: &str, _config: Option<&str>, runtime_config: Option<&str>, credentials: Option<&str>) -> Result<Box<Wallet>, WalletError> {
         let runtime_config = match runtime_config {
             Some(config) => DefaultWalletRuntimeConfig::from_json(config)?,
             None => DefaultWalletRuntimeConfig::default()
@@ -255,7 +255,9 @@ fn _open_connection(name: &str, credentials: &DefaultWalletCredentials) -> Resul
     }
 
     let conn = Connection::open(path)?;
-    conn.execute(&format!("PRAGMA key='{}'", credentials.key), &[])?;
+    if credentials.key.len() > 0 {
+        conn.execute_batch(&format!("PRAGMA key='{}'", credentials.key))?;
+    }
 
     match credentials.rekey {
         None => Ok(conn),
@@ -263,7 +265,7 @@ fn _open_connection(name: &str, credentials: &DefaultWalletCredentials) -> Resul
             if credentials.key.len() == 0 && rk.len() > 0 {
                 _export_unencrypted_to_encrypted(conn, name, &rk)
             } else if rk.len() > 0 {
-                conn.execute(&format!("PRAGMA rekey='{}'", rk), &[])?;
+                conn.execute_batch(&format!("PRAGMA rekey='{}'", rk))?;
                 Ok(conn)
             } else {
                 _export_encrypted_to_unencrypted(conn, name)
@@ -277,10 +279,10 @@ fn _export_encrypted_to_unencrypted(conn: Connection, name: &str) -> Result<Conn
     path.push("plaintext.db");
 
     conn.execute(&format!("ATTACH DATABASE {:?} AS plaintext KEY ''", path), &[])?;
-    conn.query_row(&"SELECT sqlcipher_export('plaintext')", &[], |row| {})?;
+    conn.query_row(&"SELECT sqlcipher_export('plaintext')", &[], |_| {})?;
     conn.execute(&"DETACH DATABASE plaintext", &[])?;
     let r = conn.close();
-    if let Err((c, w)) = r {
+    if let Err((_, w)) = r {
         Err(WalletError::from(w))
     } else {
         let wallet = _db_path(name);
@@ -297,10 +299,10 @@ fn _export_unencrypted_to_encrypted(conn: Connection, name: &str, key: &str) -> 
 
     let sql = format!("ATTACH DATABASE {:?} AS encrypted KEY '{}'", path, key);
     conn.execute(&sql, &[])?;
-    conn.query_row(&"SELECT sqlcipher_export('encrypted')", &[], |row| {})?;
+    conn.query_row(&"SELECT sqlcipher_export('encrypted')", &[], |_| {})?;
     conn.execute(&"DETACH DATABASE encrypted", &[])?;
     let r = conn.close();
-    if let Err((c, w)) = r {
+    if let Err((_, w)) = r {
         Err(WalletError::from(w))
     } else {
         let wallet = _db_path(name);
@@ -308,7 +310,7 @@ fn _export_unencrypted_to_encrypted(conn: Connection, name: &str, key: &str) -> 
         fs::rename(&path, &wallet)?;
 
         let new = Connection::open(wallet)?;
-        new.execute(&format!("PRAGMA key='{}'", key), &[])?;
+        new.execute_batch(&format!("PRAGMA key='{}'", key))?;
         Ok(new)
     }
 }
