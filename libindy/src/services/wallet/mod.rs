@@ -23,6 +23,7 @@ use utils::sequence::SequenceUtils;
 use self::export_import::{export, import};
 use self::storage::WalletStorageType;
 use self::storage::default::SQLiteStorageType;
+use self::storage::postgres::PostgresStorageType;
 use self::storage::plugged::PluggedStorageType;
 use self::wallet::{Wallet, Keys};
 
@@ -36,6 +37,7 @@ impl WalletService {
         let storage_types = {
             let mut map: HashMap<String, Box<WalletStorageType>> = HashMap::new();
             map.insert("default".to_string(), Box::new(SQLiteStorageType::new()));
+            map.insert("postgres".to_string(), Box::new(PostgresStorageType::new()));
             RefCell::new(map)
         };
 

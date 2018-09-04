@@ -1,4 +1,5 @@
 pub mod default;
+pub mod postgres;
 pub mod plugged;
 
 use errors::wallet::WalletStorageError;
