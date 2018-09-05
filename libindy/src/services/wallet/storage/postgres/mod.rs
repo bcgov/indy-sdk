@@ -94,15 +94,15 @@ impl<'a> TagRetriever<'a> {
     fn retrieve(&mut self, id: i64) -> Result<Vec<Tag>, WalletStorageError> {
         let mut tags = Vec::new();
 
-        let mut plain_results = self.plain_tags_stmt.query(&[&id])?;
-        let iter_plain = plain_results.iter();
+        let plain_results = self.plain_tags_stmt.query(&[&id])?;
+        let mut iter_plain = plain_results.iter();
         while let Some(res) = iter_plain.next() {
             let row = res;
             tags.push(Tag::PlainText(row.get(0), row.get(1)));
         }
 
-        let mut encrypted_results = self.encrypted_tags_stmt.query(&[&id])?;
-        let iter_encrypted = encrypted_results.iter();
+        let encrypted_results = self.encrypted_tags_stmt.query(&[&id])?;
+        let mut iter_encrypted = encrypted_results.iter();
         while let Some(res) = iter_encrypted.next() {
             let row = res;
             tags.push(Tag::Encrypted(row.get(0), row.get(1)));
@@ -262,7 +262,7 @@ impl WalletStorage for PostgresStorage {
             serde_json::from_str(options)?
         };
         let res: Result<(i64, Vec<u8>, Vec<u8>), WalletStorageError> = {
-            let rows = self.conn.query(
+            let mut rows = self.conn.query(
                 "SELECT id, value, key FROM items where type = ?1 AND name = ?2",
                 &[&type_.to_vec(), &id.to_vec()]);
             match rows.as_mut().unwrap().iter().next() {
@@ -285,7 +285,7 @@ impl WalletStorage for PostgresStorage {
             let mut stmt = self.conn.prepare_cached("SELECT name, value FROM tags_encrypted WHERE item_id = ?1")?;
             let mut rows = stmt.query(&[&item.0])?;
 
-            let iter = rows.iter();
+            let mut iter = rows.iter();
             while let Some(res) = iter.next() {
                 let row = res;
                 tags.push(Tag::Encrypted(row.get(0), row.get(1)));
@@ -295,7 +295,7 @@ impl WalletStorage for PostgresStorage {
             let mut stmt = self.conn.prepare_cached("SELECT name, value FROM tags_plaintext WHERE item_id = ?1")?;
             let mut rows = stmt.query(&[&item.0])?;
 
-            let iter = rows.iter();
+            let mut iter = rows.iter();
             while let Some(res) = iter.next() {
                 let row = res;
                 tags.push(Tag::PlainText(row.get(0), row.get(1)));
@@ -355,8 +355,8 @@ impl WalletStorage for PostgresStorage {
         let id = id as i64;
 
         if !tags.is_empty() {
-            let mut stmt_e = tx.prepare_cached("INSERT INTO tags_encrypted (item_id, name, value) VALUES (?1, ?2, ?3)")?;
-            let mut stmt_p = tx.prepare_cached("INSERT INTO tags_plaintext (item_id, name, value) VALUES (?1, ?2, ?3)")?;
+            let stmt_e = tx.prepare_cached("INSERT INTO tags_encrypted (item_id, name, value) VALUES (?1, ?2, ?3)")?;
+            let stmt_p = tx.prepare_cached("INSERT INTO tags_plaintext (item_id, name, value) VALUES (?1, ?2, ?3)")?;
 
             for tag in tags {
                 match tag {
@@ -387,7 +387,7 @@ impl WalletStorage for PostgresStorage {
         let tx: transaction::Transaction = transaction::Transaction::new(&self.conn)?;
 
         let res = {
-            let rows = tx.prepare_cached("SELECT id FROM items WHERE type = ?1 AND name = ?2")?
+            let mut rows = tx.prepare_cached("SELECT id FROM items WHERE type = ?1 AND name = ?2")?
                 .query(&[&type_.to_vec(), &id.to_vec()]);
             match rows.as_mut().unwrap().iter().next() {
                 Some(row) => Ok(row.get(0)),
@@ -402,8 +402,8 @@ impl WalletStorage for PostgresStorage {
         };
 
         if !tags.is_empty() {
-            let mut enc_tag_insert_stmt = tx.prepare_cached("INSERT OR REPLACE INTO tags_encrypted (item_id, name, value) VALUES (?1, ?2, ?3)")?;
-            let mut plain_tag_insert_stmt = tx.prepare_cached("INSERT OR REPLACE INTO tags_plaintext (item_id, name, value) VALUES (?1, ?2, ?3)")?;
+            let enc_tag_insert_stmt = tx.prepare_cached("INSERT OR REPLACE INTO tags_encrypted (item_id, name, value) VALUES (?1, ?2, ?3)")?;
+            let plain_tag_insert_stmt = tx.prepare_cached("INSERT OR REPLACE INTO tags_plaintext (item_id, name, value) VALUES (?1, ?2, ?3)")?;
 
             for tag in tags {
                 match tag {
@@ -421,7 +421,7 @@ impl WalletStorage for PostgresStorage {
         let tx: transaction::Transaction = transaction::Transaction::new(&self.conn)?;
 
         let res = {
-            let rows = tx.prepare_cached("SELECT id FROM items WHERE type = ?1 AND name = ?2")?
+            let mut rows = tx.prepare_cached("SELECT id FROM items WHERE type = ?1 AND name = ?2")?
                 .query(&[&type_.to_vec(), &id.to_vec()]);
             match rows.as_mut().unwrap().iter().next() {
                 Some(row) => Ok(row.get(0)),
@@ -439,8 +439,8 @@ impl WalletStorage for PostgresStorage {
         tx.execute("DELETE FROM tags_plaintext WHERE item_id = ?1", &[&item_id])?;
 
         if !tags.is_empty() {
-            let mut enc_tag_insert_stmt = tx.prepare_cached("INSERT INTO tags_encrypted (item_id, name, value) VALUES (?1, ?2, ?3)")?;
-            let mut plain_tag_insert_stmt = tx.prepare_cached("INSERT INTO tags_plaintext (item_id, name, value) VALUES (?1, ?2, ?3)")?;
+            let enc_tag_insert_stmt = tx.prepare_cached("INSERT INTO tags_encrypted (item_id, name, value) VALUES (?1, ?2, ?3)")?;
+            let plain_tag_insert_stmt = tx.prepare_cached("INSERT INTO tags_plaintext (item_id, name, value) VALUES (?1, ?2, ?3)")?;
 
             for tag in tags {
                 match tag {
@@ -456,8 +456,8 @@ impl WalletStorage for PostgresStorage {
 
     fn delete_tags(&self, type_: &[u8], id: &[u8], tag_names: &[TagName]) -> Result<(), WalletStorageError> {
         let res = {
-            let rows = self.conn.prepare_cached("SELECT id FROM items WHERE type =?1 AND name = ?2")?
-                .query(&[&type_.to_vec()]);
+            let mut rows = self.conn.prepare_cached("SELECT id FROM items WHERE type =?1 AND name = ?2")?
+                .query(&[&type_.to_vec(), &id.to_vec()]);
             match rows.as_mut().unwrap().iter().next() {
                 Some(row) => Ok(row.get(0)),
                 None => Err(WalletStorageError::ItemNotFound)
@@ -472,8 +472,8 @@ impl WalletStorage for PostgresStorage {
 
         let tx: transaction::Transaction = transaction::Transaction::new(&self.conn)?;
         {
-            let mut enc_tag_delete_stmt = tx.prepare_cached("DELETE FROM tags_encrypted WHERE item_id = ?1 AND name = ?2")?;
-            let mut plain_tag_delete_stmt = tx.prepare_cached("DELETE FROM tags_plaintext WHERE item_id = ?1 AND name = ?2")?;
+            let enc_tag_delete_stmt = tx.prepare_cached("DELETE FROM tags_encrypted WHERE item_id = ?1 AND name = ?2")?;
+            let plain_tag_delete_stmt = tx.prepare_cached("DELETE FROM tags_plaintext WHERE item_id = ?1 AND name = ?2")?;
 
             for tag_name in tag_names {
                 match tag_name {
@@ -527,7 +527,7 @@ impl WalletStorage for PostgresStorage {
 
     fn get_storage_metadata(&self) -> Result<Vec<u8>, WalletStorageError> {
         let res: Result<Vec<u8>, WalletStorageError> = {
-            let rows = self.conn.query(
+            let mut rows = self.conn.query(
                 "SELECT value FROM metadata",
                 &[]);
             match rows.as_mut().unwrap().iter().next() {
@@ -576,7 +576,7 @@ impl WalletStorage for PostgresStorage {
         let total_count: Option<usize> = if search_options.retrieve_total_count {
             let (query_string, query_arguments) = query::wql_to_sql_count(&type_, query)?;
 
-            let rows = self.conn.query(
+            let mut rows = self.conn.query(
                 &query_string,
                 &query_arguments[..]);
             match rows.as_mut().unwrap().iter().next() {
@@ -703,7 +703,7 @@ impl WalletStorageType for PostgresStorageType {
             .map_or(Ok(None), |v| v.map(Some))
             .map_err(|err| CommonError::InvalidStructure(format!("Cannot deserialize config: {:?}", err)))?;
 
-        let db_path = PostgresStorageType::_db_path(id, config.as_ref());
+        let _db_path = PostgresStorageType::_db_path(id, config.as_ref());
 
         //if db_path.exists() {
         //    return Err(WalletStorageError::AlreadyExists);
@@ -775,7 +775,7 @@ impl WalletStorageType for PostgresStorageType {
             .map_or(Ok(None), |v| v.map(Some))
             .map_err(|err| CommonError::InvalidStructure(format!("Cannot deserialize config: {:?}", err)))?;
 
-        let db_file_path = PostgresStorageType::_db_path(id, config.as_ref());
+        let _db_file_path = PostgresStorageType::_db_path(id, config.as_ref());
 
         //if !db_file_path.exists() {
         //    return Err(WalletStorageError::NotFound);
