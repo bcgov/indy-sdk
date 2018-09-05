@@ -31,6 +31,7 @@ extern crate time;
 extern crate libc;
 extern crate rand;
 extern crate rusqlite;
+extern crate postgres;
 
 #[macro_use]
 extern crate derivative;

@@ -5,9 +5,8 @@ mod query;
 mod transaction;
 
 use std;
-use std::fs;
 
-use rusqlite;
+use postgres;
 use serde_json;
 
 use self::owning_ref::OwningHandle;
@@ -22,85 +21,64 @@ use super::{StorageIterator, WalletStorageType, WalletStorage, StorageRecord, En
 use super::super::{RecordOptions, SearchOptions};
 
 
-const _SQLITE_DB: &str = "sqlite.db";
+const _POSTGRES_DB: &str = "postgres";
 const _PLAIN_TAGS_QUERY: &str = "SELECT name, value from tags_plaintext where item_id = ?";
 const _ENCRYPTED_TAGS_QUERY: &str = "SELECT name, value from tags_encrypted where item_id = ?";
-const _CREATE_SCHEMA: &str = "
-    PRAGMA locking_mode=EXCLUSIVE;
-    PRAGMA foreign_keys=ON;
-
-    BEGIN EXCLUSIVE TRANSACTION;
-
-    /*** Keys Table ***/
-
-    CREATE TABLE metadata (
+const _CREATE_SCHEMA: [&str; 11] = [
+    "CREATE TABLE IF NOT EXISTS metadata (
         id INTEGER NOT NULL,
-        value NOT NULL,
+        value TEXT NOT NULL,
         PRIMARY KEY(id)
-    );
-
-    /*** Items Table ***/
-
-    CREATE TABLE items(
+    )",
+    "CREATE TABLE IF NOT EXISTS items(
         id INTEGER NOT NULL,
-        type NOT NULL,
-        name NOT NULL,
-        value NOT NULL,
-        key NOT NULL,
+        type TEXT NOT NULL,
+        name TEXT NOT NULL,
+        value TEXT NOT NULL,
+        key TEXT NOT NULL,
         PRIMARY KEY(id)
-    );
-
-    CREATE UNIQUE INDEX ux_items_type_name ON items(type, name);
-
-    /*** Encrypted Tags Table ***/
-
-    CREATE TABLE tags_encrypted(
-        name NOT NULL,
-        value NOT NULL,
+    )",
+    "CREATE UNIQUE INDEX IF NOT EXISTS ux_items_type_name ON items(type, name)",
+    "CREATE TABLE IF NOT EXISTS tags_encrypted(
+        name TEXT NOT NULL,
+        value TEXT NOT NULL,
         item_id INTEGER NOT NULL,
         PRIMARY KEY(name, item_id),
         FOREIGN KEY(item_id)
             REFERENCES items(id)
             ON DELETE CASCADE
             ON UPDATE CASCADE
-    );
-
-    CREATE INDEX ix_tags_encrypted_name ON tags_encrypted(name);
-    CREATE INDEX ix_tags_encrypted_value ON tags_encrypted(value);
-    CREATE INDEX ix_tags_encrypted_item_id ON tags_encrypted(item_id);
-
-    /*** PlainText Tags Table ***/
-
-    CREATE TABLE tags_plaintext(
-        name NOT NULL,
-        value NOT NULL,
+    )",
+    "CREATE INDEX IF NOT EXISTS ix_tags_encrypted_name ON tags_encrypted(name)",
+    "CREATE INDEX IF NOT EXISTS ix_tags_encrypted_value ON tags_encrypted(value)",
+    "CREATE INDEX IF NOT EXISTS ix_tags_encrypted_item_id ON tags_encrypted(item_id)",
+    "CREATE TABLE IF NOT EXISTS tags_plaintext(
+        name TEXT NOT NULL,
+        value TEXT NOT NULL,
         item_id INTEGER NOT NULL,
         PRIMARY KEY(name, item_id),
         FOREIGN KEY(item_id)
             REFERENCES items(id)
             ON DELETE CASCADE
             ON UPDATE CASCADE
-    );
-
-    CREATE INDEX ix_tags_plaintext_name ON tags_plaintext(name);
-    CREATE INDEX ix_tags_plaintext_value ON tags_plaintext(value);
-    CREATE INDEX ix_tags_plaintext_item_id ON tags_plaintext(item_id);
-
-    END TRANSACTION;
-";
+    )",
+    "CREATE INDEX IF NOT EXISTS ix_tags_plaintext_name ON tags_plaintext(name)",
+    "CREATE INDEX IF NOT EXISTS ix_tags_plaintext_value ON tags_plaintext(value)",
+    "CREATE INDEX IF NOT EXISTS ix_tags_plaintext_item_id ON tags_plaintext(item_id)"
+    ];
 
 
 #[derive(Debug)]
 struct TagRetriever<'a> {
-    plain_tags_stmt: rusqlite::Statement<'a>,
-    encrypted_tags_stmt: rusqlite::Statement<'a>,
+    plain_tags_stmt: postgres::stmt::Statement<'a>,
+    encrypted_tags_stmt: postgres::stmt::Statement<'a>,
 }
 
-type TagRetrieverOwned = OwningHandle<Rc<rusqlite::Connection>, Box<TagRetriever<'static>>>;
+type TagRetrieverOwned = OwningHandle<Rc<postgres::Connection>, Box<TagRetriever<'static>>>;
 
 impl<'a> TagRetriever<'a> {
-    fn new_owned(conn: Rc<rusqlite::Connection>) -> Result<TagRetrieverOwned, WalletStorageError> {
-        OwningHandle::try_new(conn.clone(), |conn| -> Result<_, rusqlite::Error> {
+    fn new_owned(conn: Rc<postgres::Connection>) -> Result<TagRetrieverOwned, WalletStorageError> {
+        OwningHandle::try_new(conn.clone(), |conn| -> Result<_, postgres::Error> {
             let (plain_tags_stmt, encrypted_tags_stmt) = unsafe {
                 ((*conn).prepare(_PLAIN_TAGS_QUERY)?,
                  (*conn).prepare(_ENCRYPTED_TAGS_QUERY)?)
@@ -117,14 +95,16 @@ impl<'a> TagRetriever<'a> {
         let mut tags = Vec::new();
 
         let mut plain_results = self.plain_tags_stmt.query(&[&id])?;
-        while let Some(res) = plain_results.next() {
-            let row = res?;
+        let iter_plain = plain_results.iter();
+        while let Some(res) = iter_plain.next() {
+            let row = res;
             tags.push(Tag::PlainText(row.get(0), row.get(1)));
         }
 
         let mut encrypted_results = self.encrypted_tags_stmt.query(&[&id])?;
-        while let Some(res) = encrypted_results.next() {
-            let row = res?;
+        let iter_encrypted = encrypted_results.iter();
+        while let Some(res) = iter_encrypted.next() {
+            let row = res;
             tags.push(Tag::Encrypted(row.get(0), row.get(1)));
         }
 
@@ -137,9 +117,9 @@ struct PostgresStorageIterator {
     rows: Option<
         OwningHandle<
             OwningHandle<
-                Rc<rusqlite::Connection>,
-                Box<rusqlite::Statement<'static>>>,
-            Box<rusqlite::Rows<'static>>>>,
+                Rc<postgres::Connection>,
+                Box<postgres::stmt::Statement<'static>>>,
+            Box<postgres::rows::Rows<>>>>,
     tag_retriever: Option<TagRetrieverOwned>,
     options: RecordOptions,
     total_count: Option<usize>,
@@ -147,8 +127,8 @@ struct PostgresStorageIterator {
 
 
 impl PostgresStorageIterator {
-    fn new(stmt: Option<OwningHandle<Rc<rusqlite::Connection>, Box<rusqlite::Statement<'static>>>>,
-           args: &[&rusqlite::types::ToSql],
+    fn new(stmt: Option<OwningHandle<Rc<postgres::Connection>, Box<postgres::stmt::Statement<'static>>>>,
+           args: &[&postgres::types::ToSql],
            options: RecordOptions,
            tag_retriever: Option<TagRetrieverOwned>,
            total_count: Option<usize>) -> Result<PostgresStorageIterator, WalletStorageError> {
@@ -163,7 +143,7 @@ impl PostgresStorageIterator {
             iter.rows = Some(OwningHandle::try_new(
                 stmt, |stmt|
                     unsafe {
-                        (*(stmt as *mut rusqlite::Statement)).query(args).map(Box::new)
+                        (*(stmt as *mut postgres::stmt::Statement)).query(args).map(Box::new)
                     },
             )?);
         }
@@ -179,8 +159,8 @@ impl StorageIterator for PostgresStorageIterator {
             return Ok(None);
         }
 
-        match self.rows.as_mut().unwrap().next() {
-            Some(Ok(row)) => {
+        match self.rows.as_mut().unwrap().iter().next() {
+            Some(row) => {
                 let name = row.get(1);
                 let value = if self.options.retrieve_value {
                     Some(EncryptedValue::new(row.get(2), row.get(3)))
@@ -204,7 +184,7 @@ impl StorageIterator for PostgresStorageIterator {
                 };
                 Ok(Some(StorageRecord::new(name, value, type_, tags)))
             }
-            Some(Err(err)) => Err(WalletStorageError::from(err)),
+            //Some(Err(err)) => Err(WalletStorageError::from(err)),
             None => Ok(None)
         }
     }
@@ -221,7 +201,7 @@ struct Config {
 
 #[derive(Debug)]
 struct PostgresStorage {
-    conn: Rc<rusqlite::Connection>,
+    conn: Rc<postgres::Connection>,
 }
 
 pub struct PostgresStorageType {}
@@ -240,7 +220,7 @@ impl PostgresStorageType {
         };
 
         path.push(id);
-        path.push(_SQLITE_DB);
+        path.push(_POSTGRES_DB);
         path
     }
 }
@@ -281,16 +261,18 @@ impl WalletStorage for PostgresStorage {
         } else {
             serde_json::from_str(options)?
         };
-        let res: Result<(i64, Vec<u8>, Vec<u8>), rusqlite::Error> = self.conn.query_row(
-            "SELECT id, value, key FROM items where type = ?1 AND name = ?2",
-            &[&type_.to_vec(), &id.to_vec()],
-            |row| {
-                (row.get(0), row.get(1), row.get(2))
+        let res: Result<(i64, Vec<u8>, Vec<u8>), WalletStorageError> = {
+            let rows = self.conn.query(
+                "SELECT id, value, key FROM items where type = ?1 AND name = ?2",
+                &[&type_.to_vec(), &id.to_vec()]);
+            match rows.as_mut().unwrap().iter().next() {
+                Some(row) => Ok((row.get(0), row.get(1), row.get(2))),
+                None => Err(WalletStorageError::ItemNotFound)
             }
-        );
+        };
         let item = match res {
             Ok(entity) => entity,
-            Err(rusqlite::Error::QueryReturnedNoRows) => return Err(WalletStorageError::ItemNotFound),
+            Err(WalletStorageError::ItemNotFound) => return Err(WalletStorageError::ItemNotFound),
             Err(err) => return Err(WalletStorageError::from(err))
         };
         let value = if options.retrieve_value
@@ -303,8 +285,9 @@ impl WalletStorage for PostgresStorage {
             let mut stmt = self.conn.prepare_cached("SELECT name, value FROM tags_encrypted WHERE item_id = ?1")?;
             let mut rows = stmt.query(&[&item.0])?;
 
-            while let Some(row) = rows.next() {
-                let row = row?;
+            let iter = rows.iter();
+            while let Some(res) = iter.next() {
+                let row = res;
                 tags.push(Tag::Encrypted(row.get(0), row.get(1)));
             }
 
@@ -312,8 +295,9 @@ impl WalletStorage for PostgresStorage {
             let mut stmt = self.conn.prepare_cached("SELECT name, value FROM tags_plaintext WHERE item_id = ?1")?;
             let mut rows = stmt.query(&[&item.0])?;
 
-            while let Some(row) = rows.next() {
-                let row = row?;
+            let iter = rows.iter();
+            while let Some(res) = iter.next() {
+                let row = res;
                 tags.push(Tag::PlainText(row.get(0), row.get(1)));
             }
             Some(tags)
@@ -352,15 +336,23 @@ impl WalletStorage for PostgresStorage {
     ///  * `IOError("IO error during storage operation:...")` - Failed connection or SQL query
     ///
     fn add(&self, type_: &[u8], id: &[u8], value: &EncryptedValue, tags: &[Tag]) -> Result<(), WalletStorageError> {
-        let tx: transaction::Transaction = transaction::Transaction::new(&self.conn, rusqlite::TransactionBehavior::Deferred)?;
+        let tx: transaction::Transaction = transaction::Transaction::new(&self.conn)?;
         let res = tx.prepare_cached("INSERT INTO items (type, name, value, key) VALUES (?1, ?2, ?3, ?4)")?
-            .insert(&[&type_.to_vec(), &id.to_vec(), &value.data, &value.key]);
+            .execute(&[&type_.to_vec(), &id.to_vec(), &value.data, &value.key]);
 
         let id = match res {
             Ok(entity) => entity,
-            Err(rusqlite::Error::SqliteFailure(_, _)) => return Err(WalletStorageError::ItemAlreadyExists),
-            Err(err) => return Err(WalletStorageError::from(err))
+            Err(err) => {
+                if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
+                   err.code() == Some(&postgres::error::INTEGRITY_CONSTRAINT_VIOLATION) {
+                    return Err(WalletStorageError::ItemAlreadyExists);
+                } else {
+                    return Err(WalletStorageError::from(err));
+                }
+            }
         };
+
+        let id = id as i64;
 
         if !tags.is_empty() {
             let mut stmt_e = tx.prepare_cached("INSERT INTO tags_encrypted (item_id, name, value) VALUES (?1, ?2, ?3)")?;
@@ -392,13 +384,19 @@ impl WalletStorage for PostgresStorage {
     }
 
     fn add_tags(&self, type_: &[u8], id: &[u8], tags: &[Tag]) -> Result<(), WalletStorageError> {
-        let tx: transaction::Transaction = transaction::Transaction::new(&self.conn, rusqlite::TransactionBehavior::Deferred)?;
+        let tx: transaction::Transaction = transaction::Transaction::new(&self.conn)?;
 
-        let res = tx.prepare_cached("SELECT id FROM items WHERE type = ?1 AND name = ?2")?
-            .query_row(&[&type_.to_vec(), &id.to_vec()], |row| row.get(0));
+        let res = {
+            let rows = tx.prepare_cached("SELECT id FROM items WHERE type = ?1 AND name = ?2")?
+                .query(&[&type_.to_vec(), &id.to_vec()]);
+            match rows.as_mut().unwrap().iter().next() {
+                Some(row) => Ok(row.get(0)),
+                None => Err(WalletStorageError::ItemNotFound)
+            }
+        };
 
         let item_id: i64 = match res {
-            Err(rusqlite::Error::QueryReturnedNoRows) => return Err(WalletStorageError::ItemNotFound),
+            Err(WalletStorageError::ItemNotFound) => return Err(WalletStorageError::ItemNotFound),
             Err(err) => return Err(WalletStorageError::from(err)),
             Ok(id) => id
         };
@@ -420,13 +418,19 @@ impl WalletStorage for PostgresStorage {
     }
 
     fn update_tags(&self, type_: &[u8], id: &[u8], tags: &[Tag]) -> Result<(), WalletStorageError> {
-        let tx: transaction::Transaction = transaction::Transaction::new(&self.conn, rusqlite::TransactionBehavior::Deferred)?;
+        let tx: transaction::Transaction = transaction::Transaction::new(&self.conn)?;
 
-        let res = tx.prepare_cached("SELECT id FROM items WHERE type = ?1 AND name = ?2")?
-            .query_row(&[&type_.to_vec(), &id.to_vec()], |row| row.get(0));
+        let res = {
+            let rows = tx.prepare_cached("SELECT id FROM items WHERE type = ?1 AND name = ?2")?
+                .query(&[&type_.to_vec(), &id.to_vec()]);
+            match rows.as_mut().unwrap().iter().next() {
+                Some(row) => Ok(row.get(0)),
+                None => Err(WalletStorageError::ItemNotFound)
+            }
+        };
 
         let item_id: i64 = match res {
-            Err(rusqlite::Error::QueryReturnedNoRows) => return Err(WalletStorageError::ItemNotFound),
+            Err(WalletStorageError::ItemNotFound) => return Err(WalletStorageError::ItemNotFound),
             Err(err) => return Err(WalletStorageError::from(err)),
             Ok(id) => id
         };
@@ -451,16 +455,22 @@ impl WalletStorage for PostgresStorage {
     }
 
     fn delete_tags(&self, type_: &[u8], id: &[u8], tag_names: &[TagName]) -> Result<(), WalletStorageError> {
-        let res = self.conn.prepare_cached("SELECT id FROM items WHERE type =?1 AND name = ?2")?
-            .query_row(&[&type_.to_vec(), &id.to_vec()], |row| row.get(0));
+        let res = {
+            let rows = self.conn.prepare_cached("SELECT id FROM items WHERE type =?1 AND name = ?2")?
+                .query(&[&type_.to_vec()]);
+            match rows.as_mut().unwrap().iter().next() {
+                Some(row) => Ok(row.get(0)),
+                None => Err(WalletStorageError::ItemNotFound)
+            }
+        };
 
         let item_id: i64 = match res {
-            Err(rusqlite::Error::QueryReturnedNoRows) => return Err(WalletStorageError::ItemNotFound),
+            Err(WalletStorageError::ItemNotFound) => return Err(WalletStorageError::ItemNotFound),
             Err(err) => return Err(WalletStorageError::from(err)),
             Ok(id) => id
         };
 
-        let tx: transaction::Transaction = transaction::Transaction::new(&self.conn, rusqlite::TransactionBehavior::Deferred)?;
+        let tx: transaction::Transaction = transaction::Transaction::new(&self.conn)?;
         {
             let mut enc_tag_delete_stmt = tx.prepare_cached("DELETE FROM tags_encrypted WHERE item_id = ?1 AND name = ?2")?;
             let mut plain_tag_delete_stmt = tx.prepare_cached("DELETE FROM tags_plaintext WHERE item_id = ?1 AND name = ?2")?;
@@ -516,15 +526,19 @@ impl WalletStorage for PostgresStorage {
     }
 
     fn get_storage_metadata(&self) -> Result<Vec<u8>, WalletStorageError> {
-        let res: Result<Vec<u8>, rusqlite::Error> = self.conn.query_row(
-            "SELECT value FROM metadata",
-            &[],
-            |row| { row.get(0) }
-        );
+        let res: Result<Vec<u8>, WalletStorageError> = {
+            let rows = self.conn.query(
+                "SELECT value FROM metadata",
+                &[]);
+            match rows.as_mut().unwrap().iter().next() {
+                Some(row) => Ok(row.get(0)),
+                None => Err(WalletStorageError::ItemNotFound)
+            }
+        };
 
         match res {
             Ok(entity) => Ok(entity),
-            Err(rusqlite::Error::QueryReturnedNoRows) => return Err(WalletStorageError::ItemNotFound),
+            Err(WalletStorageError::ItemNotFound) => return Err(WalletStorageError::ItemNotFound),
             Err(err) => return Err(WalletStorageError::from(err))
         }
     }
@@ -562,16 +576,17 @@ impl WalletStorage for PostgresStorage {
         let total_count: Option<usize> = if search_options.retrieve_total_count {
             let (query_string, query_arguments) = query::wql_to_sql_count(&type_, query)?;
 
-            self.conn.query_row(
+            let rows = self.conn.query(
                 &query_string,
-                &query_arguments,
-                |row| {
+                &query_arguments[..]);
+            match rows.as_mut().unwrap().iter().next() {
+                Some(row) => {
                     let x: i64 = row.get(0);
                     Some(x as usize)
-                }
-            )?
+                },
+                None => None
+            }
         } else { None };
-
 
         if search_options.retrieve_records {
             let fetch_options = RecordOptions {
@@ -588,7 +603,7 @@ impl WalletStorage for PostgresStorage {
             } else {
                 None
             };
-            let storage_iterator = PostgresStorageIterator::new(Some(statement), &query_arguments, fetch_options, tag_retriever, total_count)?;
+            let storage_iterator = PostgresStorageIterator::new(Some(statement), &query_arguments[..], fetch_options, tag_retriever, total_count)?;
             Ok(Box::new(storage_iterator))
         } else {
             let storage_iterator = PostgresStorageIterator::new(None, &[], RecordOptions::default(), None, total_count)?;
@@ -603,7 +618,7 @@ impl WalletStorage for PostgresStorage {
 
 impl PostgresStorage {
     fn _prepare_statement(&self, sql: &str) -> Result<
-        OwningHandle<Rc<rusqlite::Connection>, Box<rusqlite::Statement<'static>>>,
+        OwningHandle<Rc<postgres::Connection>, Box<postgres::stmt::Statement<'static>>>,
         WalletStorageError> {
         OwningHandle::try_new(self.conn.clone(), |conn| {
             unsafe { (*conn).prepare(sql) }.map(Box::new).map_err(WalletStorageError::from)
@@ -690,28 +705,39 @@ impl WalletStorageType for PostgresStorageType {
 
         let db_path = PostgresStorageType::_db_path(id, config.as_ref());
 
-        if db_path.exists() {
-            return Err(WalletStorageError::AlreadyExists);
+        //if db_path.exists() {
+        //    return Err(WalletStorageError::AlreadyExists);
+        //}
+
+        //fs::DirBuilder::new()
+        //    .recursive(true)
+        //    .create(db_path.parent().unwrap())?;
+
+        let url = "postgresql://postgres:mysecretpassword@localhost:5432";
+        let conn = postgres::Connection::connect(url, postgres::TlsMode::None)?;
+
+        let mut schema_result = Ok(());
+        for sql in &_CREATE_SCHEMA {
+            match schema_result {
+                Ok(_) => schema_result = match conn.execute(sql, &[]) {
+                    Ok(_) => Ok(()),
+                    Err(error) => {
+                        //std::fs::remove_file(db_path)?;
+                        Err(WalletStorageError::IOError(format!("Error occurred while creating wallet file: {}", error)))
+                    }
+                },
+                _ => ()
+            }
         }
-
-        fs::DirBuilder::new()
-            .recursive(true)
-            .create(db_path.parent().unwrap())?;
-
-        let conn = rusqlite::Connection::open(db_path.as_path())?;
-
-        match conn.execute_batch(_CREATE_SCHEMA) {
+        match schema_result {
             Ok(_) => match conn.execute("INSERT OR REPLACE INTO metadata(value) VALUES(?1)", &[&metadata.to_vec()]) {
                 Ok(_) => Ok(()),
                 Err(error) => {
-                    std::fs::remove_file(db_path)?;
+                    //std::fs::remove_file(db_path)?;
                     Err(WalletStorageError::IOError(format!("Error occurred while inserting the keys: {}", error)))
                 }
             },
-            Err(error) => {
-                std::fs::remove_file(db_path)?;
-                Err(WalletStorageError::IOError(format!("Error occurred while creating wallet file: {}", error)))
-            }
+            Err(error) => Err(WalletStorageError::IOError(format!("Error occurred while inserting the keys: {}", error)))
         }
     }
 
@@ -751,24 +777,29 @@ impl WalletStorageType for PostgresStorageType {
 
         let db_file_path = PostgresStorageType::_db_path(id, config.as_ref());
 
-        if !db_file_path.exists() {
-            return Err(WalletStorageError::NotFound);
-        }
+        //if !db_file_path.exists() {
+        //    return Err(WalletStorageError::NotFound);
+        //}
 
-        let conn = rusqlite::Connection::open(db_file_path.as_path())?;
+        let url = "postgresql://postgres:mysecretpassword@localhost:5432";
+        let conn = postgres::Connection::connect(url, postgres::TlsMode::None)?;
 
         // set journal mode to WAL, because it provides better performance.
+        /*
         let journal_mode: String = conn.query_row(
             "PRAGMA journal_mode = WAL",
             &[],
             |row| { row.get(0) }
         )?;
+        */
 
         // if journal mode is set to WAL, set synchronous to FULL for safety reasons.
         // (synchronous = NORMAL with journal_mode = WAL does not guaranties durability).
+        /*
         if journal_mode.to_lowercase() == "wal" {
             conn.execute("PRAGMA synchronous = FULL", &[])?;
         }
+        */
 
         Ok(Box::new(PostgresStorage { conn: Rc::new(conn) }))
     }
@@ -783,15 +814,15 @@ mod tests {
     use utils::test::TestUtils;
 
     #[test]
-    fn sqlite_storage_type_create_works() {
+    fn postgres_storage_type_create_works() {
         _cleanup();
 
         let storage_type = PostgresStorageType::new();
         storage_type.create_storage(_wallet_id(), None, None, &_metadata()).unwrap();
     }
-
+/*
     #[test]
-    fn sqlite_storage_type_create_works_for_custom_path() {
+    fn postgres_storage_type_create_works_for_custom_path() {
         _cleanup();
 
         let config = json!({
@@ -803,7 +834,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_type_create_works_for_twice() {
+    fn postgres_storage_type_create_works_for_twice() {
         _cleanup();
 
         let storage_type = PostgresStorageType::new();
@@ -814,7 +845,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_get_storage_metadata_works() {
+    fn postgres_storage_get_storage_metadata_works() {
         _cleanup();
 
         let storage = _storage();
@@ -824,7 +855,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_type_delete_works() {
+    fn postgres_storage_type_delete_works() {
         _cleanup();
 
         let storage_type = PostgresStorageType::new();
@@ -835,7 +866,7 @@ mod tests {
 
 
     #[test]
-    fn sqlite_storage_type_delete_works_for_non_existing() {
+    fn postgres_storage_type_delete_works_for_non_existing() {
         _cleanup();
 
         let storage_type = PostgresStorageType::new();
@@ -848,19 +879,19 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_type_open_works() {
+    fn postgres_storage_type_open_works() {
         _cleanup();
         _storage();
     }
 
     #[test]
-    fn sqlite_storage_type_open_works_for_custom() {
+    fn postgres_storage_type_open_works_for_custom() {
         _cleanup();
         _storage_custom();
     }
 
     #[test]
-    fn sqlite_storage_type_open_works_for_not_created() {
+    fn postgres_storage_type_open_works_for_not_created() {
         _cleanup();
 
         let storage_type = PostgresStorageType::new();
@@ -870,7 +901,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_add_works_for_is_802() {
+    fn postgres_storage_add_works_for_is_802() {
         _cleanup();
 
         let storage = _storage();
@@ -885,7 +916,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_set_get_works() {
+    fn postgres_storage_set_get_works() {
         _cleanup();
 
         let storage = _storage();
@@ -898,7 +929,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_set_get_works_for_custom() {
+    fn postgres_storage_set_get_works_for_custom() {
         _cleanup();
 
         let storage = _storage_custom();
@@ -911,7 +942,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_set_get_works_for_twice() {
+    fn postgres_storage_set_get_works_for_twice() {
         _cleanup();
 
         let storage = _storage();
@@ -922,7 +953,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_set_get_works_for_reopen() {
+    fn postgres_storage_set_get_works_for_reopen() {
         _cleanup();
 
         {
@@ -938,7 +969,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_get_works_for_wrong_key() {
+    fn postgres_storage_get_works_for_wrong_key() {
         _cleanup();
 
         let storage = _storage();
@@ -949,7 +980,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_delete_works() {
+    fn postgres_storage_delete_works() {
         _cleanup();
 
         let storage = _storage();
@@ -965,7 +996,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_delete_works_for_non_existing() {
+    fn postgres_storage_delete_works_for_non_existing() {
         _cleanup();
 
         let storage = _storage();
@@ -977,7 +1008,7 @@ mod tests {
 
 
     #[test]
-    fn sqlite_storage_get_all_works() {
+    fn postgres_storage_get_all_works() {
         _cleanup();
 
         let storage = _storage();
@@ -1001,7 +1032,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_get_all_works_for_empty() {
+    fn postgres_storage_get_all_works_for_empty() {
         _cleanup();
 
         let storage = _storage();
@@ -1012,7 +1043,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_update_works() {
+    fn postgres_storage_update_works() {
         _cleanup();
 
         let storage = _storage();
@@ -1027,7 +1058,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_update_works_for_non_existing_id() {
+    fn postgres_storage_update_works_for_non_existing_id() {
         _cleanup();
 
         let storage = _storage();
@@ -1041,7 +1072,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_update_works_for_non_existing_type() {
+    fn postgres_storage_update_works_for_non_existing_type() {
         _cleanup();
 
         let storage = _storage();
@@ -1055,7 +1086,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_add_tags_works() {
+    fn postgres_storage_add_tags_works() {
         _cleanup();
 
         let storage = _storage();
@@ -1076,7 +1107,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_add_tags_works_for_non_existing_id() {
+    fn postgres_storage_add_tags_works_for_non_existing_id() {
         _cleanup();
 
         let storage = _storage();
@@ -1087,7 +1118,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_add_tags_works_for_non_existing_type() {
+    fn postgres_storage_add_tags_works_for_non_existing_type() {
         _cleanup();
 
         let storage = _storage();
@@ -1098,7 +1129,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_add_tags_works_for_already_existing() {
+    fn postgres_storage_add_tags_works_for_already_existing() {
         _cleanup();
 
         let storage = _storage();
@@ -1125,7 +1156,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_update_tags_works() {
+    fn postgres_storage_update_tags_works() {
         _cleanup();
 
         let storage = _storage();
@@ -1139,7 +1170,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_update_tags_works_for_non_existing_id() {
+    fn postgres_storage_update_tags_works_for_non_existing_id() {
         _cleanup();
 
         let storage = _storage();
@@ -1150,7 +1181,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_update_tags_works_for_non_existing_type() {
+    fn postgres_storage_update_tags_works_for_non_existing_type() {
         _cleanup();
 
         let storage = _storage();
@@ -1161,7 +1192,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_update_tags_works_for_already_existing() {
+    fn postgres_storage_update_tags_works_for_already_existing() {
         _cleanup();
 
         let storage = _storage();
@@ -1188,7 +1219,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_delete_tags_works() {
+    fn postgres_storage_delete_tags_works() {
         _cleanup();
 
         let storage = _storage();
@@ -1211,7 +1242,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_delete_tags_works_for_non_existing_type() {
+    fn postgres_storage_delete_tags_works_for_non_existing_type() {
         _cleanup();
 
         let storage = _storage();
@@ -1232,7 +1263,7 @@ mod tests {
     }
 
     #[test]
-    fn sqlite_storage_delete_tags_works_for_non_existing_id() {
+    fn postgres_storage_delete_tags_works_for_non_existing_id() {
         _cleanup();
 
         let storage = _storage();
@@ -1251,7 +1282,7 @@ mod tests {
         let res = storage.delete_tags(&_type1(), &_id2(), &tag_names);
         assert_match!(Err(WalletStorageError::ItemNotFound), res);
     }
-
+*/
     fn _cleanup() {
         TestUtils::cleanup_storage()
     }

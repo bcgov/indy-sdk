@@ -1,39 +1,22 @@
-use rusqlite::{TransactionBehavior, Connection, DropBehavior, Result};
+use postgres::{Connection, Result};
 use std::ops::Deref;
 
 pub struct Transaction<'conn> {
     conn: &'conn Connection,
-    drop_behavior: DropBehavior,
     committed: bool,
 }
 
 impl<'conn> Transaction<'conn> {
     /// Begin a new transaction. Cannot be nested; see `savepoint` for nested transactions.
-    pub fn new(conn: &Connection, behavior: TransactionBehavior) -> Result<Transaction> {
-        let query = match behavior {
-            TransactionBehavior::Deferred => "BEGIN DEFERRED",
-            TransactionBehavior::Immediate => "BEGIN IMMEDIATE",
-            TransactionBehavior::Exclusive => "BEGIN EXCLUSIVE",
-        };
-        conn.execute_batch(query)
+    pub fn new(conn: &Connection) -> Result<Transaction> {
+        let query = "BEGIN";
+        conn.batch_execute(query)
             .map(move |_| {
                 Transaction {
                     conn,
-                    drop_behavior: DropBehavior::Rollback,
                     committed: false,
                 }
             })
-    }
-
-    /// Get the current setting for what happens to the transaction when it is dropped.
-    pub fn drop_behavior(&self) -> DropBehavior {
-        self.drop_behavior
-    }
-
-    /// Configure the transaction to perform the specified action when it is dropped.
-    #[allow(dead_code)]
-    pub fn set_drop_behavior(&mut self, drop_behavior: DropBehavior) {
-        self.drop_behavior = drop_behavior
     }
 
     /// A convenience method which consumes and commits a transaction.
@@ -43,7 +26,7 @@ impl<'conn> Transaction<'conn> {
 
     fn commit_(&mut self) -> Result<()> {
         self.committed = true;
-        self.conn.execute_batch("COMMIT")
+        self.conn.batch_execute("COMMIT")
     }
 
     /// A convenience method which consumes and rolls back a transaction.
@@ -54,7 +37,7 @@ impl<'conn> Transaction<'conn> {
 
     fn rollback_(&mut self) -> Result<()> {
         self.committed = true;
-        self.conn.execute_batch("ROLLBACK")
+        self.conn.batch_execute("ROLLBACK")
     }
 
     /// Consumes the transaction, committing or rolling back according to the current setting
@@ -70,11 +53,8 @@ impl<'conn> Transaction<'conn> {
     fn finish_(&mut self) -> Result<()> {
         if self.committed {
             return Ok(());
-        }
-        match self.drop_behavior() {
-            DropBehavior::Commit => self.commit_(),
-            DropBehavior::Rollback => self.rollback_(),
-            DropBehavior::Ignore => Ok(()),
+        } else {
+            self.rollback_()
         }
     }
 }

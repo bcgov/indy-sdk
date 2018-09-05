@@ -1,4 +1,4 @@
-use rusqlite::types::ToSql;
+use postgres::types::ToSql;
 
 use errors::wallet::WalletQueryError;
 use services::wallet::language::{Operator,TagName,TargetValue};
