@@ -24,19 +24,18 @@ use super::super::{RecordOptions, SearchOptions};
 const _POSTGRES_DB: &str = "postgres";
 const _PLAIN_TAGS_QUERY: &str = "SELECT name, value from tags_plaintext where item_id = ?";
 const _ENCRYPTED_TAGS_QUERY: &str = "SELECT name, value from tags_encrypted where item_id = ?";
-const _CREATE_SCHEMA: [&str; 11] = [
+const _CREATE_SCHEMA: [&str; 12] = [
     "CREATE TABLE IF NOT EXISTS metadata (
-        id INTEGER NOT NULL,
-        value TEXT NOT NULL,
-        PRIMARY KEY(id)
+        id SERIAL PRIMARY KEY,
+        value BYTEA NOT NULL
     )",
+    "CREATE UNIQUE INDEX IF NOT EXISTS ux_metadata_values ON metadata(value)", 
     "CREATE TABLE IF NOT EXISTS items(
-        id INTEGER NOT NULL,
+        id SERIAL PRIMARY KEY,
         type TEXT NOT NULL,
         name TEXT NOT NULL,
         value TEXT NOT NULL,
-        key TEXT NOT NULL,
-        PRIMARY KEY(id)
+        key TEXT NOT NULL
     )",
     "CREATE UNIQUE INDEX IF NOT EXISTS ux_items_type_name ON items(type, name)",
     "CREATE TABLE IF NOT EXISTS tags_encrypted(
@@ -730,11 +729,15 @@ impl WalletStorageType for PostgresStorageType {
             }
         }
         match schema_result {
-            Ok(_) => match conn.execute("INSERT OR REPLACE INTO metadata(value) VALUES(?1)", &[&metadata.to_vec()]) {
-                Ok(_) => Ok(()),
-                Err(error) => {
-                    //std::fs::remove_file(db_path)?;
-                    Err(WalletStorageError::IOError(format!("Error occurred while inserting the keys: {}", error)))
+            Ok(_) => {
+                match conn.execute("INSERT INTO metadata(value) VALUES($1) 
+                                        ON CONFLICT (value) DO UPDATE SET value = excluded.value", 
+                                        &[&metadata]) {
+                    Ok(_) => Ok(()),
+                    Err(error) => {
+                        //std::fs::remove_file(db_path)?;
+                        Err(WalletStorageError::IOError(format!("Error occurred while inserting the keys: {}", error)))
+                    }
                 }
             },
             Err(error) => Err(WalletStorageError::IOError(format!("Error occurred while inserting the keys: {}", error)))
