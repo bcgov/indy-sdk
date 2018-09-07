@@ -24,6 +24,8 @@ use super::super::{RecordOptions, SearchOptions};
 const _POSTGRES_DB: &str = "postgres";
 const _PLAIN_TAGS_QUERY: &str = "SELECT name, value from tags_plaintext where item_id = $1";
 const _ENCRYPTED_TAGS_QUERY: &str = "SELECT name, value from tags_encrypted where item_id = $1";
+const _CREATE_WALLET_DATABASE: &str = "CREATE DATABASE $1";
+const _DROP_WALLET_DATABASE: &str = "DROP DATABASE $1";
 const _CREATE_SCHEMA: [&str; 12] = [
     "CREATE TABLE IF NOT EXISTS metadata (
         id BIGSERIAL PRIMARY KEY,
@@ -117,19 +119,18 @@ impl<'a> TagRetriever<'a> {
     }
 }
 
-
 struct PostgresStorageIterator {
     rows: Option<
-        OwningHandle<
             OwningHandle<
-                Rc<postgres::Connection>,
-                Box<postgres::stmt::Statement<'static>>>,
-            Box<postgres::rows::Rows<>>>>,
+                OwningHandle<
+                    Rc<postgres::Connection>,
+                    Box<postgres::stmt::Statement<'static>>>,
+                Box<postgres::rows::Rows<>>>>,
     tag_retriever: Option<TagRetrieverOwned>,
     options: RecordOptions,
     total_count: Option<usize>,
+    iter_count: usize,
 }
-
 
 impl PostgresStorageIterator {
     fn new(stmt: Option<OwningHandle<Rc<postgres::Connection>, Box<postgres::stmt::Statement<'static>>>>,
@@ -141,7 +142,8 @@ impl PostgresStorageIterator {
             rows: None,
             tag_retriever,
             options,
-            total_count
+            total_count,
+            iter_count: 0
         };
 
         if let Some(stmt) = stmt {
@@ -152,10 +154,10 @@ impl PostgresStorageIterator {
                     },
             )?);
         }
+
         Ok(iter)
     }
 }
-
 
 impl StorageIterator for PostgresStorageIterator {
     fn next(&mut self) -> Result<Option<StorageRecord>, WalletStorageError> {
@@ -164,8 +166,11 @@ impl StorageIterator for PostgresStorageIterator {
             return Ok(None);
         }
 
-        match self.rows.as_mut().unwrap().iter().next() {
+        // TODO not sure if iter().nth() is the most efficient way to iterate through the result set
+        // TODO investigate if the Iter object can be cached between calls to next()
+        match self.rows.as_mut().unwrap().iter().nth(self.iter_count) {
             Some(row) => {
+                self.iter_count = self.iter_count + 1;
                 let name = row.get(1);
                 let value = if self.options.retrieve_value {
                     Some(EncryptedValue::new(row.get(2), row.get(3)))
@@ -703,6 +708,7 @@ impl WalletStorage for PostgresStorage {
     }
 
     fn close(&mut self) -> Result<(), WalletStorageError> {
+        //let _ret = self.conn.finish();
         Ok(())
     }
 }
@@ -749,24 +755,32 @@ impl WalletStorageType for PostgresStorageType {
             .map_or(Ok(None), |v| v.map(Some))
             .map_err(|err| CommonError::InvalidStructure(format!("Cannot deserialize config: {:?}", err)))?;
 
-        let db_file_path = PostgresStorageType::_db_path(id, config.as_ref());
+        let url_base = "postgresql://postgres:mysecretpassword@localhost:5432";
+        let mut url: String = url_base.to_owned();
+        url.push_str("/");
+        url.push_str(id);
+        match postgres::Connection::connect(&url[..], postgres::TlsMode::None) {
+            Ok(conn) => {
+                for sql in &_DROP_SCHEMA {
+                    match conn.execute(sql, &[]) {
+                        Ok(_) => (),
+                        Err(_) => ()
+                    };
+                }
+                let _ret = conn.finish();
+                ()
+            },
+            Err(_) => ()
+        };
 
-        let url = "postgresql://postgres:mysecretpassword@localhost:5432";
-        let conn = postgres::Connection::connect(url, postgres::TlsMode::None)?;
-
-        for sql in &_DROP_SCHEMA {
-            match conn.execute(sql, &[]) {
-                Ok(_) => (),
-                Err(_) => ()
-            };
-        }
-
-        if db_file_path.exists() {
-            std::fs::remove_dir_all(db_file_path.parent().unwrap())?;
-            Ok(())
-        } else {
-            Ok(()) // Err(WalletStorageError::NotFound)
-        }
+        let conn = postgres::Connection::connect(url_base, postgres::TlsMode::None)?;
+        let drop_db_sql = str::replace(_DROP_WALLET_DATABASE, "$1", id);
+        let ret = match conn.execute(&drop_db_sql, &[]) {
+            Ok(_) => Ok(()),
+            Err(_) => Ok(())
+        };
+        conn.finish()?;
+        ret
     }
 
     ///
@@ -804,33 +818,44 @@ impl WalletStorageType for PostgresStorageType {
             .map_or(Ok(None), |v| v.map(Some))
             .map_err(|err| CommonError::InvalidStructure(format!("Cannot deserialize config: {:?}", err)))?;
 
-        let _db_path = PostgresStorageType::_db_path(id, config.as_ref());
+        let mut url: String = "postgresql://postgres:mysecretpassword@localhost:5432".to_owned();
+        println!("Connect to default schema {}", url);
+        let conn = postgres::Connection::connect(&url[..], postgres::TlsMode::None)?;
 
-        //if db_path.exists() {
-        //    return Err(WalletStorageError::AlreadyExists);
-        //}
+        println!("Create storage for {}", id);
+        let create_db_sql = str::replace(_CREATE_WALLET_DATABASE, "$1", id);
+        let mut schema_result = match conn.execute(&create_db_sql, &[]) {
+            Ok(_) => Ok(()),
+            Err(_error) => {
+                Err(WalletStorageError::AlreadyExists)
+            }
+        };
+        conn.finish()?;
 
-        //fs::DirBuilder::new()
-        //    .recursive(true)
-        //    .create(db_path.parent().unwrap())?;
+        url.push_str("/");
+        url.push_str(id);
+        println!("Connect to new schema {}", url);
+        let conn = match postgres::Connection::connect(&url[..], postgres::TlsMode::None) {
+            Ok(conn) => conn,
+            Err(error) => {
+                println!("Error: {:?}", error);
+                return Err(WalletStorageError::IOError(format!("Error occurred while connecting to wallet schema: {}", error)));
+            }
+        };
 
-        let url = "postgresql://postgres:mysecretpassword@localhost:5432";
-        let conn = postgres::Connection::connect(url, postgres::TlsMode::None)?;
-
-        let mut schema_result = Ok(());
+        println!("Create schema objects");
         for sql in &_CREATE_SCHEMA {
             match schema_result {
                 Ok(_) => schema_result = match conn.execute(sql, &[]) {
                     Ok(_) => Ok(()),
                     Err(error) => {
-                        //std::fs::remove_file(db_path)?;
-                        Err(WalletStorageError::IOError(format!("Error occurred while creating wallet file: {}", error)))
+                        Err(WalletStorageError::IOError(format!("Error occurred while creating wallet schema: {}", error)))
                     }
                 },
                 _ => ()
             }
-        }
-        match schema_result {
+        };
+        let ret = match schema_result {
             Ok(_) => {
                 match conn.execute("INSERT INTO metadata(value) VALUES($1)
                                     ON CONFLICT (value) DO UPDATE SET value = excluded.value",
@@ -842,8 +867,10 @@ impl WalletStorageType for PostgresStorageType {
                     }
                 }
             },
-            Err(error) => Err(WalletStorageError::IOError(format!("Error occurred while inserting the keys: {}", error)))
-        }
+            Err(error) => Err(error)
+        };
+        conn.finish()?;
+        ret
     }
 
     ///
@@ -880,31 +907,10 @@ impl WalletStorageType for PostgresStorageType {
             .map_or(Ok(None), |v| v.map(Some))
             .map_err(|err| CommonError::InvalidStructure(format!("Cannot deserialize config: {:?}", err)))?;
 
-        let _db_file_path = PostgresStorageType::_db_path(id, config.as_ref());
-
-        //if !db_file_path.exists() {
-        //    return Err(WalletStorageError::NotFound);
-        //}
-
-        let url = "postgresql://postgres:mysecretpassword@localhost:5432";
-        let conn = postgres::Connection::connect(url, postgres::TlsMode::None)?;
-
-        // set journal mode to WAL, because it provides better performance.
-        /*
-        let journal_mode: String = conn.query_row(
-            "PRAGMA journal_mode = WAL",
-            &[],
-            |row| { row.get(0) }
-        )?;
-        */
-
-        // if journal mode is set to WAL, set synchronous to FULL for safety reasons.
-        // (synchronous = NORMAL with journal_mode = WAL does not guaranties durability).
-        /*
-        if journal_mode.to_lowercase() == "wal" {
-            conn.execute("PRAGMA synchronous = FULL", &[])?;
-        }
-        */
+        let mut url: String = "postgresql://postgres:mysecretpassword@localhost:5432".to_owned();
+        url.push_str("/");
+        url.push_str(id);
+        let conn = postgres::Connection::connect(&url[..], postgres::TlsMode::None)?;
 
         Ok(Box::new(PostgresStorage { conn: Rc::new(conn) }))
     }
@@ -1135,8 +1141,7 @@ mod tests {
     }
 
     #[test]
-    fn postgres_storage_get_all_works() {
-        println!("Cleanup ...");
+    fn postgres_storage_get_all_workss() {
         _cleanup();
 
         println!("Storage ...");
@@ -1422,19 +1427,25 @@ mod tests {
     }
 
     fn _cleanup() {
+        println!("Cleanup ...");
         let storage_type = PostgresStorageType::new();
         storage_type.delete_storage(_wallet_id(), None, None).unwrap();
-        test::cleanup_storage()
+        let res = test::cleanup_storage();
+        println!("... done cleanup.");
+        res
     }
 
     fn _wallet_id() -> &'static str {
-        "w1"
+        "walle1"
     }
 
     fn _storage() -> Box<WalletStorage> {
+        println!("Storage ...");
         let storage_type = PostgresStorageType::new();
         storage_type.create_storage(_wallet_id(), None, None, &_metadata()).unwrap();
-        storage_type.open_storage(_wallet_id(), None, None).unwrap()
+        let res = storage_type.open_storage(_wallet_id(), None, None).unwrap();
+        println!("Done storage.");
+        res
     }
 
     fn _storage_custom() -> Box<WalletStorage> {
