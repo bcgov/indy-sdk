@@ -29,7 +29,7 @@ const _CREATE_SCHEMA: [&str; 12] = [
         id BIGSERIAL PRIMARY KEY,
         value BYTEA NOT NULL
     )",
-    "CREATE UNIQUE INDEX IF NOT EXISTS ux_metadata_values ON metadata(value)", 
+    "CREATE UNIQUE INDEX IF NOT EXISTS ux_metadata_values ON metadata(value)",
     "CREATE TABLE IF NOT EXISTS items(
         id BIGSERIAL PRIMARY KEY,
         type BYTEA NOT NULL,
@@ -343,13 +343,22 @@ impl WalletStorage for PostgresStorage {
     fn add(&self, type_: &[u8], id: &[u8], value: &EncryptedValue, tags: &[Tag]) -> Result<(), WalletStorageError> {
         println!("In storage add() ... {:?} {:?} {:?}", type_, id, value);
         let tx: transaction::Transaction = transaction::Transaction::new(&self.conn)?;
-        let res = tx.prepare_cached("INSERT INTO items (type, name, value, key) VALUES ($1, $2, $3, $4)")?
-            .execute(&[&type_.to_vec(), &id.to_vec(), &value.data, &value.key]);
+        let res = tx.prepare_cached("INSERT INTO items (type, name, value, key) VALUES ($1, $2, $3, $4) RETURNING id")?
+            .query(&[&type_.to_vec(), &id.to_vec(), &value.data, &value.key]);
 
         let id = match res {
-            Ok(entity) => {
-                println!("Stored item");
-                entity
+            Ok(rows) => {
+                let res = match rows.iter().next() {
+                    Some(row) => Ok(row.get(0)),
+                    None => Err(WalletStorageError::ItemNotFound)
+                };
+                let item_id: i64 = match res {
+                    Err(WalletStorageError::ItemNotFound) => return Err(WalletStorageError::ItemNotFound),
+                    Err(err) => return Err(WalletStorageError::from(err)),
+                    Ok(id) => id
+                };
+                println!("Stored item: {:?}", item_id);
+                item_id
             },
             Err(err) => {
                 if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
@@ -371,19 +380,38 @@ impl WalletStorage for PostgresStorage {
             let stmt_p = tx.prepare_cached("INSERT INTO tags_plaintext (item_id, name, value) VALUES ($1, $2, $3)")?;
 
             for tag in tags {
+                println!("Tag: {:?}", tag);
                 match tag {
                     &Tag::Encrypted(ref tag_name, ref tag_data) => {
                         println!("Store encrypted ...");
                         match stmt_e.execute(&[&id, tag_name, tag_data]) {
                             Ok(_) => (), //println!("Ok"),
-                            Err(_error) => () //println!("Error: {:?}", error)
+                            Err(err) => {
+                                if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
+                                   err.code() == Some(&postgres::error::INTEGRITY_CONSTRAINT_VIOLATION) {
+                                    println!("Error duplicate tag");
+                                    return Err(WalletStorageError::ItemAlreadyExists);
+                                } else {
+                                    println!("Error storing tag {:?}", err);
+                                    return Err(WalletStorageError::from(err));
+                                }
+                            }
                         }
                     },
                     &Tag::PlainText(ref tag_name, ref tag_data) => {
                         println!("Store plaintext ...");
                         match stmt_p.execute(&[&id, tag_name, tag_data]) {
                             Ok(_) => (), //println!("Ok"),
-                            Err(_error) => () //println!("Error: {:?}", error)
+                            Err(err) => {
+                                if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
+                                   err.code() == Some(&postgres::error::INTEGRITY_CONSTRAINT_VIOLATION) {
+                                    println!("Error duplicate tag");
+                                    return Err(WalletStorageError::ItemAlreadyExists);
+                                } else {
+                                    println!("Error storing tag {:?}", err);
+                                    return Err(WalletStorageError::from(err));
+                                }
+                            }
                         }
                     }
                 };
@@ -439,14 +467,32 @@ impl WalletStorage for PostgresStorage {
                         //println!("Store encrypted ...");
                         match enc_tag_insert_stmt.execute(&[&item_id, tag_name, tag_data]) {
                             Ok(_) => (), //println!("Ok"),
-                            Err(_error) => () //println!("Error: {:?}", error)
+                            Err(err) => {
+                                if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
+                                   err.code() == Some(&postgres::error::INTEGRITY_CONSTRAINT_VIOLATION) {
+                                    println!("Error duplicate tag");
+                                    return Err(WalletStorageError::ItemAlreadyExists);
+                                } else {
+                                    println!("Error storing tag {:?}", err);
+                                    return Err(WalletStorageError::from(err));
+                                }
+                            }
                         }
                     },
                     &Tag::PlainText(ref tag_name, ref tag_data) => {
                         //println!("Store plaintext ...");
                         match plain_tag_insert_stmt.execute(&[&item_id, tag_name, tag_data]) {
                             Ok(_) => (), //println!("Ok"),
-                            Err(_error) => () //println!("Error: {:?}", error)
+                            Err(err) => {
+                                if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
+                                   err.code() == Some(&postgres::error::INTEGRITY_CONSTRAINT_VIOLATION) {
+                                    println!("Error duplicate tag");
+                                    return Err(WalletStorageError::ItemAlreadyExists);
+                                } else {
+                                    println!("Error storing tag {:?}", err);
+                                    return Err(WalletStorageError::from(err));
+                                }
+                            }
                         }
                     }
                 };
@@ -786,9 +832,9 @@ impl WalletStorageType for PostgresStorageType {
         }
         match schema_result {
             Ok(_) => {
-                match conn.execute("INSERT INTO metadata(value) VALUES($1) 
-                                        ON CONFLICT (value) DO UPDATE SET value = excluded.value", 
-                                        &[&metadata]) {
+                match conn.execute("INSERT INTO metadata(value) VALUES($1)
+                                    ON CONFLICT (value) DO UPDATE SET value = excluded.value",
+                                    &[&metadata]) {
                     Ok(_) => Ok(()),
                     Err(error) => {
                         //std::fs::remove_file(db_path)?;
