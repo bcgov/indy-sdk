@@ -770,7 +770,7 @@ impl WalletStorageType for PostgresStorageType {
                 let _ret = conn.finish();
                 ()
             },
-            Err(_) => ()
+            Err(_) => return Err(WalletStorageError::NotFound)
         };
 
         let conn = postgres::Connection::connect(url_base, postgres::TlsMode::None)?;
@@ -910,7 +910,10 @@ impl WalletStorageType for PostgresStorageType {
         let mut url: String = "postgresql://postgres:mysecretpassword@localhost:5432".to_owned();
         url.push_str("/");
         url.push_str(id);
-        let conn = postgres::Connection::connect(&url[..], postgres::TlsMode::None)?;
+        let conn = match postgres::Connection::connect(&url[..], postgres::TlsMode::None) {
+            Ok(conn) => conn,
+            Err(_) => return Err(WalletStorageError::NotFound)
+        };
 
         Ok(Box::new(PostgresStorage { conn: Rc::new(conn) }))
     }
@@ -1429,7 +1432,7 @@ mod tests {
     fn _cleanup() {
         println!("Cleanup ...");
         let storage_type = PostgresStorageType::new();
-        storage_type.delete_storage(_wallet_id(), None, None).unwrap();
+        let _ret = storage_type.delete_storage(_wallet_id(), None, None);
         let res = test::cleanup_storage();
         println!("... done cleanup.");
         res
