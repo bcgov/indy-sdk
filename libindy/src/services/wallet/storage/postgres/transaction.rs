@@ -9,14 +9,15 @@ pub struct Transaction<'conn> {
 impl<'conn> Transaction<'conn> {
     /// Begin a new transaction. Cannot be nested; see `savepoint` for nested transactions.
     pub fn new(conn: &Connection) -> Result<Transaction> {
-        let query = "BEGIN";
-        conn.batch_execute(query)
-            .map(move |_| {
-                Transaction {
+        println!("START TRANSACTION");
+        //let query = "START TRANSACTION";
+        //conn.batch_execute(query)
+        //    .map(move |_| {
+                Ok(Transaction {
                     conn,
                     committed: false,
-                }
-            })
+                })
+        //    })
     }
 
     /// A convenience method which consumes and commits a transaction.
@@ -26,7 +27,8 @@ impl<'conn> Transaction<'conn> {
 
     fn commit_(&mut self) -> Result<()> {
         self.committed = true;
-        self.conn.batch_execute("COMMIT")
+        println!("COMMIT");
+        Ok(()) //self.conn.batch_execute("COMMIT")
     }
 
     /// A convenience method which consumes and rolls back a transaction.
@@ -37,7 +39,8 @@ impl<'conn> Transaction<'conn> {
 
     fn rollback_(&mut self) -> Result<()> {
         self.committed = true;
-        self.conn.batch_execute("ROLLBACK")
+        println!("ROLLBACK");
+        Ok(()) //self.conn.batch_execute("ROLLBACK")
     }
 
     /// Consumes the transaction, committing or rolling back according to the current setting
