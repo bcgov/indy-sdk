@@ -4,15 +4,12 @@ extern crate sodiumoxide;
 mod query;
 mod transaction;
 
-use std;
-
 use postgres;
 use serde_json;
 
 use self::owning_ref::OwningHandle;
 use std::rc::Rc;
 
-use utils::environment;
 use errors::wallet::WalletStorageError;
 use errors::common::CommonError;
 use services::wallet::language;
@@ -25,7 +22,6 @@ const _POSTGRES_DB: &str = "postgres";
 const _PLAIN_TAGS_QUERY: &str = "SELECT name, value from tags_plaintext where item_id = $1";
 const _ENCRYPTED_TAGS_QUERY: &str = "SELECT name, value from tags_encrypted where item_id = $1";
 const _CREATE_WALLET_DATABASE: &str = "CREATE DATABASE $1";
-const _DROP_WALLET_DATABASE: &str = "DROP DATABASE $1";
 const _CREATE_SCHEMA: [&str; 12] = [
     "CREATE TABLE IF NOT EXISTS metadata (
         id BIGSERIAL PRIMARY KEY,
@@ -67,6 +63,7 @@ const _CREATE_SCHEMA: [&str; 12] = [
     "CREATE INDEX IF NOT EXISTS ix_tags_plaintext_value ON tags_plaintext(value)",
     "CREATE INDEX IF NOT EXISTS ix_tags_plaintext_item_id ON tags_plaintext(item_id)"
     ];
+const _DROP_WALLET_DATABASE: &str = "DROP DATABASE $1";
 const _DROP_SCHEMA: [&str; 4] = [
     "DROP TABLE tags_plaintext",
     "DROP TABLE tags_encrypted",
@@ -205,8 +202,14 @@ impl StorageIterator for PostgresStorageIterator {
 }
 
 #[derive(Deserialize, Debug)]
-struct Config {
-    path: Option<String>,
+struct PostgresConfig {
+    url: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct PostgresCredentials {
+    account: String,
+    password: String,
 }
 
 #[derive(Debug)]
@@ -222,16 +225,21 @@ impl PostgresStorageType {
         PostgresStorageType {}
     }
 
-    fn _db_path(id: &str, config: Option<&Config>) -> std::path::PathBuf {
+    fn _base_postgres_url(config: &PostgresConfig, credentials: &PostgresCredentials) -> String {
+        let mut url_base = "postgresql://".to_owned();
+        url_base.push_str(&credentials.account[..]);
+        url_base.push_str(":");
+        url_base.push_str(&credentials.password[..]);
+        url_base.push_str("@");
+        url_base.push_str(&config.url[..]);
+        url_base
+    }
 
-        let mut path = match config {
-            Some(Config {path: Some(ref path)}) => std::path::PathBuf::from(path),
-            _ => environment::wallet_home_path()
-        };
-
-        path.push(id);
-        path.push(_POSTGRES_DB);
-        path
+    fn _postgres_url(id: &str, config: &PostgresConfig, credentials: &PostgresCredentials) -> String {
+        let mut url_base = PostgresStorageType::_base_postgres_url(config, credentials);
+        url_base.push_str("/");
+        url_base.push_str(id);
+        url_base
     }
 }
 
@@ -346,7 +354,6 @@ impl WalletStorage for PostgresStorage {
     ///  * `IOError("IO error during storage operation:...")` - Failed connection or SQL query
     ///
     fn add(&self, type_: &[u8], id: &[u8], value: &EncryptedValue, tags: &[Tag]) -> Result<(), WalletStorageError> {
-        println!("In storage add() ... {:?} {:?} {:?}", type_, id, value);
         let tx: transaction::Transaction = transaction::Transaction::new(&self.conn)?;
         let res = tx.prepare_cached("INSERT INTO items (type, name, value, key) VALUES ($1, $2, $3, $4) RETURNING id")?
             .query(&[&type_.to_vec(), &id.to_vec(), &value.data, &value.key]);
@@ -362,16 +369,13 @@ impl WalletStorage for PostgresStorage {
                     Err(err) => return Err(WalletStorageError::from(err)),
                     Ok(id) => id
                 };
-                println!("Stored item: {:?}", item_id);
                 item_id
             },
             Err(err) => {
                 if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
                    err.code() == Some(&postgres::error::INTEGRITY_CONSTRAINT_VIOLATION) {
-                    println!("Error duplicate item");
                     return Err(WalletStorageError::ItemAlreadyExists);
                 } else {
-                    println!("Error storing item {:?}", err);
                     return Err(WalletStorageError::from(err));
                 }
             }
@@ -380,40 +384,32 @@ impl WalletStorage for PostgresStorage {
         let id = id as i64;
 
         if !tags.is_empty() {
-            println!("Storing tags ...");
             let stmt_e = tx.prepare_cached("INSERT INTO tags_encrypted (item_id, name, value) VALUES ($1, $2, $3)")?;
             let stmt_p = tx.prepare_cached("INSERT INTO tags_plaintext (item_id, name, value) VALUES ($1, $2, $3)")?;
 
             for tag in tags {
-                println!("Tag: {:?}", tag);
                 match tag {
                     &Tag::Encrypted(ref tag_name, ref tag_data) => {
-                        println!("Store encrypted ...");
                         match stmt_e.execute(&[&id, tag_name, tag_data]) {
-                            Ok(_) => (), //println!("Ok"),
+                            Ok(_) => (),
                             Err(err) => {
                                 if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
                                    err.code() == Some(&postgres::error::INTEGRITY_CONSTRAINT_VIOLATION) {
-                                    println!("Error duplicate tag");
                                     return Err(WalletStorageError::ItemAlreadyExists);
                                 } else {
-                                    println!("Error storing tag {:?}", err);
                                     return Err(WalletStorageError::from(err));
                                 }
                             }
                         }
                     },
                     &Tag::PlainText(ref tag_name, ref tag_data) => {
-                        println!("Store plaintext ...");
                         match stmt_p.execute(&[&id, tag_name, tag_data]) {
-                            Ok(_) => (), //println!("Ok"),
+                            Ok(_) => (),
                             Err(err) => {
                                 if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
                                    err.code() == Some(&postgres::error::INTEGRITY_CONSTRAINT_VIOLATION) {
-                                    println!("Error duplicate tag");
                                     return Err(WalletStorageError::ItemAlreadyExists);
                                 } else {
-                                    println!("Error storing tag {:?}", err);
                                     return Err(WalletStorageError::from(err));
                                 }
                             }
@@ -421,7 +417,6 @@ impl WalletStorage for PostgresStorage {
                     }
                 };
             }
-            println!("... done storing tags.");
         }
 
         tx.commit()?;
@@ -460,7 +455,6 @@ impl WalletStorage for PostgresStorage {
         };
 
         if !tags.is_empty() {
-            //println!("Storing tags ...");
             let enc_tag_insert_stmt = tx.prepare_cached("INSERT INTO tags_encrypted (item_id, name, value) VALUES ($1, $2, $3)
                                                         ON CONFLICT (name, item_id) DO UPDATE SET value = excluded.value")?;
             let plain_tag_insert_stmt = tx.prepare_cached("INSERT INTO tags_plaintext (item_id, name, value) VALUES ($1, $2, $3)
@@ -469,32 +463,26 @@ impl WalletStorage for PostgresStorage {
             for tag in tags {
                 match tag {
                     &Tag::Encrypted(ref tag_name, ref tag_data) => {
-                        //println!("Store encrypted ...");
                         match enc_tag_insert_stmt.execute(&[&item_id, tag_name, tag_data]) {
-                            Ok(_) => (), //println!("Ok"),
+                            Ok(_) => (),
                             Err(err) => {
                                 if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
                                    err.code() == Some(&postgres::error::INTEGRITY_CONSTRAINT_VIOLATION) {
-                                    println!("Error duplicate tag");
                                     return Err(WalletStorageError::ItemAlreadyExists);
                                 } else {
-                                    println!("Error storing tag {:?}", err);
                                     return Err(WalletStorageError::from(err));
                                 }
                             }
                         }
                     },
                     &Tag::PlainText(ref tag_name, ref tag_data) => {
-                        //println!("Store plaintext ...");
                         match plain_tag_insert_stmt.execute(&[&item_id, tag_name, tag_data]) {
-                            Ok(_) => (), //println!("Ok"),
+                            Ok(_) => (),
                             Err(err) => {
                                 if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
                                    err.code() == Some(&postgres::error::INTEGRITY_CONSTRAINT_VIOLATION) {
-                                    println!("Error duplicate tag");
                                     return Err(WalletStorageError::ItemAlreadyExists);
                                 } else {
-                                    println!("Error storing tag {:?}", err);
                                     return Err(WalletStorageError::from(err));
                                 }
                             }
@@ -502,7 +490,6 @@ impl WalletStorage for PostgresStorage {
                     }
                 };
             }
-            //println!("... done storing tags.");
         }
         tx.commit()?;
 
@@ -645,19 +632,15 @@ impl WalletStorage for PostgresStorage {
     }
 
     fn get_all(&self) -> Result<Box<StorageIterator>, WalletStorageError> {
-        println!("get_all ...");
         let statement = self._prepare_statement("SELECT id, name, value, key, type FROM items")?;
         let fetch_options = RecordOptions {
             retrieve_type: true,
             retrieve_value: true,
             retrieve_tags: true,
         };
-        println!("new tag_retriever ...");
         let tag_retriever = Some(TagRetriever::new_owned(self.conn.clone())?);
 
-        println!("storage_iterator ...");
         let storage_iterator = PostgresStorageIterator::new(Some(statement), &[], fetch_options, tag_retriever, None)?;
-        println!("Box it ...");
         Ok(Box::new(storage_iterator))
     }
 
@@ -749,16 +732,28 @@ impl WalletStorageType for PostgresStorageType {
     ///  * `WalletStorageError::NotFound` - File with the provided id not found
     ///  * `IOError(..)` - Deletion of the file form the file-system failed
     ///
-    fn delete_storage(&self, id: &str, config: Option<&str>, _credentials: Option<&str>) -> Result<(), WalletStorageError> {
+    fn delete_storage(&self, id: &str, config: Option<&str>, credentials: Option<&str>) -> Result<(), WalletStorageError> {
         let config = config
-            .map(serde_json::from_str::<Config>)
+            .map(serde_json::from_str::<PostgresConfig>)
             .map_or(Ok(None), |v| v.map(Some))
             .map_err(|err| CommonError::InvalidStructure(format!("Cannot deserialize config: {:?}", err)))?;
+        let credentials = credentials
+            .map(serde_json::from_str::<PostgresCredentials>)
+            .map_or(Ok(None), |v| v.map(Some))
+            .map_err(|err| CommonError::InvalidStructure(format!("Cannot deserialize credentials: {:?}", err)))?;
 
-        let url_base = "postgresql://postgres:mysecretpassword@localhost:5432";
-        let mut url: String = url_base.to_owned();
-        url.push_str("/");
-        url.push_str(id);
+        let config = match config {
+            Some(config) => config,
+            None => return Err(WalletStorageError::ConfigError)
+        };
+        let credentials = match credentials {
+            Some(credentials) => credentials,
+            None => return Err(WalletStorageError::ConfigError)
+        };
+
+        let url_base = PostgresStorageType::_base_postgres_url(&config, &credentials);
+        let url = PostgresStorageType::_postgres_url(id, &config, &credentials);
+
         match postgres::Connection::connect(&url[..], postgres::TlsMode::None) {
             Ok(conn) => {
                 for sql in &_DROP_SCHEMA {
@@ -811,18 +806,31 @@ impl WalletStorageType for PostgresStorageType {
     ///  * `IOError("Error occurred while inserting the keys...")` - Insertion of keys failed
     ///  * `IOError(..)` - Deletion of the file form the file-system failed
     ///
-    fn create_storage(&self, id: &str, config: Option<&str>, _credentials: Option<&str>, metadata: &[u8]) -> Result<(), WalletStorageError> {
+    fn create_storage(&self, id: &str, config: Option<&str>, credentials: Option<&str>, metadata: &[u8]) -> Result<(), WalletStorageError> {
 
         let config = config
-            .map(serde_json::from_str::<Config>)
+            .map(serde_json::from_str::<PostgresConfig>)
             .map_or(Ok(None), |v| v.map(Some))
             .map_err(|err| CommonError::InvalidStructure(format!("Cannot deserialize config: {:?}", err)))?;
+        let credentials = credentials
+            .map(serde_json::from_str::<PostgresCredentials>)
+            .map_or(Ok(None), |v| v.map(Some))
+            .map_err(|err| CommonError::InvalidStructure(format!("Cannot deserialize credentials: {:?}", err)))?;
 
-        let mut url: String = "postgresql://postgres:mysecretpassword@localhost:5432".to_owned();
-        println!("Connect to default schema {}", url);
-        let conn = postgres::Connection::connect(&url[..], postgres::TlsMode::None)?;
+        let config = match config {
+            Some(config) => config,
+            None => return Err(WalletStorageError::ConfigError)
+        };
+        let credentials = match credentials {
+            Some(credentials) => credentials,
+            None => return Err(WalletStorageError::ConfigError)
+        };
 
-        println!("Create storage for {}", id);
+        let url_base = PostgresStorageType::_base_postgres_url(&config, &credentials);
+        let url = PostgresStorageType::_postgres_url(id, &config, &credentials);
+
+        let conn = postgres::Connection::connect(&url_base[..], postgres::TlsMode::None)?;
+
         let create_db_sql = str::replace(_CREATE_WALLET_DATABASE, "$1", id);
         let mut schema_result = match conn.execute(&create_db_sql, &[]) {
             Ok(_) => Ok(()),
@@ -832,18 +840,13 @@ impl WalletStorageType for PostgresStorageType {
         };
         conn.finish()?;
 
-        url.push_str("/");
-        url.push_str(id);
-        println!("Connect to new schema {}", url);
         let conn = match postgres::Connection::connect(&url[..], postgres::TlsMode::None) {
             Ok(conn) => conn,
             Err(error) => {
-                println!("Error: {:?}", error);
                 return Err(WalletStorageError::IOError(format!("Error occurred while connecting to wallet schema: {}", error)));
             }
         };
 
-        println!("Create schema objects");
         for sql in &_CREATE_SCHEMA {
             match schema_result {
                 Ok(_) => schema_result = match conn.execute(sql, &[]) {
@@ -900,16 +903,28 @@ impl WalletStorageType for PostgresStorageType {
     ///  * `WalletStorageError::NotFound` - File with the provided id not found
     ///  * `IOError("IO error during storage operation:...")` - Failed connection or SQL query
     ///
-    fn open_storage(&self, id: &str, config: Option<&str>, _credentials: Option<&str>) -> Result<Box<WalletStorage>, WalletStorageError> {
+    fn open_storage(&self, id: &str, config: Option<&str>, credentials: Option<&str>) -> Result<Box<WalletStorage>, WalletStorageError> {
 
         let config = config
-            .map(serde_json::from_str::<Config>)
+            .map(serde_json::from_str::<PostgresConfig>)
             .map_or(Ok(None), |v| v.map(Some))
             .map_err(|err| CommonError::InvalidStructure(format!("Cannot deserialize config: {:?}", err)))?;
+        let credentials = credentials
+            .map(serde_json::from_str::<PostgresCredentials>)
+            .map_or(Ok(None), |v| v.map(Some))
+            .map_err(|err| CommonError::InvalidStructure(format!("Cannot deserialize credentials: {:?}", err)))?;
 
-        let mut url: String = "postgresql://postgres:mysecretpassword@localhost:5432".to_owned();
-        url.push_str("/");
-        url.push_str(id);
+        let config = match config {
+            Some(config) => config,
+            None => return Err(WalletStorageError::ConfigError)
+        };
+        let credentials = match credentials {
+            Some(credentials) => credentials,
+            None => return Err(WalletStorageError::ConfigError)
+        };
+
+        let url = PostgresStorageType::_postgres_url(id, &config, &credentials);
+
         let conn = match postgres::Connection::connect(&url[..], postgres::TlsMode::None) {
             Ok(conn) => conn,
             Err(_) => return Err(WalletStorageError::NotFound)
@@ -932,19 +947,7 @@ mod tests {
         _cleanup();
 
         let storage_type = PostgresStorageType::new();
-        storage_type.create_storage(_wallet_id(), None, None, &_metadata()).unwrap();
-    }
-
-    #[test]
-    fn postgres_storage_type_create_works_for_custom_path() {
-        _cleanup();
-
-        let config = json!({
-            "path": _custom_path()
-        }).to_string();
-
-        let storage_type = PostgresStorageType::new();
-        storage_type.create_storage(_wallet_id(), Some(&config), None, &_metadata()).unwrap();
+        storage_type.create_storage(_wallet_id(), Some(&_wallet_config()[..]), Some(&_wallet_credentials()[..]), &_metadata()).unwrap();
     }
 
     #[test]
@@ -952,9 +955,9 @@ mod tests {
         _cleanup();
 
         let storage_type = PostgresStorageType::new();
-        storage_type.create_storage(_wallet_id(), None, None, &_metadata()).unwrap();
+        storage_type.create_storage(_wallet_id(), Some(&_wallet_config()[..]), Some(&_wallet_credentials()[..]), &_metadata()).unwrap();
 
-        let res = storage_type.create_storage(_wallet_id(), None, None, &_metadata());
+        let res = storage_type.create_storage(_wallet_id(), Some(&_wallet_config()[..]), Some(&_wallet_credentials()[..]), &_metadata());
         assert_match!(Err(WalletStorageError::AlreadyExists), res);
     }
 
@@ -973,9 +976,9 @@ mod tests {
         _cleanup();
 
         let storage_type = PostgresStorageType::new();
-        storage_type.create_storage(_wallet_id(), None, None, &_metadata()).unwrap();
+        storage_type.create_storage(_wallet_id(), Some(&_wallet_config()[..]), Some(&_wallet_credentials()[..]), &_metadata()).unwrap();
 
-        storage_type.delete_storage(_wallet_id(), None, None).unwrap();
+        storage_type.delete_storage(_wallet_id(), Some(&_wallet_config()[..]), Some(&_wallet_credentials()[..])).unwrap();
     }
 
 
@@ -984,12 +987,12 @@ mod tests {
         _cleanup();
 
         let storage_type = PostgresStorageType::new();
-        storage_type.create_storage(_wallet_id(), None, None, &_metadata()).unwrap();
+        storage_type.create_storage(_wallet_id(), Some(&_wallet_config()[..]), Some(&_wallet_credentials()[..]), &_metadata()).unwrap();
 
-        let res = storage_type.delete_storage("unknown", None, None);
+        let res = storage_type.delete_storage("unknown", Some(&_wallet_config()[..]), Some(&_wallet_credentials()[..]));
         assert_match!(Err(WalletStorageError::NotFound), res);
 
-        storage_type.delete_storage(_wallet_id(), None, None).unwrap();
+        storage_type.delete_storage(_wallet_id(), Some(&_wallet_config()[..]), Some(&_wallet_credentials()[..])).unwrap();
     }
 
     #[test]
@@ -999,18 +1002,12 @@ mod tests {
     }
 
     #[test]
-    fn postgres_storage_type_open_works_for_custom() {
-        _cleanup();
-        _storage_custom();
-    }
-
-    #[test]
     fn postgres_storage_type_open_works_for_not_created() {
         _cleanup();
 
         let storage_type = PostgresStorageType::new();
 
-        let res = storage_type.open_storage("unknown", Some("{}"), Some("{}"));
+        let res = storage_type.open_storage("unknown", Some(&_wallet_config()[..]), Some(&_wallet_credentials()[..]));
         assert_match!(Err(WalletStorageError::NotFound), res);
     }
 
@@ -1043,19 +1040,6 @@ mod tests {
     }
 
     #[test]
-    fn postgres_storage_set_get_works_for_custom() {
-        _cleanup();
-
-        let storage = _storage_custom();
-
-        storage.add(&_type1(), &_id1(), &_value1(), &_tags()).unwrap();
-        let record = storage.get(&_type1(), &_id1(), r##"{"retrieveType": false, "retrieveValue": true, "retrieveTags": true}"##).unwrap();
-
-        assert_eq!(record.value.unwrap(), _value1());
-        assert_eq!(_sort(record.tags.unwrap()), _sort(_tags()));
-    }
-
-    #[test]
     fn postgres_storage_set_get_works_for_twice() {
         _cleanup();
 
@@ -1075,7 +1059,7 @@ mod tests {
         }
 
         let storage_type = PostgresStorageType::new();
-        let storage = storage_type.open_storage(_wallet_id(), Some("{}"), Some("{}")).unwrap();
+        let storage = storage_type.open_storage(_wallet_id(), Some(&_wallet_config()[..]), Some(&_wallet_credentials()[..])).unwrap();
         let record = storage.get(&_type1(), &_id1(), r##"{"retrieveType": false, "retrieveValue": true, "retrieveTags": true}"##).unwrap();
 
         assert_eq!(record.value.unwrap(), _value1());
@@ -1122,58 +1106,43 @@ mod tests {
 
     #[test]
     fn postgres_storage_create_and_find_multiple_works() {
-        println!("Cleanup ...");
         _cleanup();
 
-        println!("Storage ...");
         let storage = _storage();
 
-        println!("Storage add ...");
         storage.add(&_type1(), &_id1(), &_value1(), &_tags()).unwrap();
         let record1 = storage.get(&_type1(), &_id1(), r##"{"retrieveType": false, "retrieveValue": true, "retrieveTags": true}"##).unwrap();
         assert_eq!(record1.value.unwrap(), _value1());
         assert_eq!(_sort(record1.tags.unwrap()), _sort(_tags()));
 
-        println!("Storage add ...");
         storage.add(&_type2(), &_id2(), &_value2(), &_tags()).unwrap();
         let record2 = storage.get(&_type2(), &_id2(), r##"{"retrieveType": false, "retrieveValue": true, "retrieveTags": true}"##).unwrap();
         assert_eq!(record2.value.unwrap(), _value2());
         assert_eq!(_sort(record2.tags.unwrap()), _sort(_tags()));
-
-        println!("Done.");
     }
 
     #[test]
     fn postgres_storage_get_all_workss() {
         _cleanup();
 
-        println!("Storage ...");
         let storage = _storage();
-        println!("Storage add ...");
         storage.add(&_type1(), &_id1(), &_value1(), &_tags()).unwrap();
         storage.add(&_type2(), &_id2(), &_value2(), &_tags()).unwrap();
 
-        println!("Storage get_all ...");
         let mut storage_iterator = storage.get_all().unwrap();
 
-        println!("Storage next ...");
         let record = storage_iterator.next().unwrap().unwrap();
-        println!("Record: {:?}", record);
         assert_eq!(record.type_.unwrap(), _type1());
         assert_eq!(record.value.unwrap(), _value1());
         assert_eq!(_sort(record.tags.unwrap()), _sort(_tags()));
 
-        println!("Storage next ...");
         let record = storage_iterator.next().unwrap().unwrap();
-        println!("Record: {:?}", record);
         assert_eq!(record.type_.unwrap(), _type2());
         assert_eq!(record.value.unwrap(), _value2());
         assert_eq!(_sort(record.tags.unwrap()), _sort(_tags()));
 
-        println!("Storage next ...");
         let record = storage_iterator.next().unwrap();
         assert!(record.is_none());
-        println!("Done.");
     }
 
     #[test]
@@ -1234,7 +1203,6 @@ mod tests {
     fn postgres_storage_add_tags_works() {
         _cleanup();
 
-        //println!("In postgres_storage_add_tags_works()");
         let storage = _storage();
         storage.add(&_type1(), &_id1(), &_value1(), &_tags()).unwrap();
 
@@ -1430,11 +1398,9 @@ mod tests {
     }
 
     fn _cleanup() {
-        println!("Cleanup ...");
         let storage_type = PostgresStorageType::new();
-        let _ret = storage_type.delete_storage(_wallet_id(), None, None);
+        let _ret = storage_type.delete_storage(_wallet_id(), Some(&_wallet_config()[..]), Some(&_wallet_credentials()[..]));
         let res = test::cleanup_storage();
-        println!("... done cleanup.");
         res
     }
 
@@ -1443,23 +1409,25 @@ mod tests {
     }
 
     fn _storage() -> Box<WalletStorage> {
-        println!("Storage ...");
         let storage_type = PostgresStorageType::new();
-        storage_type.create_storage(_wallet_id(), None, None, &_metadata()).unwrap();
-        let res = storage_type.open_storage(_wallet_id(), None, None).unwrap();
-        println!("Done storage.");
+        storage_type.create_storage(_wallet_id(), Some(&_wallet_config()[..]), Some(&_wallet_credentials()[..]), &_metadata()).unwrap();
+        let res = storage_type.open_storage(_wallet_id(), Some(&_wallet_config()[..]), Some(&_wallet_credentials()[..])).unwrap();
         res
     }
 
-    fn _storage_custom() -> Box<WalletStorage> {
-        let storage_type = PostgresStorageType::new();
-
+    fn _wallet_config() -> String {
         let config = json!({
-            "path": _custom_path()
+            "url": "localhost:5432".to_owned()
         }).to_string();
+        config
+    }
 
-        storage_type.create_storage(_wallet_id(), Some(&config), None, &_metadata()).unwrap();
-        storage_type.open_storage(_wallet_id(), Some(&config), None).unwrap()
+    fn _wallet_credentials() -> String {
+        let creds = json!({
+            "account": "postgres".to_owned(),
+            "password": "mysecretpassword".to_owned()
+        }).to_string();
+        creds
     }
 
     fn _metadata() -> Vec<u8> {
@@ -1528,11 +1496,5 @@ mod tests {
     fn _sort(mut v: Vec<Tag>) -> Vec<Tag> {
         v.sort();
         v
-    }
-
-    fn _custom_path() -> String {
-        let mut path = environment::tmp_path();
-        path.push("custom_wallet_path");
-        path.to_str().unwrap().to_owned()
     }
 }
