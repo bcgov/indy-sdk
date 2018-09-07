@@ -11,7 +11,7 @@ pub fn wql_to_sql<'a>(class: &'a Vec<u8>, op: &'a Operator, _options: Option<&st
     let mut arguments: Vec<&ToSql> = Vec::new();
     arguments.push(class);
     let clause_string = operator_to_sql(op, &mut arguments)?;
-    let mut query_string = "SELECT i.id, i.name, i.value, i.key, i.type FROM items as i WHERE i.type = ?".to_string();
+    let mut query_string = "SELECT i.id, i.name, i.value, i.key, i.type FROM items as i WHERE i.type = $1".to_string();
     if !clause_string.is_empty() {
         query_string.push_str(" AND ");
         query_string.push_str(&clause_string);
@@ -24,7 +24,7 @@ pub fn wql_to_sql_count<'a>(class: &'a Vec<u8>, op: &'a Operator) -> Result<(Str
     let mut arguments: Vec<&ToSql> = Vec::new();
     arguments.push(class);
     let clause_string = operator_to_sql(op, &mut arguments)?;
-    let mut query_string = "SELECT count(*) FROM items as i WHERE i.type = ?".to_string();
+    let mut query_string = "SELECT count(*) FROM items as i WHERE i.type = $1".to_string();
     if !clause_string.is_empty() {
         query_string.push_str(" AND ");
         query_string.push_str(&clause_string);
@@ -55,12 +55,12 @@ fn eq_to_sql<'a>(name: &'a TagName, value: &'a TargetValue, arguments: &mut Vec<
         (&TagName::PlainTagName(ref queried_name), &TargetValue::Unencrypted(ref queried_value)) => {
             arguments.push(queried_name);
             arguments.push(queried_value);
-            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = ? AND value = ?))".to_string())
+            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = $1 AND value = $2))".to_string())
         },
         (&TagName::EncryptedTagName(ref queried_name), &TargetValue::Encrypted(ref queried_value)) => {
             arguments.push(queried_name);
             arguments.push(queried_value);
-            Ok("(i.id in (SELECT item_id FROM tags_encrypted WHERE name = ? AND value = ?))".to_string())
+            Ok("(i.id in (SELECT item_id FROM tags_encrypted WHERE name = $1 AND value = $2))".to_string())
         },
         _ => Err(WalletQueryError::StructureErr("Invalid combination of tag name and value for equality operator".to_string()))
     }
@@ -72,12 +72,12 @@ fn neq_to_sql<'a>(name: &'a TagName, value: &'a TargetValue, arguments: &mut Vec
         (&TagName::PlainTagName(ref queried_name), &TargetValue::Unencrypted(ref queried_value)) => {
             arguments.push(queried_name);
             arguments.push(queried_value);
-            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = ? AND value != ?))".to_string())
+            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = $1 AND value != $2))".to_string())
         },
         (&TagName::EncryptedTagName(ref queried_name), &TargetValue::Encrypted(ref queried_value)) => {
             arguments.push(queried_name);
             arguments.push(queried_value);
-            Ok("(i.id in (SELECT item_id FROM tags_encrypted WHERE name = ? AND value != ?))".to_string())
+            Ok("(i.id in (SELECT item_id FROM tags_encrypted WHERE name = $1 AND value != $2))".to_string())
         },
         _ => Err(WalletQueryError::StructureErr("Invalid combination of tag name and value for inequality operator".to_string()))
     }
@@ -89,7 +89,7 @@ fn gt_to_sql<'a>(name: &'a TagName, value: &'a TargetValue, arguments: &mut Vec<
         (&TagName::PlainTagName(ref queried_name), &TargetValue::Unencrypted(ref queried_value)) => {
             arguments.push(queried_name);
             arguments.push(queried_value);
-            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = ? AND value > ?))".to_string())
+            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = $1 AND value > $2))".to_string())
         },
         _ => Err(WalletQueryError::StructureErr("Invalid combination of tag name and value for $gt operator".to_string()))
     }
@@ -101,7 +101,7 @@ fn gte_to_sql<'a>(name: &'a TagName, value: &'a TargetValue, arguments: &mut Vec
         (&TagName::PlainTagName(ref queried_name), &TargetValue::Unencrypted(ref queried_value)) => {
             arguments.push(queried_name);
             arguments.push(queried_value);
-            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = ? AND value >= ?))".to_string())
+            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = $1 AND value >= $2))".to_string())
         },
         _ => Err(WalletQueryError::StructureErr("Invalid combination of tag name and value for $gte operator".to_string()))
     }
@@ -113,7 +113,7 @@ fn lt_to_sql<'a>(name: &'a TagName, value: &'a TargetValue, arguments: &mut Vec<
         (&TagName::PlainTagName(ref queried_name), &TargetValue::Unencrypted(ref queried_value)) => {
             arguments.push(queried_name);
             arguments.push(queried_value);
-            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = ? AND value < ?))".to_string())
+            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = $1 AND value < $2))".to_string())
         },
         _ => Err(WalletQueryError::StructureErr("Invalid combination of tag name and value for $lte operator".to_string()))
     }
@@ -125,7 +125,7 @@ fn lte_to_sql<'a>(name: &'a TagName, value: &'a TargetValue, arguments: &mut Vec
         (&TagName::PlainTagName(ref queried_name), &TargetValue::Unencrypted(ref queried_value)) => {
             arguments.push(queried_name);
             arguments.push(queried_value);
-            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = ? AND value <= ?))".to_string())
+            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = $1 AND value <= $2))".to_string())
         },
         _ => Err(WalletQueryError::StructureErr("Invalid combination of tag name and value for $lte operator".to_string()))
     }
@@ -137,7 +137,7 @@ fn like_to_sql<'a>(name: &'a TagName, value: &'a TargetValue, arguments: &mut Ve
         (&TagName::PlainTagName(ref queried_name), &TargetValue::Unencrypted(ref queried_value)) => {
             arguments.push(queried_name);
             arguments.push(queried_value);
-            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = ? AND value LIKE ?))".to_string())
+            Ok("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = $1 AND value LIKE $2))".to_string())
         },
         _ => Err(WalletQueryError::StructureErr("Invalid combination of tag name and value for $like operator".to_string()))
     }
@@ -148,12 +148,13 @@ fn in_to_sql<'a>(name: &'a TagName, values: &'a Vec<TargetValue>, arguments: &mu
     let mut in_string = String::new();
     match name {
         &TagName::PlainTagName(ref queried_name) => {
-            in_string.push_str("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = ? AND value IN (");
+            in_string.push_str("(i.id in (SELECT item_id FROM tags_plaintext WHERE name = $1 AND value IN (");
             arguments.push(queried_name);
 
             for (index, value) in values.iter().enumerate() {
                 if let &TargetValue::Unencrypted(ref target) = value {
-                    in_string.push_str("?");
+                    in_string.push_str("$");
+                    in_string.push_str(&((index+2).to_string())[..]);
                     arguments.push(target);
                     if index < values.len() - 1 {
                         in_string.push(',');
@@ -166,13 +167,14 @@ fn in_to_sql<'a>(name: &'a TagName, values: &'a Vec<TargetValue>, arguments: &mu
             Ok(in_string + ")))")
         },
         &TagName::EncryptedTagName(ref queried_name) => {
-            in_string.push_str("(i.id in (SELECT item_id FROM tags_encrypted WHERE name = ? AND value IN (");
+            in_string.push_str("(i.id in (SELECT item_id FROM tags_encrypted WHERE name = $1 AND value IN (");
             arguments.push(queried_name);
             let index_before_last = values.len() - 2;
 
             for (index, value) in values.iter().enumerate() {
                 if let &TargetValue::Encrypted(ref target) = value {
-                    in_string.push_str("?");
+                    in_string.push_str("$");
+                    in_string.push_str(&((index+2).to_string())[..]);
                     arguments.push(target);
                     if index <= index_before_last {
                         in_string.push(',');
