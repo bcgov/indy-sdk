@@ -434,7 +434,7 @@ impl WalletStorage for PostgresStorage {
                 let binds_borrowed = enc_data.iter().map(|s| &**s).collect::<Vec<_>>();
                 //println!("SQL: {:?}", stmt_e);
                 //println!("Vars: {:?}", binds_borrowed);
-                match self.conn.execute(&stmt_e[..], &*binds_borrowed) {
+                match tx.execute(&stmt_e[..], &*binds_borrowed) {
                     Ok(_) => (),
                     Err(err) => {
                         if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
@@ -453,7 +453,7 @@ impl WalletStorage for PostgresStorage {
                 let binds_borrowed = plain_data.iter().map(|s| &**s).collect::<Vec<_>>();
                 //println!("SQL: {:?}", stmt_p);
                 //println!("Vars: {:?}", binds_borrowed);
-                match self.conn.execute(&stmt_p[..], &*binds_borrowed) {
+                match tx.execute(&stmt_p[..], &*binds_borrowed) {
                     Ok(_) => (),
                     Err(err) => {
                         if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
