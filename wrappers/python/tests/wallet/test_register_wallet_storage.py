@@ -110,7 +110,7 @@ async def test_open_custom_postgres_storage_works():
 
     # Config: {"storage_config": {"url": "wallet-db:5432"}, "id": "TOBHolder", "storage_type": "postgres"}
     # Creds {"key": "key", "storage_credentials": {"account": "postgres", "password": "mysecretpassword"}, "key_derivation_method": "ARGON2I_MOD"}
-    wallet_config = '{"storage_config": {"url": "localhost:5432"}, "id": "walle1", "storage_type": "postgres"}'
+    wallet_config = '{"storage_config": {"url": "localhost:5432"}, "id": "walle_1", "storage_type": "postgres"}'
     wallet_credentials = '{"key": "key", "storage_credentials": {"account": "postgres", "password": "mysecretpassword"}, "key_derivation_method": "ARGON2I_MOD"}'
 
     # create/open/close/delete wallet

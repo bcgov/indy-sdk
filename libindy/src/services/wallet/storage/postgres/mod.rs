@@ -5,6 +5,7 @@ mod query;
 mod transaction;
 
 use postgres;
+use postgres::types::ToSql;
 use serde_json;
 
 use self::owning_ref::OwningHandle;
@@ -384,9 +385,88 @@ impl WalletStorage for PostgresStorage {
         let id = id as i64;
 
         if !tags.is_empty() {
-            let stmt_e = tx.prepare_cached("INSERT INTO tags_encrypted (item_id, name, value) VALUES ($1, $2, $3)")?;
-            let stmt_p = tx.prepare_cached("INSERT INTO tags_plaintext (item_id, name, value) VALUES ($1, $2, $3)")?;
+            let mut enc_ct = 0;
+            let mut enc_sql: String = String::new();
+            let mut enc_data: Vec<Box<ToSql>> = Vec::<Box<ToSql>>::new();
+            let mut plain_ct = 0;
+            let mut plain_sql: String = String::new();
+            let mut plain_data: Vec<Box<ToSql>> = Vec::<Box<ToSql>>::new();
+            for tag in tags {
+                match tag {
+                    &Tag::Encrypted(ref tag_name, ref tag_data) => {
+                        if enc_ct > 0 {
+                            enc_sql.push_str(",");
+                        }
+                        enc_sql.push_str("($");
+                        enc_sql.push_str(&(3*enc_ct+1).to_string()[..]);
+                        enc_sql.push_str(",$");
+                        enc_sql.push_str(&(3*enc_ct+2).to_string()[..]);
+                        enc_sql.push_str(",$");
+                        enc_sql.push_str(&(3*enc_ct+3).to_string()[..]);
+                        enc_sql.push_str(")");
+                        enc_data.push(Box::new(id.clone()));
+                        enc_data.push(Box::new(tag_name.clone()));
+                        enc_data.push(Box::new(tag_data.clone()));
+                        enc_ct = enc_ct + 1;
+                    },
+                    &Tag::PlainText(ref tag_name, ref tag_data) => {
+                        if plain_ct > 0 {
+                            plain_sql.push_str(",");
+                        }
+                        plain_sql.push_str("($");
+                        plain_sql.push_str(&(3*plain_ct+1).to_string()[..]);
+                        plain_sql.push_str(",$");
+                        plain_sql.push_str(&(3*plain_ct+2).to_string()[..]);
+                        plain_sql.push_str(",$");
+                        plain_sql.push_str(&(3*plain_ct+3).to_string()[..]);
+                        plain_sql.push_str(")");
+                        plain_data.push(Box::new(id.clone()));
+                        plain_data.push(Box::new(tag_name.clone()));
+                        plain_data.push(Box::new(tag_data.clone()));
+                        plain_ct = plain_ct + 1;
+                    }
+                }
+            }
 
+            if enc_ct > 0 {
+                let mut stmt_e: String = "INSERT INTO tags_encrypted (item_id, name, value) VALUES ".to_string();
+                stmt_e.push_str(&enc_sql[..]);
+                let binds_borrowed = enc_data.iter().map(|s| &**s).collect::<Vec<_>>();
+                //println!("SQL: {:?}", stmt_e);
+                //println!("Vars: {:?}", binds_borrowed);
+                match self.conn.execute(&stmt_e[..], &*binds_borrowed) {
+                    Ok(_) => (),
+                    Err(err) => {
+                        if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
+                            err.code() == Some(&postgres::error::INTEGRITY_CONSTRAINT_VIOLATION) {
+                            return Err(WalletStorageError::ItemAlreadyExists);
+                        } else {
+                            return Err(WalletStorageError::from(err));
+                        }
+                    }
+                }
+            }
+
+            if plain_ct > 0 {
+                let mut stmt_p: String = "INSERT INTO tags_plaintext (item_id, name, value) VALUES ".to_string();
+                stmt_p.push_str(&plain_sql[..]);
+                let binds_borrowed = plain_data.iter().map(|s| &**s).collect::<Vec<_>>();
+                //println!("SQL: {:?}", stmt_p);
+                //println!("Vars: {:?}", binds_borrowed);
+                match self.conn.execute(&stmt_p[..], &*binds_borrowed) {
+                    Ok(_) => (),
+                    Err(err) => {
+                        if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
+                            err.code() == Some(&postgres::error::INTEGRITY_CONSTRAINT_VIOLATION) {
+                            return Err(WalletStorageError::ItemAlreadyExists);
+                        } else {
+                            return Err(WalletStorageError::from(err));
+                        }
+                    }
+                }
+            }
+
+            /*
             for tag in tags {
                 match tag {
                     &Tag::Encrypted(ref tag_name, ref tag_data) => {
@@ -417,6 +497,7 @@ impl WalletStorage for PostgresStorage {
                     }
                 };
             }
+            */
         }
 
         tx.commit()?;
@@ -779,7 +860,7 @@ impl WalletStorageType for PostgresStorageType {
     }
 
     ///
-    /// Creates the SQLite DB file with the provided name in the path specified in the config file,
+    /// Creates the Postgres DB file with the provided name in the path specified in the config file,
     /// and initializes the encryption keys needed for encryption and decryption of data.
     ///
     /// # Arguments
@@ -1482,7 +1563,9 @@ mod tests {
     fn _tags() -> Vec<Tag> {
         let mut tags: Vec<Tag> = Vec::new();
         tags.push(Tag::Encrypted(vec![1, 5, 8], vec![3, 5, 6]));
-        tags.push(Tag::PlainText(vec![1, 5, 8, 1], "Plain value".to_string()));
+        tags.push(Tag::PlainText(vec![1, 5, 8, 1], "Plain value 1".to_string()));
+        tags.push(Tag::Encrypted(vec![2, 5, 8], vec![3, 5, 7]));
+        tags.push(Tag::PlainText(vec![2, 5, 8, 1], "Plain value 2".to_string()));
         tags
     }
 
