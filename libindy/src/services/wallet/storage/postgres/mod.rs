@@ -385,6 +385,9 @@ impl WalletStorage for PostgresStorage {
         let id = id as i64;
 
         if !tags.is_empty() {
+            /* attempt to improve performance by "batching" tag inserts
+               sadly only accomplished making things run slower ...
+               code is retained for posterity :-)
             let mut enc_ct = 0;
             let mut enc_sql: String = String::new();
             let mut enc_data: Vec<Box<ToSql>> = Vec::<Box<ToSql>>::new();
@@ -465,8 +468,8 @@ impl WalletStorage for PostgresStorage {
                     }
                 }
             }
+            */
 
-            /*
             for tag in tags {
                 match tag {
                     &Tag::Encrypted(ref tag_name, ref tag_data) => {
@@ -497,7 +500,6 @@ impl WalletStorage for PostgresStorage {
                     }
                 };
             }
-            */
         }
 
         tx.commit()?;
