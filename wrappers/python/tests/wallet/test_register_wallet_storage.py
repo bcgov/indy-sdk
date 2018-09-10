@@ -104,7 +104,29 @@ async def test_register_custom_storage_library_works():
 
     pass
 
-"""
-tob-api_1     | Config: {"storage_config": {"url": "wallet-db:5432"}, "id": "TOBHolder", "storage_type": "postgres"}
-tob-api_1     | Creds {"key": "key", "storage_credentials": {"account": "postgres", "password": "mysecretpassword"}, "key_derivation_method": "ARGON2I_MOD"}
-"""
+@pytest.mark.asyncio
+async def test_open_custom_postgres_storage_works():
+    logger = logging.getLogger(__name__)
+
+    # Config: {"storage_config": {"url": "wallet-db:5432"}, "id": "TOBHolder", "storage_type": "postgres"}
+    # Creds {"key": "key", "storage_credentials": {"account": "postgres", "password": "mysecretpassword"}, "key_derivation_method": "ARGON2I_MOD"}
+    wallet_config = '{"storage_config": {"url": "localhost:5432"}, "id": "walle1", "storage_type": "postgres"}'
+    wallet_credentials = '{"key": "key", "storage_credentials": {"account": "postgres", "password": "mysecretpassword"}, "key_derivation_method": "ARGON2I_MOD"}'
+
+    # create/open/close/delete wallet
+    logger.debug("register_wallet: Creating wallet")
+    await wallet.create_wallet(wallet_config, wallet_credentials)
+
+    logger.debug("register_wallet: Opening wallet")
+    wallet_handle = await wallet.open_wallet(wallet_config, wallet_credentials)
+    assert type(wallet_handle) is int
+
+    logger.debug("register_wallet: Closing wallet")
+    await wallet.close_wallet(wallet_handle)
+
+    logger.debug("register_wallet: Deleting wallet")
+    await wallet.delete_wallet(wallet_config, wallet_credentials)
+
+    logger.debug("register_wallet: Done!")
+
+    pass
