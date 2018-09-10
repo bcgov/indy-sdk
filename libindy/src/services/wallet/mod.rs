@@ -100,10 +100,8 @@ impl WalletService {
     pub fn create_wallet(&self,
                          config: &Config,
                          credentials: &Credentials) -> Result<(), WalletError> {
-        println!("create_wallet >>> config: {:?}, credentials: {:?}", config, secret!(credentials));
 
         if config.id.is_empty() {
-            println!("Wallet id is empty");
             Err(CommonError::InvalidStructure("Wallet id is empty".to_string()))?
         }
 

@@ -5,7 +5,7 @@ mod query;
 mod transaction;
 
 use postgres;
-use postgres::types::ToSql;
+//use postgres::types::ToSql;
 use serde_json;
 
 use self::owning_ref::OwningHandle;
@@ -487,6 +487,9 @@ impl WalletStorage for PostgresStorage {
                 }
             }
             */
+
+            let stmt_e = tx.prepare_cached("INSERT INTO tags_encrypted (item_id, name, value) VALUES ($1, $2, $3)")?;
+            let stmt_p = tx.prepare_cached("INSERT INTO tags_plaintext (item_id, name, value) VALUES ($1, $2, $3)")?;
 
             for tag in tags {
                 match tag {
@@ -1535,7 +1538,9 @@ mod tests {
     fn _wallet_credentials() -> String {
         let creds = json!({
             "account": "postgres".to_owned(),
-            "password": "mysecretpassword".to_owned()
+            "password": "mysecretpassword".to_owned(),
+            "admin_account": Some("postgres".to_owned()),
+            "admin_password": Some("mysecretpassword".to_owned())
         }).to_string();
         creds
     }
