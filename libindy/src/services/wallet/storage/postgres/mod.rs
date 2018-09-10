@@ -211,6 +211,8 @@ struct PostgresConfig {
 struct PostgresCredentials {
     account: String,
     password: String,
+    admin_account: Option<String>,
+    admin_password: Option<String>,
 }
 
 #[derive(Debug)]
@@ -224,6 +226,22 @@ pub struct PostgresStorageType {}
 impl PostgresStorageType {
     pub fn new() -> PostgresStorageType {
         PostgresStorageType {}
+    }
+
+    fn _admin_postgres_url(config: &PostgresConfig, credentials: &PostgresCredentials) -> String {
+        let mut url_base = "postgresql://".to_owned();
+        match credentials.admin_account {
+            Some(ref account) => url_base.push_str(&account[..]),
+            None => ()
+        }
+        url_base.push_str(":");
+        match credentials.admin_password {
+            Some(ref password) => url_base.push_str(&password[..]),
+            None => ()
+        }
+        url_base.push_str("@");
+        url_base.push_str(&config.url[..]);
+        url_base
     }
 
     fn _base_postgres_url(config: &PostgresConfig, credentials: &PostgresCredentials) -> String {
@@ -437,7 +455,7 @@ impl WalletStorage for PostgresStorage {
                 let binds_borrowed = enc_data.iter().map(|s| &**s).collect::<Vec<_>>();
                 //println!("SQL: {:?}", stmt_e);
                 //println!("Vars: {:?}", binds_borrowed);
-                match self.conn.execute(&stmt_e[..], &*binds_borrowed) {
+                match tx.execute(&stmt_e[..], &*binds_borrowed) {
                     Ok(_) => (),
                     Err(err) => {
                         if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
@@ -456,7 +474,7 @@ impl WalletStorage for PostgresStorage {
                 let binds_borrowed = plain_data.iter().map(|s| &**s).collect::<Vec<_>>();
                 //println!("SQL: {:?}", stmt_p);
                 //println!("Vars: {:?}", binds_borrowed);
-                match self.conn.execute(&stmt_p[..], &*binds_borrowed) {
+                match tx.execute(&stmt_p[..], &*binds_borrowed) {
                     Ok(_) => (),
                     Err(err) => {
                         if err.code() == Some(&postgres::error::UNIQUE_VIOLATION) ||
@@ -834,7 +852,12 @@ impl WalletStorageType for PostgresStorageType {
             None => return Err(WalletStorageError::ConfigError)
         };
 
-        let url_base = PostgresStorageType::_base_postgres_url(&config, &credentials);
+        // if admin user and password aren't provided then bail
+        if credentials.admin_account == None || credentials.admin_password == None {
+            return Ok(())
+        }
+
+        let url_base = PostgresStorageType::_admin_postgres_url(&config, &credentials);
         let url = PostgresStorageType::_postgres_url(id, &config, &credentials);
 
         match postgres::Connection::connect(&url[..], postgres::TlsMode::None) {
@@ -862,13 +885,13 @@ impl WalletStorageType for PostgresStorageType {
     }
 
     ///
-    /// Creates the Postgres DB file with the provided name in the path specified in the config file,
+    /// Creates the Postgres DB schema with the provided name in the id specified in the config file,
     /// and initializes the encryption keys needed for encryption and decryption of data.
     ///
     /// # Arguments
     ///
-    ///  * `id` - name of the SQLite DB file
-    ///  * `config` - config containing the location of SQLite DB files
+    ///  * `id` - name of the Postgres DB schema
+    ///  * `config` - config containing the location of postgres db
     ///  * `credentials` - DB credentials
     ///  * `metadata` - encryption keys that need to be stored in the newly created DB
     ///
@@ -883,11 +906,10 @@ impl WalletStorageType for PostgresStorageType {
     ///
     /// Any of the following `WalletStorageError` type_ of errors can be throw by this method:
     ///
-    ///  * `AlreadyExists` - File with a given name already exists on the path
+    ///  * `AlreadyExists` - Schema with a given name already exists in the database
     ///  * `IOError("IO error during storage operation:...")` - Connection to the DB failed
     ///  * `IOError("Error occurred while creating wallet file:..)"` - Creation of schema failed
     ///  * `IOError("Error occurred while inserting the keys...")` - Insertion of keys failed
-    ///  * `IOError(..)` - Deletion of the file form the file-system failed
     ///
     fn create_storage(&self, id: &str, config: Option<&str>, credentials: Option<&str>, metadata: &[u8]) -> Result<(), WalletStorageError> {
 
@@ -909,7 +931,12 @@ impl WalletStorageType for PostgresStorageType {
             None => return Err(WalletStorageError::ConfigError)
         };
 
-        let url_base = PostgresStorageType::_base_postgres_url(&config, &credentials);
+        // if admin user and password aren't provided then bail
+        if credentials.admin_account == None || credentials.admin_password == None {
+            return Ok(())
+        }
+
+        let url_base = PostgresStorageType::_admin_postgres_url(&config, &credentials);
         let url = PostgresStorageType::_postgres_url(id, &config, &credentials);
 
         let conn = postgres::Connection::connect(&url_base[..], postgres::TlsMode::None)?;
