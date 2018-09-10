@@ -100,9 +100,10 @@ impl WalletService {
     pub fn create_wallet(&self,
                          config: &Config,
                          credentials: &Credentials) -> Result<(), WalletError> {
-        trace!("create_wallet >>> config: {:?}, credentials: {:?}", config, secret!(credentials));
+        println!("create_wallet >>> config: {:?}, credentials: {:?}", config, secret!(credentials));
 
         if config.id.is_empty() {
+            println!("Wallet id is empty");
             Err(CommonError::InvalidStructure("Wallet id is empty".to_string()))?
         }
 
@@ -1997,5 +1998,38 @@ mod tests {
                 InmemWallet::free_search
             )
             .unwrap();
+    }
+
+    #[test]
+    fn wallet_service_create_postgres_wallet_works() {
+        _cleanup();
+
+        let wallet_service = WalletService::new();
+        let _ = wallet_service.delete_wallet(&_postgres_config(), &_postgres_credentials());
+
+        wallet_service.create_wallet(&_postgres_config(), &_postgres_credentials()).unwrap();
+        let handle = wallet_service.open_wallet(&_postgres_config(), &_postgres_credentials()).unwrap();
+
+        // cleanup
+        wallet_service.close_wallet(handle).unwrap();
+        wallet_service.delete_wallet(&_postgres_config(), &_postgres_credentials()).unwrap();
+    }
+
+    fn _postgres_config() -> Config {
+        Config {
+            id: "walle123".to_string(),
+            storage_type: Some("postgres".to_string()),
+            storage_config: Some(serde_json::from_str(r#"{"url":"localhost:5432"}"#).unwrap()),
+        }
+    }
+
+    fn _postgres_credentials() -> Credentials {
+        Credentials {
+            key: "my_key".to_string(),
+            rekey: None,
+            storage_credentials: Some(serde_json::from_str(r#"{"account":"postgres","password":"mysecretpassword"}"#).unwrap()),
+            key_derivation_method: KeyDerivationMethod::ARGON2I_MOD,
+            rekey_derivation_method: KeyDerivationMethod::ARGON2I_MOD,
+        }
     }
 }

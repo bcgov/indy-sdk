@@ -759,6 +759,19 @@ mod dynamic_storage_cases {
 
             assert_eq!(hs.get("STG_TYPE").unwrap(), &Some("inmem".to_string()));
         }
+
+        #[test]
+        fn wallet_service_create_postgres_wallet_works() {
+            utils::setup();
+            let _ = wallet::delete_wallet(POSTGRES_WALLET_CONFIG, POSTGRES_WALLET_CREDENTIALS);
+
+            wallet::create_wallet(POSTGRES_WALLET_CONFIG, POSTGRES_WALLET_CREDENTIALS).unwrap();
+            let wallet_handle = wallet::open_wallet(POSTGRES_WALLET_CONFIG, POSTGRES_WALLET_CREDENTIALS).unwrap();
+            wallet::close_wallet(wallet_handle).unwrap();
+            wallet::delete_wallet(POSTGRES_WALLET_CONFIG, POSTGRES_WALLET_CREDENTIALS).unwrap();
+
+            utils::tear_down();
+        }
     }
 }
 
@@ -767,4 +780,3 @@ fn _custom_path() -> String {
     path.push("custom_wallet_path");
     path.to_str().unwrap().to_owned()
 }
-

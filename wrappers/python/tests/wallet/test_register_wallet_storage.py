@@ -104,4 +104,7 @@ async def test_register_custom_storage_library_works():
 
     pass
 
-
+"""
+tob-api_1     | Config: {"storage_config": {"url": "wallet-db:5432"}, "id": "TOBHolder", "storage_type": "postgres"}
+tob-api_1     | Creds {"key": "key", "storage_credentials": {"account": "postgres", "password": "mysecretpassword"}, "key_derivation_method": "ARGON2I_MOD"}
+"""

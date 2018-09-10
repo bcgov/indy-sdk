@@ -51,3 +51,5 @@ pub const WALLET_CONFIG: &'static str = r#"{"id":"wallet_1"}"#;
 pub const DEFAULT_WALLET_CONFIG: &'static str = r#"{"id":"wallet_1","storage_type":"default"}"#;
 pub const INMEM_WALLET_CONFIG: &'static str = r#"{"id":"wallet_1","storage_type":"inmem"}"#;
 pub const UNKNOWN_WALLET_CONFIG: &'static str = r#"{"id":"wallet_1","storage_type":"unknown"}"#;
+pub const POSTGRES_WALLET_CONFIG: &'static str = r#"{"id":"walle321","storage_type":"postgres","storage_config":{"url":"localhost:5432"}}"#;
+pub const POSTGRES_WALLET_CREDENTIALS: &'static str = r#"{"key":"key", "storage_credentials":{"account":"postgres","password":"mysecretpassword"}, "key_derivation_method":"ARGON2I_MOD"}"#;
