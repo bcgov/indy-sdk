@@ -2025,7 +2025,7 @@ mod tests {
         Credentials {
             key: "my_key".to_string(),
             rekey: None,
-            storage_credentials: Some(serde_json::from_str(r#"{"account":"postgres","password":"mysecretpassword"}"#).unwrap()),
+            storage_credentials: Some(serde_json::from_str(r#"{"admin_account":"postgres","admin_password":"mysecretpassword","account":"postgres","password":"mysecretpassword"}"#).unwrap()),
             key_derivation_method: KeyDerivationMethod::ARGON2I_MOD,
             rekey_derivation_method: KeyDerivationMethod::ARGON2I_MOD,
         }
