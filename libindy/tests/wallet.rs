@@ -782,9 +782,9 @@ mod dynamic_storage_cases {
 
         fn inmem_lib_test_overrides() -> HashMap<String, Option<String>> {
             let os = os_type::current_platform();
-            let f_ext = match os.os_type {
-                os_type::OSType::OSX => "dylib",
-                _ => "so"
+            let osfile = match os.os_type {
+                os_type::OSType::OSX => "../samples/storage/storage-inmem/target/debug/libindystrginmem.dylib",
+                _ => "../samples/storage/storage-inmem/target/debug/libindystrginmem.so"
             };
 
             let mut storage_config = HashMap::new();
@@ -792,7 +792,7 @@ mod dynamic_storage_cases {
             storage_config.insert(env_vars[0].to_string(), None);
             storage_config.insert(env_vars[1].to_string(), None);
             storage_config.insert(env_vars[2].to_string(), Some("inmem_custom".to_string()));
-            storage_config.insert(env_vars[3].to_string(), Some(format!("../samples/storage/storage-inmem/target/debug/libindystrginmem.{}", f_ext)));
+            storage_config.insert(env_vars[3].to_string(), Some(osfile.to_string()));
             storage_config.insert(env_vars[4].to_string(), Some("inmemwallet_fn_".to_string()));
             storage_config
         }
