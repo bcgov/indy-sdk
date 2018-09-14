@@ -38,7 +38,7 @@ use indy::api::ErrorCode;
 
 pub const CONFIG: &'static str = r#"{"freshness_time":1000}"#;
 
-mod wallet_high_cases {
+mod high_cases {
     use super::*;
 
     mod register_wallet_storage {
