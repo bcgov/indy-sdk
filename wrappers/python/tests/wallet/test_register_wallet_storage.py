@@ -92,8 +92,8 @@ async def test_register_custom_storage_library_works():
     else:
         f_ext = 'so'
     await wallet.register_wallet_storage_library("custom_inmem2",
-                                 "../../samples/storage/storage-inmem/target/debug/libindystrginmem." + f_ext,
-                                 "inmemwallet_fn_")
+                                "../../samples/storage/storage-inmem/target/debug/libindystrginmem." + f_ext,
+                                "inmemwallet_fn_")
 
     # create/open/close/delete wallet
     logger.debug("register_wallet: Creating wallet")
