@@ -68,6 +68,7 @@ public abstract class LibIndy {
 		public int indy_parse_get_revoc_reg_response(int command_handle, String get_revoc_reg_response, Callback cb);
 		public int indy_build_get_revoc_reg_delta_request(int command_handle, String submitter_did, String revoc_reg_def_id, long from, long to, Callback cb);
 		public int indy_parse_get_revoc_reg_delta_response(int command_handle, String get_revoc_reg_delta_response, Callback cb);
+		public int indy_get_response_metadata(int command_handle, String response, Callback cb);
 
 		// did.rs
 
@@ -167,6 +168,8 @@ public abstract class LibIndy {
 		int indy_set_default_logger(String level);
 		int indy_set_logger(Pointer context, Callback enabled, Callback log, Callback flush);
 
+		int indy_set_runtime_config(String config);
+
 	}
 
 	/*
@@ -196,6 +199,7 @@ public abstract class LibIndy {
 
 		NativeLibrary.addSearchPath(LIBRARY_NAME, searchPath);
 		api = Native.loadLibrary(LIBRARY_NAME, API.class);
+		initLogger();
 	}
 
 	/**
@@ -207,6 +211,7 @@ public abstract class LibIndy {
 	public static void init(File file) {
 
 		api = Native.loadLibrary(file.getAbsolutePath(), API.class);
+		initLogger();
 	}
 
 	/**
@@ -266,5 +271,16 @@ public abstract class LibIndy {
 
 	private static void initLogger() {
 		api.indy_set_logger(null, Logger.enabled, Logger.log, Logger.flush);
+	}
+
+	/**
+	 * Set libindy runtime configuration. Can be optionally called to change current params.
+	 *
+	 * @param config config: {
+	 *      "crypto_thread_pool_size": int - size of thread pool for the most expensive crypto operations. (4 by default)
+	 *  }
+	 */
+	public static void setRuntimeConfig(String config) {
+		api.indy_set_runtime_config(config);
 	}
 }

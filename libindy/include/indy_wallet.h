@@ -141,7 +141,7 @@ extern "C" {
                                                   indy_error_t (*freeSearchFn)(indy_handle_t handle,
                                                                            indy_handle_t search_handle),
 
-                                                  void         (*fn)(indy_handle_t xcommand_handle, indy_error_t err)
+                                                  void         (*fn)(indy_handle_t command_handle_, indy_error_t err)
                                                   );
 
     /// Create a new secure wallet.
@@ -159,7 +159,7 @@ extern "C" {
     ///                     For 'default' storage type configuration is:
     ///   {
     ///     "path": optional<string>, Path to the directory with wallet files.
-    ///             Defaults to $HOME/.indy_client/wallets.
+    ///             Defaults to $HOME/.indy_client/wallet.
     ///             Wallet will be stored in the file {path}/{id}/sqlite.db
     ///   }
     /// }
@@ -187,7 +187,7 @@ extern "C" {
     extern indy_error_t indy_create_wallet(indy_handle_t  command_handle,
                                            const char*    config,
                                            const char*    credentials,
-                                           void           (*fn)(indy_handle_t xcommand_handle, indy_error_t err)
+                                           void           (*fn)(indy_handle_t command_handle_, indy_error_t err)
                                           );
 
     /// Open the wallet.
@@ -207,7 +207,7 @@ extern "C" {
     ///                         For 'default' storage type configuration is:
     ///           {
     ///              "path": optional<string>, Path to the directory with wallet files.
-    ///                      Defaults to $HOME/.indy_client/wallets.
+    ///                      Defaults to $HOME/.indy_client/wallet.
     ///                      Wallet will be stored in the file {path}/{id}/sqlite.db
     ///           }
     ///
@@ -243,7 +243,7 @@ extern "C" {
     extern indy_error_t indy_open_wallet(indy_handle_t  command_handle,
                                          const char*    config,
                                          const char*    credentials,
-                                         void           (*fn)(indy_handle_t xcommand_handle, indy_error_t err, indy_handle_t handle)
+                                         void           (*fn)(indy_handle_t command_handle_, indy_error_t err, indy_handle_t handle)
                                         );
 
     /// Exports opened wallet
@@ -272,7 +272,7 @@ extern "C" {
     extern indy_error_t indy_export_wallet(indy_handle_t  command_handle,
                                            indy_handle_t  wallet_handle,
                                            const char*    export_config_json,
-                                           void           (*fn)(indy_handle_t xcommand_handle, indy_error_t err)
+                                           void           (*fn)(indy_handle_t command_handle_, indy_error_t err)
                                            );
 
 
@@ -293,7 +293,7 @@ extern "C" {
     ///                     For 'default' storage type configuration is:
     ///   {
     ///     "path": optional<string>, Path to the directory with wallet files.
-    ///             Defaults to $HOME/.indy_client/wallets.
+    ///             Defaults to $HOME/.indy_client/wallet.
     ///             Wallet will be stored in the file {path}/{id}/sqlite.db
     ///   }
     /// }
@@ -327,7 +327,7 @@ extern "C" {
                                            const char*    config,
                                            const char*    credentials,
                                            const char*    import_config_json,
-                                           void           (*fn)(indy_handle_t xcommand_handle, indy_error_t err)
+                                           void           (*fn)(indy_handle_t command_handle_, indy_error_t err)
                                            );
 
     /// Closes opened wallet and frees allocated resources.
@@ -344,7 +344,7 @@ extern "C" {
 
     extern indy_error_t indy_close_wallet(indy_handle_t  command_handle,
                                           indy_handle_t  wallet_handle,
-                                          void           (*fn)(indy_handle_t xcommand_handle, indy_error_t err)
+                                          void           (*fn)(indy_handle_t command_handle_, indy_error_t err)
                                          );
 
     /// Deletes created wallet.
@@ -362,7 +362,7 @@ extern "C" {
     ///                     For 'default' storage type configuration is:
     ///   {
     ///     "path": optional<string>, Path to the directory with wallet files.
-    ///             Defaults to $HOME/.indy_client/wallets.
+    ///             Defaults to $HOME/.indy_client/wallet.
     ///             Wallet will be stored in the file {path}/{id}/sqlite.db
     ///   }
     /// }
@@ -390,7 +390,7 @@ extern "C" {
     extern indy_error_t indy_delete_wallet(indy_handle_t  command_handle,
                                            const char*    config,
                                            const char*    credentials,
-                                           void           (*fn)(indy_handle_t xcommand_handle, indy_error_t err)
+                                           void           (*fn)(indy_handle_t command_handle_, indy_error_t err)
                                           );
 
     /// Generate wallet master key.
@@ -400,7 +400,8 @@ extern "C" {
     /// #Params
     /// config: (optional) key configuration json.
     /// {
-    ///   "seed": optional<string> Seed that allows deterministic key creation (if not set random one will be used).
+    ///   "seed": string, (optional) Seed that allows deterministic key creation (if not set random one will be created).
+    ///                              Can be UTF-8, base64 or hex string.
     /// }
     ///
     /// #Returns

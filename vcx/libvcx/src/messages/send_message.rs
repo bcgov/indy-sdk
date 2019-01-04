@@ -54,6 +54,8 @@ pub struct MessageDetailPayload {
 impl SendMessage{
 
     pub fn create() -> SendMessage {
+        trace!("SendMessage::create_message >>>");
+
         SendMessage {
             message: String::new(),
             to_did: String::new(),
@@ -102,6 +104,8 @@ impl SendMessage{
     }
 
     pub fn send_secure(&mut self) -> Result<Vec<String>, u32> {
+        trace!("SendMessage::send >>>");
+
         let data = match self.msgpack() {
             Ok(x) => x,
             Err(x) => return Err(x),
@@ -157,8 +161,8 @@ impl GeneralMessage for SendMessage{
         };
 
         debug!("SendMessage details: {:?}", detail);
-        let create = encode::to_vec_named(&create).unwrap();
-        let detail = encode::to_vec_named(&detail).unwrap();
+        let create = encode::to_vec_named(&create).or(Err(error::UNKNOWN_ERROR.code_num))?;
+        let detail = encode::to_vec_named(&detail).or(Err(error::UNKNOWN_ERROR.code_num))?;
 
         let mut bundle = Bundled::create(create);
         bundle.bundled.push(detail);
@@ -184,42 +188,25 @@ fn parse_send_message_response(response: Vec<u8>) -> Result<String, u32> {
     }
 
     let mut de = Deserializer::new(&data[1][..]);
-    let response: SendMessageResponse = match Deserialize::deserialize(&mut de) {
-        Ok(x) => x,
-        Err(x) => {
-            error!("Could not parse messagepack: {}", x);
-            return Err(error::INVALID_MSGPACK.code_num)
-        },
-    };
+    let response: SendMessageResponse = Deserialize::deserialize(&mut de)
+        .or(Err(error::INVALID_MSGPACK.code_num))?;
 
     debug!("messages: {:?}", response);
-    match serde_json::to_string(&response) {
-        Ok(x) => Ok(x),
-        Err(_) => Err(error::INVALID_JSON.code_num),
-    }
+    serde_json::to_string(&response).or(Err(error::INVALID_JSON.code_num))
 }
 
 
 pub fn parse_msg_uid(response: &str) -> Result<String,u32> {
-    match serde_json::from_str(response) {
-        Ok(json) => {
-            let json: serde_json::Value = json;
-            match json["uids"].as_array() {
-                Some(x) => {
-                    Ok(String::from(x[0].as_str().unwrap()))
-                },
-                None => {
-                    info!("response had no uid");
-                    Err(error::INVALID_JSON.code_num)
-                },
-            }
-
-        },
-        Err(_) => {
-            info!("get_messages called without a valid response from server");
-            Err(error::INVALID_JSON.code_num)
-        }
-    }
+    serde_json::from_str::<serde_json::Value>(response)
+        .or(Err(error::INVALID_JSON.code_num))?["uids"]
+        .as_array()
+        .map_or(Err(error::INVALID_JSON.code_num), |uids| {
+            Ok(uids[0]
+                .as_str()
+                .ok_or(error::INVALID_JSON.code_num)?
+                .to_string()
+            )
+        })
 }
 
 #[cfg(test)]
@@ -254,8 +241,7 @@ mod tests {
 
     #[test]
     fn test_parse_send_message_response() {
-        settings::set_defaults();
-        settings::set_config_value(settings::CONFIG_ENABLE_TEST_MODE, "true");
+        init!("true");
         let result = parse_send_message_response(SEND_MESSAGE_RESPONSE.to_vec()).unwrap();
 
         assert_eq!("{\"@type\":{\"name\":\"MSG_SENT\",\"ver\":\"1.0\"},\"uids\":[\"ntc2ytb\"]}", result);
@@ -263,8 +249,7 @@ mod tests {
 
     #[test]
     fn test_parse_send_message_bad_response() {
-        settings::set_defaults();
-        settings::set_config_value(settings::CONFIG_ENABLE_TEST_MODE, "true");
+        init!("true");
         let result = parse_send_message_response(::utils::constants::UPDATE_PROFILE_RESPONSE.to_vec());
         assert!(result.is_err());
     }

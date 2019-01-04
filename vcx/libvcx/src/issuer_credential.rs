@@ -2,18 +2,20 @@ extern crate rand;
 extern crate serde_json;
 extern crate libc;
 
+use std::collections::HashMap;
 use api::VcxStateType;
 use messages;
 use settings;
 use messages::{ GeneralMessage, MessageResponseCode::MessageAccepted, send_message::parse_msg_uid };
 use connection;
 use credential_request::{ CredentialRequest };
-use utils::{error,
-            error::INVALID_JSON,
-            libindy::{ anoncreds::{ libindy_issuer_create_credential, libindy_issuer_create_credential_offer}, payments },
-            constants::CRED_MSG,
-            openssl::encode
-};
+use utils::error;
+use utils::error::{INVALID_JSON};
+use utils::libindy::payments;
+use utils::libindy::anoncreds;
+use utils::constants::CRED_MSG;
+use utils::openssl::encode;
+use utils::libindy::payments::{PaymentTxn};
 use error::{ issuer_cred::IssuerCredError, ToErrorCode, payment::PaymentError};
 use utils::constants::DEFAULT_SERIALIZE_VERSION;
 use serde_json::Value;
@@ -38,7 +40,18 @@ pub struct IssuerCredential {
     credential_name: String,
     pub credential_id: String,
     pub cred_def_id: String,
+    pub cred_def_handle: u32,
     ref_msg_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    rev_reg_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    tails_file: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    rev_reg_def_json: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    cred_rev_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    rev_cred_payment_txn: Option<PaymentTxn>,
     price: u64,
     payment_address: Option<String>,
     // the following 6 are pulled from the connection object
@@ -68,10 +81,12 @@ pub struct CredentialOffer {
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct CredentialMessage {
     pub libindy_cred: String,
-    pub rev_reg_def_json: String,
+    pub rev_reg_def_json: Option<String>,
     pub cred_def_id: String,
     pub msg_type: String,
     pub claim_offer_id: String,
+    pub cred_revoc_id: Option<String>,
+    pub revoc_reg_delta_json: Option<String>,
     pub version: String,
     pub from_did: String,
 }
@@ -103,7 +118,9 @@ impl IssuerCredential {
     }
 
     fn send_credential_offer(&mut self, connection_handle: u32) -> Result<u32, IssuerCredError> {
-        debug!("sending credential offer for issuer_credential {} to connection handle {}", self.source_id, connection_handle);
+        trace!("IssuerCredential::send_credential_offer >>> connection_handle: {}", connection_handle);
+
+        debug!("sending credential offer for issuer_credential {} to connection {}", self.source_id, connection::get_source_id(connection_handle).unwrap_or_default());
         if self.state != VcxStateType::VcxStateInitialized {
             warn!("credential {} has invalid state {} for sending credentialOffer", self.source_id, self.state as u32);
             return Err(IssuerCredError::NotReadyError())
@@ -125,7 +142,14 @@ impl IssuerCredential {
         let cred_json = json!(credential_offer);
         let mut payload = Vec::new();
 
-        if payment.is_some() { payload.push(json!(payment.unwrap())); }
+        let connection_name = settings::get_config_value(settings::CONFIG_INSTITUTION_NAME).map_err(|e| IssuerCredError::CommonError(e))?;
+        let title = if let Some(x) = payment {
+            payload.push(json!(x));
+            format!("{} is offering you a credential: {}", connection_name, self.credential_name)
+        } else {
+            format!("{} wants you to pay tokens for: {}", connection_name, self.credential_name)
+        };
+
         payload.push(cred_json);
         let payload = match serde_json::to_string(&payload) {
             Ok(p) => p,
@@ -143,6 +167,8 @@ impl IssuerCredential {
             .edge_agent_payload(&data)
             .agent_did(&self.agent_did)
             .agent_vk(&self.agent_vk)
+            .set_title(&title)
+            .set_detail(&title)
             .status_code(&MessageAccepted.as_string())
             .send_secure() {
             Err(x) => {
@@ -160,7 +186,9 @@ impl IssuerCredential {
     }
 
     fn send_credential(&mut self, connection_handle: u32) -> Result<u32, IssuerCredError> {
-        debug!("sending credential for issuer_credential {} to connection handle {}", self.source_id, connection_handle);
+        trace!("IssuerCredential::send_credential >>> connection_handle: {}", connection_handle);
+
+        debug!("sending credential for issuer_credential {} to connection {}", self.source_id, connection::get_source_id(connection_handle).unwrap_or_default());
         if self.state != VcxStateType::VcxStateRequestReceived {
             warn!("credential {} has invalid state {} for sending credential", self.source_id, self.state as u32);
             return Err(IssuerCredError::NotReadyError());
@@ -216,7 +244,7 @@ impl IssuerCredential {
     // TODO: The error arm of this Result is never used in any calling functions.
     // So currently there is no way to test the error status.
     fn get_credential_offer_status(&mut self) -> Result<u32, IssuerCredError> {
-        debug!("updating state for credential offer: {}", self.source_id);
+        debug!("updating state for credential offer: {} msg_uid: {:?}", self.source_id, self.msg_uid);
         if self.state == VcxStateType::VcxStateRequestReceived {
             return Ok(self.get_state());
         }
@@ -238,11 +266,16 @@ impl IssuerCredential {
     }
 
     fn update_state(&mut self) -> Result<u32, IssuerCredError> {
+        trace!("IssuerCredential::update_state >>>");
         self.get_credential_offer_status()
         //There will probably be more things here once we do other things with the credential
     }
 
-    fn get_state(&self) -> u32 { let state = self.state as u32; state }
+    fn get_state(&self) -> u32 {
+        trace!("IssuerCredential::get_state >>>");
+        let state = self.state as u32;
+        state
+    }
     fn get_offer_uid(&self) -> &String { &self.msg_uid }
     fn set_offer_uid(&mut self, uid: &str) {self.msg_uid = uid.to_owned();}
     fn set_credential_request(&mut self, credential_request:CredentialRequest) -> Result<u32,u32> {
@@ -253,21 +286,22 @@ impl IssuerCredential {
     fn get_credential_attributes(&self) -> &String { &self.credential_attributes}
     fn get_source_id(&self) -> &String { &self.source_id }
 
-    fn generate_credential(&self, credential_data: &str, did: &str) -> Result<CredentialMessage, IssuerCredError> {
+    fn generate_credential(&mut self, credential_data: &str, did: &str) -> Result<CredentialMessage, IssuerCredError> {
         let indy_cred_offer = &self.credential_offer.as_ref()
             .ok_or(IssuerCredError::InvalidCred())?.libindy_offer;
 
         let indy_cred_req = &self.credential_request.as_ref()
             .ok_or(IssuerCredError::InvalidCredRequest())?.libindy_cred_req;
 
-        //Todo: rev_reg_id and blob_storage need to be provided when we do revocation
-        let (cred, cred_revoc_id, revoc_reg_delta_json) = libindy_issuer_create_credential(
+        let (cred, cred_revoc_id, revoc_reg_delta_json) = anoncreds::libindy_issuer_create_credential(
             &indy_cred_offer,
             &indy_cred_req,
             credential_data,
-            None,
-            None)
+            self.rev_reg_id.clone(),
+            self.tails_file.clone())
             .map_err(|x| IssuerCredError::CommonError(x))?;
+
+        self.cred_rev_id = cred_revoc_id.clone();
 
         Ok(CredentialMessage {
             claim_offer_id: self.msg_uid.clone(),
@@ -275,16 +309,17 @@ impl IssuerCredential {
             version: String::from("0.1"),
             msg_type: String::from("CRED"),
             libindy_cred: cred,
-            //Todo: need to add indy api calls to populate this field
-            rev_reg_def_json: String::new(),
+            rev_reg_def_json: self.rev_reg_def_json.clone(),
             cred_def_id: self.cred_def_id.clone(),
+            cred_revoc_id,
+            revoc_reg_delta_json,
         })
     }
 
     fn generate_credential_offer(&self, to_did: &str) -> Result<CredentialOffer, IssuerCredError> {
         let attr_map = convert_to_map(&self.credential_attributes)?;
         //Todo: make a cred_def_offer error
-        let libindy_offer = libindy_issuer_create_credential_offer(&self.cred_def_id)
+        let libindy_offer = anoncreds:: libindy_issuer_create_credential_offer(&self.cred_def_id)
             .map_err(|err| IssuerCredError::CommonError(err))?;
         Ok(CredentialOffer {
             msg_type: String::from("CRED_OFFER"),
@@ -299,6 +334,26 @@ impl IssuerCredential {
             cred_def_id: self.cred_def_id.clone(),
             libindy_offer,
         })
+    }
+
+    fn revoke_cred(&mut self) -> Result<(), IssuerCredError> {
+        let tails_file = self.tails_file
+            .as_ref()
+            .ok_or(IssuerCredError::InvalidRevocationInfo())?;
+
+        let rev_reg_id = self.rev_reg_id
+            .as_ref()
+            .ok_or(IssuerCredError::InvalidRevocationInfo())?;
+
+        let cred_rev_id = self.cred_rev_id
+            .as_ref()
+            .ok_or(IssuerCredError::InvalidRevocationInfo())?;
+
+        let (payment, _) = anoncreds::revoke_credential(tails_file, rev_reg_id, cred_rev_id)
+            .map_err(|e| IssuerCredError::CommonError(e))?;
+
+        self.rev_cred_payment_txn = payment;
+        Ok(())
     }
 
     fn generate_payment_info(&mut self) -> Result<Option<PaymentInfo>, IssuerCredError> {
@@ -328,15 +383,19 @@ impl IssuerCredential {
     }
 
     fn get_payment_txn(&self) -> Result<payments::PaymentTxn, u32> {
-        if self.price == 0 || self.payment_address.is_none() { return Err(error::NO_PAYMENT_INFORMATION.code_num); }
+        trace!("IssuerCredential::get_payment_txn >>>");
 
-        let payment_address = self.payment_address.clone().unwrap();
-
-        Ok(payments::PaymentTxn {
-            amount: self.price,
-            inputs: vec![payment_address],
-            outputs: Vec::new(),
-        })
+        match self.payment_address {
+            Some(ref payment_address) if self.price > 0 => {
+                Ok(payments::PaymentTxn {
+                    amount: self.price,
+                    credit: true,
+                    inputs: vec![payment_address.to_string()],
+                    outputs: Vec::new(),
+                })
+            },
+            _ => Err(error::NO_PAYMENT_INFORMATION.code_num)
+        }
     }
 
     pub fn to_string(&self) -> String {
@@ -353,8 +412,27 @@ impl IssuerCredential {
     }
 }
 
+/**
+    Input: supporting two formats:
+    eg:
+    perferred format: json, property/values
+    {"address2":"101 Wilson Lane"}
+    or
+    deprecated format: json, key/array (of one item)
+    {"address2":["101 Wilson Lane"]}
+
+
+    Output: json: dictionary with key, object of raw and encoded values
+    eg:
+    {
+      "address2": {
+        "encoded": "68086943237164982734333428280784300550565381723532936263016368251445461241953",
+        "raw": "101 Wilson Lane"
+      }
+    }
+*/
 pub fn encode_attributes(attributes: &str) -> Result<String, IssuerCredError> {
-    let mut attributes: serde_json::Value = match serde_json::from_str(attributes) {
+let mut attributes: serde_json::Value = match serde_json::from_str(attributes) {
         Ok(x) => x,
         Err(e) => {
             warn!("Invalid Json for Attribute data");
@@ -370,28 +448,45 @@ pub fn encode_attributes(attributes: &str) -> Result<String, IssuerCredError> {
         }
     };
 
-    for (attr, vec) in map.iter_mut(){
-        let list = match vec.as_array_mut() {
-            Some(x) => x,
-            None => {
+    let mut dictionary = HashMap::new();
+
+    for (attr, attr_data) in map.iter_mut(){
+        let first_attr : &str = match attr_data {
+            // old style input such as {"address2":["101 Wilson Lane"]}
+            serde_json::Value::Array(array_type) => {
+
+                let attrib_value : &str = match array_type.get(0).and_then(serde_json::Value::as_str) {
+                    Some(x) => x,
+                    None => {
+                        warn!("Cannot encode attribute: {}", error::INVALID_ATTRIBUTES_STRUCTURE.message);
+                        return Err(IssuerCredError::CommonError(error::INVALID_ATTRIBUTES_STRUCTURE.code_num))
+                    }
+                };
+
+                warn!("Old attribute format detected. See vcx_issuer_create_credential api for additional information.");
+                attrib_value
+            },
+
+            // new style input such as {"address2":"101 Wilson Lane"}
+            serde_json::Value::String(str_type) => str_type,
+
+            // anything else is an error
+            _ => {
                 warn!("Invalid Json for Attribute data");
                 return Err(IssuerCredError::CommonError(INVALID_JSON.code_num))
             }
         };
-        let i = list[0].clone();
-        let value = match i.as_str(){
-            Some(v) => v,
-            None => {
-                warn!("Cannot encode attribute: {}", error::INVALID_ATTRIBUTES_STRUCTURE.message);
-                return Err(IssuerCredError::CommonError(error::INVALID_ATTRIBUTES_STRUCTURE.code_num))
-            },
-        };
-        let encoded = encode(value).map_err(|x| IssuerCredError::CommonError(x))?;
-        let encoded_as_value: serde_json::Value = serde_json::Value::from(encoded);
-        list.push(encoded_as_value);
+
+        let encoded = encode(&first_attr).map_err(|x| IssuerCredError::CommonError(x))?;
+        let attrib_values = json!({
+            "raw" : first_attr,
+            "encoded": encoded
+        });
+
+        dictionary.insert(attr, attrib_values);
     }
 
-    match serde_json::to_string_pretty(&map) {
+    match serde_json::to_string_pretty(&dictionary) {
         Ok(x) => Ok(x),
         Err(x) => {
             warn!("Invalid Json for Attribute data");
@@ -433,13 +528,19 @@ fn parse_credential_req_payload(offer_uid: String, payload: &Vec<u8>) -> Result<
     Ok(my_credential_req)
 }
 
-// TODO: The error arm of this Result is never thrown.  aka this method is never Err.
-pub fn issuer_credential_create(cred_def_id: String,
-                           source_id: String,
-                           issuer_did: String,
-                           credential_name: String,
-                           credential_data: String,
-                           price: u64) -> Result<u32, IssuerCredError> {
+pub fn issuer_credential_create(cred_def_handle: u32,
+                                source_id: String,
+                                issuer_did: String,
+                                credential_name: String,
+                                credential_data: String,
+                                price: u64) -> Result<u32, IssuerCredError> {
+    trace!("issuer_credential_create >>> cred_def_handle: {}, source_id: {}, issuer_did: {}, credential_name: {}, credential_data: {}, price: {}",
+           cred_def_handle, source_id, issuer_did, credential_name, credential_data, price);
+
+    let cred_def_id = ::credential_def::get_cred_def_id(cred_def_handle).map_err(|ec|IssuerCredError::CommonError(ec.to_error_code()))?;
+    let rev_reg_id = ::credential_def::get_rev_reg_id(cred_def_handle).map_err(|ec|IssuerCredError::CommonError(ec.to_error_code()))?;
+    let tails_file = ::credential_def::get_tails_file(cred_def_handle).map_err(|ec|IssuerCredError::CommonError(ec.to_error_code()))?;
+    let rev_reg_def_json = ::credential_def::get_rev_reg_def(cred_def_handle).map_err(|ec|IssuerCredError::CommonError(ec.to_error_code()))?;
 
     let mut new_issuer_credential = IssuerCredential {
         credential_id: source_id.to_string(),
@@ -454,6 +555,11 @@ pub fn issuer_credential_create(cred_def_id: String,
         credential_offer: None,
         credential_name,
         ref_msg_id: None,
+        rev_reg_id,
+        rev_reg_def_json,
+        cred_rev_id: None,
+        rev_cred_payment_txn: None,
+        tails_file,
         price,
         payment_address: None,
         issued_did: String::new(),
@@ -462,7 +568,8 @@ pub fn issuer_credential_create(cred_def_id: String,
         remote_vk: String::new(),
         agent_did: String::new(),
         agent_vk: String::new(),
-        cred_def_id
+        cred_def_id,
+        cred_def_handle
     };
 
     new_issuer_credential.validate_credential_offer()?;
@@ -470,7 +577,7 @@ pub fn issuer_credential_create(cred_def_id: String,
     new_issuer_credential.state = VcxStateType::VcxStateInitialized;
 
     let new_handle = ISSUER_CREDENTIAL_MAP.add(new_issuer_credential).map_err(|key|IssuerCredError::CreateError())?;
-    debug!("inserting handle {} into credential_issuer table", new_handle);
+    debug!("creating issuer_credential {} with handle {}", get_source_id(new_handle).unwrap_or_default(), new_handle);
 
     Ok(new_handle)
 }
@@ -533,6 +640,12 @@ pub fn send_credential(handle: u32, connection_handle: u32) -> Result<u32,Issuer
     }).map_err(|ec|IssuerCredError::CommonError(ec))
 }
 
+pub fn revoke_credential(handle: u32) -> Result<(), u32> {
+    ISSUER_CREDENTIAL_MAP.get_mut(handle,|i|{
+        i.revoke_cred().map_err(|ec|ec.to_error_code())
+    })
+}
+
 fn get_offer_details(response: &str) -> Result<String, IssuerCredError> {
     match serde_json::from_str(response) {
         Ok(json) => {
@@ -585,7 +698,7 @@ pub fn get_source_id(handle: u32) -> Result<String, u32> {
 pub mod tests {
     use super::*;
     use settings;
-    use connection::{ build_connection };
+    use connection::tests::build_test_connection;
     use credential_request::CredentialRequest;
     #[allow(unused_imports)]
     use utils::{ constants::*,
@@ -629,11 +742,6 @@ pub mod tests {
         libindy_create_and_store_credential_def(&issuer_did, SCHEMAS_JSON, tag, None, config).unwrap();
     }
 
-    fn set_default_and_enable_test_mode() {
-        settings::set_defaults();
-        settings::set_config_value(settings::CONFIG_ENABLE_TEST_MODE, "true");
-    }
-
     pub fn create_standard_issuer_credential() -> IssuerCredential {
         let credential_req:CredentialRequest = CredentialRequest::from_str(CREDENTIAL_REQ_STRING).unwrap();
         let (credential_offer, _) = ::credential::parse_json_offer(CREDENTIAL_OFFER_JSON).unwrap();
@@ -651,13 +759,19 @@ pub mod tests {
             credential_offer: Some(credential_offer.to_owned()),
             credential_id: String::from(DEFAULT_CREDENTIAL_ID),
 	        price: 1,
-            payment_address: Some("pay:null:9UFgyjuJxi1i1HD".to_string()),
+            payment_address: Some(payments::build_test_address("9UFgyjuJxi1i1HD")),
             ref_msg_id: None,
+            rev_reg_id: None,
+            tails_file: None,
+            cred_rev_id: None,
+            rev_cred_payment_txn: None,
+            rev_reg_def_json: None,
             remote_did: DID.to_string(),
             remote_vk: VERKEY.to_string(),
             agent_did: DID.to_string(),
             agent_vk: VERKEY.to_string(),
             cred_def_id: CRED_DEF_ID.to_string(),
+            cred_def_handle: 0,
         };
         issuer_credential
     }
@@ -678,7 +792,11 @@ pub mod tests {
 
     pub fn create_full_issuer_credential() -> (IssuerCredential, ::credential::Credential) {
         let issuer_did = settings::get_config_value(settings::CONFIG_INSTITUTION_DID).unwrap();
-        let (_, _, cred_def_id, _) = ::utils::libindy::anoncreds::tests::create_and_store_credential_def();
+        let (_, cred_def_handle) = ::credential_def::tests::create_cred_def_real(true);
+        let cred_def_id = ::credential_def::get_cred_def_id(cred_def_handle).unwrap();
+        let rev_reg_id = ::credential_def::get_rev_reg_id(cred_def_handle).unwrap();
+        let tails_file = ::credential_def::get_tails_file(cred_def_handle).unwrap();
+        let rev_reg_def_json = ::credential_def::get_rev_reg_def(cred_def_handle).unwrap();
         let credential_data = r#"{"address1": ["123 Main St"], "address2": ["Suite 3"], "city": ["Draper"], "state": ["UT"], "zip": ["84000"]}"#;
 
         let mut issuer_credential = IssuerCredential {
@@ -694,6 +812,11 @@ pub mod tests {
             credential_name: "cred_name".to_string(),
             credential_id: String::new(),
             ref_msg_id: None,
+            rev_reg_id,
+            rev_reg_def_json,
+            cred_rev_id: None,
+            rev_cred_payment_txn: None,
+            tails_file,
             price: 1,
             payment_address: None,
             issued_did: String::new(),
@@ -702,7 +825,8 @@ pub mod tests {
             remote_vk: String::new(),
             agent_did: String::new(),
             agent_vk: String::new(),
-            cred_def_id
+            cred_def_id,
+            cred_def_handle
         };
 
         let payment = issuer_credential.generate_payment_info().unwrap();
@@ -722,9 +846,8 @@ pub mod tests {
 
     #[test]
     fn test_issuer_credential_create_succeeds() {
-        settings::set_defaults();
-        settings::set_config_value(settings::CONFIG_ENABLE_TEST_MODE, "true");
-        match issuer_credential_create(CRED_DEF_ID.to_string(),
+        init!("true");
+        match issuer_credential_create(::credential_def::tests::create_cred_def_fake(),
                                   "1".to_string(),
                                   "8XFh8yBzrpJQmNyZzgoTqB".to_owned(),
                                   "credential_name".to_string(),
@@ -737,8 +860,8 @@ pub mod tests {
 
     #[test]
     fn test_to_string_succeeds() {
-        set_default_and_enable_test_mode();
-        let handle = issuer_credential_create(CRED_DEF_ID.to_string(),
+        init!("true");
+        let handle = issuer_credential_create(::credential_def::tests::create_cred_def_fake(),
                                          "1".to_string(),
                                          "8XFh8yBzrpJQmNyZzgoTqB".to_owned(),
                                          "credential_name".to_string(),
@@ -750,13 +873,12 @@ pub mod tests {
 
     #[test]
     fn test_send_credential_offer() {
-        set_default_and_enable_test_mode();
-
-        let connection_handle = build_connection("test_send_credential_offer").unwrap();
+        init!("true");
+        let connection_handle = build_test_connection();
 
         let credential_id = DEFAULT_CREDENTIAL_ID;
 
-        let handle = issuer_credential_create(CRED_DEF_ID.to_string(),
+        let handle = issuer_credential_create(::credential_def::tests::create_cred_def_fake(),
                                          "1".to_string(),
                                          "8XFh8yBzrpJQmNyZzgoTqB".to_owned(),
                                          "credential_name".to_string(),
@@ -772,22 +894,18 @@ pub mod tests {
     #[cfg(feature = "pool_tests")]
     #[test]
     fn test_generate_cred_offer() {
-        settings::set_defaults();
-        let wallet_name = "test_create_cred_offer";
-        ::utils::devsetup::tests::setup_ledger_env(wallet_name);
+        init!("ledger");
         let issuer = create_full_issuer_credential().0.generate_credential_offer(&settings::get_config_value(settings::CONFIG_INSTITUTION_DID).unwrap()).unwrap();
-        ::utils::devsetup::tests::cleanup_dev_env(wallet_name);
     }
 
     #[test]
     fn test_retry_send_credential_offer() {
-        set_default_and_enable_test_mode();
-
-        let connection_handle = build_connection("test_send_credential_offer").unwrap();
+        init!("true");
+        let connection_handle = build_test_connection();
 
         let credential_id = DEFAULT_CREDENTIAL_ID;
 
-        let handle = issuer_credential_create(CRED_DEF_ID.to_string(),
+        let handle = issuer_credential_create(::credential_def::tests::create_cred_def_fake(),
                                          "1".to_string(),
                                          "8XFh8yBzrpJQmNyZzgoTqB".to_owned(),
                                          "credential_name".to_string(),
@@ -807,14 +925,13 @@ pub mod tests {
 
     #[test]
     fn test_credential_can_be_resent_after_failure() {
-        let test_name = "test_send_a_credential";
-        set_default_and_enable_test_mode();
+        init!("true");
         settings::set_config_value(settings::CONFIG_INSTITUTION_DID, "QTrbV4raAcND4DWWzBmdsh");
 
         let mut credential = create_standard_issuer_credential();
         credential.state = VcxStateType::VcxStateRequestReceived;
 
-        let connection_handle = build_connection("test_send_credential_offer").unwrap();
+        let connection_handle = build_test_connection();
 
         set_libindy_rc(error::TIMEOUT_LIBINDY_ERROR.code_num);
         assert_eq!(credential.send_credential(connection_handle),
@@ -829,8 +946,8 @@ pub mod tests {
 
     #[test]
     fn test_from_string_succeeds() {
-        set_default_and_enable_test_mode();
-        let handle = issuer_credential_create(CRED_DEF_ID.to_string(),
+        init!("true");
+        let handle = issuer_credential_create(::credential_def::tests::create_cred_def_fake(),
                                          "1".to_string(),
                                          "8XFh8yBzrpJQmNyZzgoTqB".to_owned(),
                                          "credential_name".to_string(),
@@ -848,10 +965,8 @@ pub mod tests {
 
     #[test]
     fn test_update_state_with_pending_credential_request() {
-        settings::set_defaults();
-        settings::set_config_value(settings::CONFIG_ENABLE_TEST_MODE, "true");
-
-        let connection_handle = build_connection("test_update_state_with_pending_credential_request").unwrap();
+        init!("true");
+        let connection_handle = build_test_connection();
         let credential_req:CredentialRequest = CredentialRequest::from_str(CREDENTIAL_REQ_STRING).unwrap();
         let (credential_offer, _) = ::credential::parse_json_offer(CREDENTIAL_OFFER_JSON).unwrap();
         let mut credential = IssuerCredential {
@@ -868,7 +983,13 @@ pub mod tests {
             credential_name: DEFAULT_CREDENTIAL_NAME.to_owned(),
             credential_id: String::from(DEFAULT_CREDENTIAL_ID),
             cred_def_id: CRED_DEF_ID.to_string(),
+            cred_def_handle: 1,
             ref_msg_id: None,
+            rev_reg_id: None,
+            cred_rev_id: None,
+            rev_cred_payment_txn: None,
+            rev_reg_def_json: None,
+            tails_file: None,
             price: 0,
             payment_address: None,
             remote_did: DID.to_string(),
@@ -886,8 +1007,8 @@ pub mod tests {
 
     #[test]
     fn test_issuer_credential_changes_state_after_being_validated() {
-        set_default_and_enable_test_mode();
-        let handle = issuer_credential_create(CRED_DEF_ID.to_string(),
+        init!("true");
+        let handle = issuer_credential_create(::credential_def::tests::create_cred_def_fake(),
                                          "1".to_string(),
                                          "8XFh8yBzrpJQmNyZzgoTqB".to_owned(),
                                          "credential_name".to_string(),
@@ -926,15 +1047,11 @@ pub mod tests {
 
     #[test]
     fn test_that_test_mode_enabled_bypasses_libindy_create_credential(){
-        let test_name = "test_that_TEST_MODE_ENABLED_bypasses_libindy_create_credential";
-        settings::set_defaults();
-        settings::set_config_value(settings::CONFIG_ENABLE_TEST_MODE, "true");
-        settings::set_config_value(settings::CONFIG_INSTITUTION_DID, "QTrbV4raAcND4DWWzBmdsh");
-
+        init!("true");
         let mut credential = create_standard_issuer_credential();
         credential.state = VcxStateType::VcxStateRequestReceived;
 
-        let connection_handle = build_connection("test_send_credential_offer").unwrap();
+        let connection_handle = build_test_connection();
 
         credential.send_credential(connection_handle).unwrap();
         assert_eq!(credential.state, VcxStateType::VcxStateAccepted);
@@ -943,13 +1060,12 @@ pub mod tests {
 
     #[test]
     fn test_release_all() {
-        settings::set_defaults();
-        settings::set_config_value(settings::CONFIG_ENABLE_TEST_MODE, "true");
-        let h1 = issuer_credential_create(CRED_DEF_ID.to_string(),"1".to_string(),"8XFh8yBzrpJQmNyZzgoTqB".to_owned(),"credential_name".to_string(),"{\"attr\":\"value\"}".to_owned(),1).unwrap();
-        let h2 = issuer_credential_create(CRED_DEF_ID.to_string(),"1".to_string(),"8XFh8yBzrpJQmNyZzgoTqB".to_owned(),"credential_name".to_string(),"{\"attr\":\"value\"}".to_owned(),1).unwrap();
-        let h3 = issuer_credential_create(CRED_DEF_ID.to_string(),"1".to_string(),"8XFh8yBzrpJQmNyZzgoTqB".to_owned(),"credential_name".to_string(),"{\"attr\":\"value\"}".to_owned(),1).unwrap();
-        let h4 = issuer_credential_create(CRED_DEF_ID.to_string(),"1".to_string(),"8XFh8yBzrpJQmNyZzgoTqB".to_owned(),"credential_name".to_string(),"{\"attr\":\"value\"}".to_owned(),1).unwrap();
-        let h5 = issuer_credential_create(CRED_DEF_ID.to_string(),"1".to_string(),"8XFh8yBzrpJQmNyZzgoTqB".to_owned(),"credential_name".to_string(),"{\"attr\":\"value\"}".to_owned(),1).unwrap();
+        init!("true");
+        let h1 = issuer_credential_create(::credential_def::tests::create_cred_def_fake(),"1".to_string(),"8XFh8yBzrpJQmNyZzgoTqB".to_owned(),"credential_name".to_string(),"{\"attr\":\"value\"}".to_owned(),1).unwrap();
+        let h2 = issuer_credential_create(::credential_def::tests::create_cred_def_fake(),"1".to_string(),"8XFh8yBzrpJQmNyZzgoTqB".to_owned(),"credential_name".to_string(),"{\"attr\":\"value\"}".to_owned(),1).unwrap();
+        let h3 = issuer_credential_create(::credential_def::tests::create_cred_def_fake(),"1".to_string(),"8XFh8yBzrpJQmNyZzgoTqB".to_owned(),"credential_name".to_string(),"{\"attr\":\"value\"}".to_owned(),1).unwrap();
+        let h4 = issuer_credential_create(::credential_def::tests::create_cred_def_fake(),"1".to_string(),"8XFh8yBzrpJQmNyZzgoTqB".to_owned(),"credential_name".to_string(),"{\"attr\":\"value\"}".to_owned(),1).unwrap();
+        let h5 = issuer_credential_create(::credential_def::tests::create_cred_def_fake(),"1".to_string(),"8XFh8yBzrpJQmNyZzgoTqB".to_owned(),"credential_name".to_string(),"{\"attr\":\"value\"}".to_owned(),1).unwrap();
         release_all();
         assert_eq!(release(h1),Err(IssuerCredError::InvalidHandle()));
         assert_eq!(release(h2),Err(IssuerCredError::InvalidHandle()));
@@ -960,8 +1076,7 @@ pub mod tests {
 
     #[test]
     fn test_errors(){
-        settings::set_defaults();
-        settings::set_config_value(settings::CONFIG_ENABLE_TEST_MODE, "false");
+        init!("false");
         let invalid_handle = 478620;
         assert_eq!(to_string(invalid_handle).err(), Some(IssuerCredError::CommonError(error::INVALID_OBJ_HANDLE.code_num)));
         assert_eq!(release(invalid_handle).err(), Some(IssuerCredError::InvalidHandle()));
@@ -969,14 +1084,14 @@ pub mod tests {
 
     #[test]
     fn test_encoding(){
-        let issuer_credential_handle = self::issuer_credential_create(CRED_DEF_ID.to_string(),
+        let issuer_credential_handle = issuer_credential_create(::credential_def::tests::create_cred_def_fake(),
                                                                       "IssuerCredentialName".to_string(),
                                                                       "000000000000000000000000Issuer02".to_string(),
                                                                       "CredentialNameHere".to_string(),
                                                                       r#"["name","gpa"]"#.to_string(),
                     						      1).unwrap();
         assert!(self::get_encoded_attributes(issuer_credential_handle).is_err());
-        let issuer_credential_handle = self::issuer_credential_create(CRED_DEF_ID.to_string(),
+        let issuer_credential_handle = issuer_credential_create(::credential_def::tests::create_cred_def_fake(),
                                                                      "IssuerCredentialName".to_string(),
                                                                      "000000000000000000000000Issuer02".to_string(),
                                                                      "CredentialNameHere".to_string(),
@@ -993,19 +1108,17 @@ pub mod tests {
             payment_required: "one-time".to_string(),
             price: 1000,
         };
-        println!("{}", serde_json::to_string(&payment_info).unwrap())
+        let _ = serde_json::to_string(&payment_info).unwrap();
     }
 
     #[test]
     fn test_verify_payment() {
-        let test_name = "test_verify_payment";
-        set_default_and_enable_test_mode();
-
+        init!("true");
         let mut credential = create_standard_issuer_credential();
 
         // Success
         credential.price = 3;
-        credential.payment_address = Some("pay:null:9UFgyjuJxi1i1HD".to_string());
+        credential.payment_address = Some(payments::build_test_address("9UFgyjuJxi1i1HD"));
         assert!(credential.verify_payment().is_ok());
 
         // Err - Wrong payment amount
@@ -1019,16 +1132,13 @@ pub mod tests {
 
     #[test]
     fn test_send_credential_with_payments() {
-        let test_name = "test_send_a_credential";
-        set_default_and_enable_test_mode();
-        settings::set_config_value(settings::CONFIG_INSTITUTION_DID, "QTrbV4raAcND4DWWzBmdsh");
-
+        init!("true");
         let mut credential = create_standard_issuer_credential();
         credential.state = VcxStateType::VcxStateRequestReceived;
         credential.price = 3;
-        credential.payment_address = Some("pay:null:9UFgyjuJxi1i1HD".to_string());
+        credential.payment_address = Some(payments::build_test_address("9UFgyjuJxi1i1HD"));
 
-        let connection_handle = build_connection("test_send_credential_offer").unwrap();
+        let connection_handle = build_test_connection();
 
         // Success
         credential.send_credential(connection_handle).unwrap();
@@ -1041,5 +1151,260 @@ pub mod tests {
         assert!(credential.send_credential(connection_handle).is_err());
         let payment = serde_json::to_string(&credential.get_payment_txn().unwrap()).unwrap();
         assert!(payment.len() > 20);
+    }
+
+    #[test]
+    fn test_revoke_credential() {
+        init!("true");
+        let mut credential = create_standard_issuer_credential();
+
+        credential.tails_file = Some(TEST_TAILS_FILE.to_string());
+        credential.cred_rev_id = None;
+        credential.rev_reg_id = None;
+        assert_eq!(credential.revoke_cred(), Err(IssuerCredError::InvalidRevocationInfo()));
+        credential.tails_file = None;
+        credential.cred_rev_id = Some(CRED_REV_ID.to_string());
+        credential.rev_reg_id = None;
+        assert_eq!(credential.revoke_cred(), Err(IssuerCredError::InvalidRevocationInfo()));
+        credential.tails_file = None;
+        credential.cred_rev_id = None;
+        credential.rev_reg_id = Some(REV_REG_ID.to_string());
+        assert_eq!(credential.revoke_cred(), Err(IssuerCredError::InvalidRevocationInfo()));
+
+        credential.tails_file = Some(TEST_TAILS_FILE.to_string());
+        credential.cred_rev_id = Some(CRED_REV_ID.to_string());
+        credential.rev_reg_id = Some(REV_REG_ID.to_string());
+        credential.rev_cred_payment_txn = None;
+
+        credential.revoke_cred().unwrap();
+        assert!(credential.rev_cred_payment_txn.is_some());
+    }
+
+
+    #[test]
+    fn test_encode_with_several_attributes_success() {
+
+        /*
+        for reference....expectation is encode_attributes returns this:
+
+        let expected = json!({
+          "address2": {
+            "encoded": "68086943237164982734333428280784300550565381723532936263016368251445461241953",
+            "raw": "101 Wilson Lane"
+          },
+          "zip": {
+            "encoded": "87121",
+            "raw": "87121"
+          },
+          "city": {
+            "encoded": "101327353979588246869873249766058188995681113722618593621043638294296500696424",
+            "raw": "SLC"
+          },
+          "address1": {
+            "encoded": "63690509275174663089934667471948380740244018358024875547775652380902762701972",
+            "raw": "101 Tela Lane"
+          },
+          "state": {
+            "encoded": "93856629670657830351991220989031130499313559332549427637940645777813964461231",
+            "raw": "UT"
+          }
+        });
+        */
+
+        static TEST_CREDENTIAL_DATA: &str =
+            r#"{"address2":["101 Wilson Lane"],
+            "zip":["87121"],
+            "state":["UT"],
+            "city":["SLC"],
+            "address1":["101 Tela Lane"]
+            }"#;
+
+        let results_json = encode_attributes(TEST_CREDENTIAL_DATA).unwrap();
+
+        let results : Value = serde_json::from_str(&results_json).unwrap();
+
+        let address2 : &Value = &results["address2"];
+        assert_eq!(encode("101 Wilson Lane").unwrap(), address2["encoded"]);
+        assert_eq!("101 Wilson Lane", address2["raw"]);
+
+        let state : &Value = &results["state"];
+        assert_eq!(encode("UT").unwrap(), state["encoded"]);
+        assert_eq!("UT", state["raw"]);
+
+        let zip : &Value = &results["zip"];
+        assert_eq!("87121", zip["encoded"]);
+        assert_eq!("87121", zip["raw"]);
+
+
+    }
+
+    #[test]
+    fn test_encode_with_one_attribute_success() {
+
+        let expected = json!({
+          "address2": {
+            "encoded": "68086943237164982734333428280784300550565381723532936263016368251445461241953",
+            "raw": "101 Wilson Lane"
+          }
+        });
+
+        static TEST_CREDENTIAL_DATA: &str =
+        r#"{"address2":["101 Wilson Lane"]}"#;
+
+        let expected_json = serde_json::to_string_pretty(&expected).unwrap();
+
+        let results_json = encode_attributes(TEST_CREDENTIAL_DATA).unwrap();
+
+        assert_eq!(expected_json, results_json, "encode_attributes failed to return expected results");
+    }
+
+    #[test]
+    fn test_encode_with_new_format_several_attributes_success() {
+
+        /*
+        for reference....expectation is encode_attributes returns this:
+
+        let expected = json!({
+          "address2": {
+            "encoded": "68086943237164982734333428280784300550565381723532936263016368251445461241953",
+            "raw": "101 Wilson Lane"
+          },
+          "zip": {
+            "encoded": "87121",
+            "raw": "87121"
+          },
+          "city": {
+            "encoded": "101327353979588246869873249766058188995681113722618593621043638294296500696424",
+            "raw": "SLC"
+          },
+          "address1": {
+            "encoded": "63690509275174663089934667471948380740244018358024875547775652380902762701972",
+            "raw": "101 Tela Lane"
+          },
+          "state": {
+            "encoded": "93856629670657830351991220989031130499313559332549427637940645777813964461231",
+            "raw": "UT"
+          }
+        });
+        */
+
+        static TEST_CREDENTIAL_DATA: &str =
+            r#"{"address2":"101 Wilson Lane",
+            "zip":"87121",
+            "state":"UT",
+            "city":"SLC",
+            "address1":"101 Tela Lane"
+            }"#;
+
+        let results_json = encode_attributes(TEST_CREDENTIAL_DATA).unwrap();
+
+        let results : Value = serde_json::from_str(&results_json).unwrap();
+
+        let address2 : &Value = &results["address2"];
+        assert_eq!(encode("101 Wilson Lane").unwrap(), address2["encoded"]);
+        assert_eq!("101 Wilson Lane", address2["raw"]);
+
+        let state : &Value = &results["state"];
+        assert_eq!(encode("UT").unwrap(), state["encoded"]);
+        assert_eq!("UT", state["raw"]);
+
+        let zip : &Value = &results["zip"];
+        assert_eq!("87121", zip["encoded"]);
+        assert_eq!("87121", zip["raw"]);
+
+    }
+
+    #[test]
+    fn test_encode_with_new_format_one_attribute_success() {
+
+        let expected = json!({
+          "address2": {
+            "encoded": "68086943237164982734333428280784300550565381723532936263016368251445461241953",
+            "raw": "101 Wilson Lane"
+          }
+        });
+
+        static TEST_CREDENTIAL_DATA: &str =
+        r#"{"address2": "101 Wilson Lane"}"#;
+
+        let expected_json = serde_json::to_string_pretty(&expected).unwrap();
+
+        let results_json = encode_attributes(TEST_CREDENTIAL_DATA).unwrap();
+
+        assert_eq!(expected_json, results_json, "encode_attributes failed to return expected results");
+    }
+
+    #[test]
+    fn test_encode_with_mixed_format_several_attributes_success() {
+
+        /*
+        for reference....expectation is encode_attributes returns this:
+
+        let expected = json!({
+          "address2": {
+            "encoded": "68086943237164982734333428280784300550565381723532936263016368251445461241953",
+            "raw": "101 Wilson Lane"
+          },
+          "zip": {
+            "encoded": "87121",
+            "raw": "87121"
+          },
+          "city": {
+            "encoded": "101327353979588246869873249766058188995681113722618593621043638294296500696424",
+            "raw": "SLC"
+          },
+          "address1": {
+            "encoded": "63690509275174663089934667471948380740244018358024875547775652380902762701972",
+            "raw": "101 Tela Lane"
+          },
+          "state": {
+            "encoded": "93856629670657830351991220989031130499313559332549427637940645777813964461231",
+            "raw": "UT"
+          }
+        });
+        */
+
+        static TEST_CREDENTIAL_DATA: &str =
+            r#"{"address2":["101 Wilson Lane"],
+            "zip":"87121",
+            "state":"UT",
+            "city":["SLC"],
+            "address1":"101 Tela Lane"
+            }"#;
+
+        let results_json = encode_attributes(TEST_CREDENTIAL_DATA).unwrap();
+
+        let results : Value = serde_json::from_str(&results_json).unwrap();
+        let address2 : &Value = &results["address2"];
+
+        assert_eq!("68086943237164982734333428280784300550565381723532936263016368251445461241953", address2["encoded"]);
+        assert_eq!("101 Wilson Lane", address2["raw"]);
+
+        let state : &Value = &results["state"];
+        assert_eq!("93856629670657830351991220989031130499313559332549427637940645777813964461231", state["encoded"]);
+        assert_eq!("UT", state["raw"]);
+
+        let zip : &Value = &results["zip"];
+        assert_eq!("87121", zip["encoded"]);
+        assert_eq!("87121", zip["raw"]);
+
+    }
+
+    #[test]
+    fn test_encode_bad_format_returns_error()
+    {
+        static BAD_TEST_CREDENTIAL_DATA: &str =
+            r#"{"format doesnt make sense"}"#;
+
+        assert!(encode_attributes(BAD_TEST_CREDENTIAL_DATA).is_err())
+    }
+
+    #[test]
+    fn test_encode_old_format_empty_array_error()
+    {
+        static BAD_TEST_CREDENTIAL_DATA: &str =
+            r#"{"address2":[]}"#;
+
+        assert!(encode_attributes(BAD_TEST_CREDENTIAL_DATA).is_err())
     }
 }

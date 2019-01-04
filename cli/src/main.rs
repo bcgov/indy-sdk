@@ -1,7 +1,9 @@
 #![cfg_attr(feature = "fatal_warnings", deny(warnings))]
 
+extern crate atty;
 extern crate ansi_term;
 extern crate unescape;
+#[cfg(test)]
 #[macro_use]
 extern crate lazy_static;
 extern crate libc;
@@ -15,6 +17,7 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate prettytable;
 extern crate log4rs;
+extern crate indyrs as indy;
 
 #[macro_use]
 mod utils;
@@ -36,6 +39,9 @@ use std::io::BufReader;
 use std::rc::Rc;
 
 fn main() {
+    #[cfg(target_os = "windows")]
+    ansi_term::enable_ansi_support().is_ok();
+
     let mut args = env::args();
     args.next(); // skip library
 
@@ -90,10 +96,12 @@ fn build_executor() -> CommandExecutor {
         .finalize_group()
         .add_group(wallet::group::new())
         .add_command(wallet::create_command::new())
+        .add_command(wallet::attach_command::new())
         .add_command(wallet::open_command::new())
         .add_command(wallet::list_command::new())
         .add_command(wallet::close_command::new())
         .add_command(wallet::delete_command::new())
+        .add_command(wallet::detach_command::new())
         .add_command(wallet::export_command::new())
         .add_command(wallet::import_command::new())
         .finalize_group()
@@ -128,9 +136,6 @@ fn build_executor() -> CommandExecutor {
 }
 
 fn execute_stdin(command_executor: CommandExecutor) {
-    #[cfg(target_os = "windows")]
-    ansi_term::enable_ansi_support().is_ok();
-
     match Reader::new("indy-cli") {
         Ok(reader) => execute_interactive(command_executor, reader),
         Err(_) => execute_batch(&command_executor, None),
@@ -196,7 +201,7 @@ fn _print_help() {
     println_acc!("\tLoad plugins in Libindy.");
     println_acc!("\tUsage: indy-cli --plugins <lib-1-name>:<init-func-1-name>,...,<lib-n-name>:<init-func-n-name>");
     println!();
-    println_acc!("\tInit logger according to a config file.");
+    println_acc!("\tInit logger according to a config file. \n\tIndy Cli uses `log4rs` logging framework: https://crates.io/crates/log4rs");
     println_acc!("\tUsage: indy-cli --logger-config <path-to-config-file>");
     println!();
 }

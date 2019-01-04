@@ -1,7 +1,7 @@
 from ctypes import *
-from vcx.error import VcxError, ErrorCode
+from vcx.error import VcxError, ErrorCode, error_message
 from vcx.api.vcx_base import VcxBase
-from vcx.common import do_call, create_cb, error_message
+from vcx.common import do_call, create_cb
 
 import json
 
@@ -113,7 +113,7 @@ class CredentialDef(VcxBase):
                                                               data['data']['id'])
             return credential_def
         except KeyError:
-            raise VcxError(ErrorCode.InvalidCredentialDef, error_message(ErrorCode.InvalidCredentialDef))
+            raise VcxError(ErrorCode.InvalidCredentialDef)
 
 
     async def get_cred_def_id(self):

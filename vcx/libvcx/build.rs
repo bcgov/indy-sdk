@@ -1,4 +1,5 @@
 use std::env;
+use std::fs;
 use std::io::prelude::*;
 use std::fs::File;
 use std::path::Path;
@@ -56,7 +57,7 @@ struct Contents {
 fn main() {
     let target = env::var("TARGET").unwrap();
     println!("target={}", target);
-    
+
     if let Ok(_mode) = env::var("LIBINDY_STATIC") {
         let libindy_lib_path = env::var("LIBINDY_DIR").unwrap();
         println!("cargo:rustc-link-search=native={}",libindy_lib_path);
@@ -85,41 +86,38 @@ fn main() {
         println!("cargo:rustc-link-search=native={}", openssl);
         println!("cargo:rustc-link-lib=static=crypto");
         println!("cargo:rustc-link-lib=static=ssl");
-        if cfg!(feature = "nullpay") {
-            let libnullpay_lib_path = match env::var("LIBNULLPAY_DIR") {
-                Ok(val) => val,
-                Err(..) => panic!("Missing required environment variable LIBNULLPAY_DIR")
-            };
 
-            println!("cargo:rustc-link-search=native={}",libnullpay_lib_path);
-            println!("cargo:rustc-link-lib=static=nullpay");
-        } else if cfg!(feature = "sovtoken") {
-            let libsovtoken_lib_path = match env::var("LIBSOVTOKEN_DIR") {
-                Ok(val) => val,
-                Err(..) => panic!("Missing required environment variable LIBSOVTOKEN_DIR")
-            };
-
-            println!("cargo:rustc-link-search=native={}",libsovtoken_lib_path);
-            println!("cargo:rustc-link-lib=static=sovtoken");
-        }
     }else if target.contains("darwin"){
         //OSX specific logic
         println!("cargo:rustc-link-lib=indy");
         //OSX does not allow 3rd party libs to be installed in /usr/lib. Instead install it in /usr/local/lib
         println!("cargo:rustc-link-search=native=/usr/local/lib");
-        if cfg!(feature = "nullpay") {
-          println!("cargo:rustc-link-lib=nullpay");
-        } else if cfg!(feature = "sovtoken") {
-            println!("cargo:rustc-link-lib=sovtoken");
-        }
     }else if target.contains("-linux-"){
         //Linux specific logic
         println!("cargo:rustc-link-lib=indy");
         println!("cargo:rustc-link-search=native=/usr/lib");
-        if cfg!(feature = "nullpay") {
-          println!("cargo:rustc-link-lib=nullpay");
-        } else if cfg!(feature = "sovtoken") {
-            println!("cargo:rustc-link-lib=sovtoken");
+    }else if target.contains("-windows-") {
+        println!("cargo:rustc-link-lib=indy.dll");
+
+        let profile = env::var("PROFILE").unwrap();
+        println!("profile={}", profile);
+
+        let output_dir = env::var("OUT_DIR").unwrap();
+        println!("output_dir={}", output_dir);
+        let output_dir = Path::new(output_dir.as_str());
+
+        let indy_dir = env::var("INDY_DIR").unwrap_or(format!("..\\..\\libindy\\target\\{}", profile));
+        println!("indy_dir={}", indy_dir);
+        let indy_dir = Path::new(indy_dir.as_str());
+
+        let dst = output_dir.join("..\\..\\..\\..");
+        println!("cargo:rustc-flags=-L {}", indy_dir.as_os_str().to_str().unwrap());
+
+        let files = vec!["indy.dll", "libeay32md.dll", "libsodium.dll", "libzmq.dll", "ssleay32md.dll"];
+        for f in files.iter() {
+            if let Ok(_) = fs::copy(&indy_dir.join(f), &dst.join(f)) {
+                println!("copy {} -> {}", &indy_dir.join(f).display(), &dst.join(f).display());
+            }
         }
     }
 

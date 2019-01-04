@@ -12,7 +12,7 @@ import {
   updateMessages,
   VCXCode
 } from 'src'
-
+import { errorMessage } from '../../src/utils/error-message'
 describe('utils:', () => {
   before(() => initVcxTestMode())
 
@@ -46,8 +46,7 @@ describe('utils:', () => {
 
   describe('updateAgentInfo:', () => {
     it('success', async () => {
-      const res = await updateAgentInfo(agentUpdateString)
-      assert.ok(res)
+      await updateAgentInfo(agentUpdateString)
     })
 
     it('throws: invalid input', async () => {
@@ -101,4 +100,17 @@ describe('utils:', () => {
       await updateMessages(updateMessagesData)
     })
   })
+
+  describe('VCXCode:', () => {
+    it('should have a one-to-one mapping for each code', async () => {
+      let max = 0
+      for (const ec in VCXCode) {
+        if (typeof VCXCode[ec] === 'number' && Number(VCXCode[ec]) > max) {
+          max = Number(VCXCode[ec])
+        }
+      }
+      assert.equal(errorMessage(max + 1), errorMessage(1001))
+    })
+  })
+
 })

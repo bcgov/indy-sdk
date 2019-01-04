@@ -5,7 +5,7 @@ use command_executor::{Command, CommandContext, CommandMetadata, CommandParams, 
 use commands::*;
 use commands::payment_address::handle_payment_error;
 
-use libindy::ErrorCode;
+use indy::ErrorCode;
 use libindy::ledger::Ledger;
 use libindy::payment::Payment;
 
@@ -42,7 +42,7 @@ pub mod nym_command {
     command!(CommandMetadata::build("nym", "Send NYM transaction to the Ledger.")
                 .add_required_param("did", "DID of new identity")
                 .add_optional_param("verkey", "Verification key of new identity")
-                .add_optional_param("role", "Role of identity. One of: STEWARD, TRUSTEE, TRUST_ANCHOR, TGB or empty in case of blacklisting NYM")
+                .add_optional_param("role", "Role of identity. One of: STEWARD, TRUSTEE, TRUST_ANCHOR or empty in case of blacklisting NYM")
                 .add_optional_param("fees_inputs","The list of source inputs")
                 .add_optional_param("fees_outputs","The list of outputs in the following format: (recipient, amount)")
                 .add_optional_param("extra","Optional information for fees payment operation")
@@ -600,9 +600,9 @@ pub mod node_command {
                 .add_optional_param("client_ip", "Client Ip. Note that it is mandatory for adding node case")
                 .add_optional_param("client_port","Client port. Note that it is mandatory for adding node case")
                 .add_optional_param("blskey",  "Node BLS key")
-                .add_optional_param("blskey_pop",  "Node BLS key proof of possession")
+                .add_optional_param("blskey_pop",  "Node BLS key proof of possession. Note that it is mandatory if blskey specified")
                 .add_optional_param("services", "Node type. One of: VALIDATOR, OBSERVER or empty in case of blacklisting node")
-                .add_example("ledger node target=A5iWQVT3k8Zo9nXj4otmeqaUziPQPCiDqcydXkAJBk1Y node_ip=127.0.0.1 node_port=9710 client_ip=127.0.0.1 client_port=9711 alias=Node5 services=VALIDATOR blskey=2zN3bHM1m4rLz54MJHYSwvqzPchYp8jkHswveCLAEJVcX6Mm1wHQD1SkPYMzUDTZvWvhuE6VNAkK3KxVeEmsanSmvjVkReDeBEMxeDaayjcZjFGPydyey1qxBHmTvAnBKoPydvuTAqx5f7YNNRAdeLmUi99gERUU7TD8KfAa6MpQ9bw")
+                .add_example("ledger node target=A5iWQVT3k8Zo9nXj4otmeqaUziPQPCiDqcydXkAJBk1Y node_ip=127.0.0.1 node_port=9710 client_ip=127.0.0.1 client_port=9711 alias=Node5 services=VALIDATOR blskey=2zN3bHM1m4rLz54MJHYSwvqzPchYp8jkHswveCLAEJVcX6Mm1wHQD1SkPYMzUDTZvWvhuE6VNAkK3KxVeEmsanSmvjVkReDeBEMxeDaayjcZjFGPydyey1qxBHmTvAnBKoPydvuTAqx5f7YNNRAdeLmUi99gERUU7TD8KfAa6MpQ9bw blskey_pop=RPLagxaR5xdimFzwmzYnz4ZhWtYQEj8iR5ZU53T2gitPCyCHQneUn2Huc4oeLd2B2HzkGnjAff4hWTJT6C7qHYB1Mv2wU5iHHGFWkhnTX9WsEAbunJCV2qcaXScKj4tTfvdDKfLiVuU2av6hbsMztirRze7LvYBkRHV3tGwyCptsrP")
                 .add_example("ledger node target=A5iWQVT3k8Zo9nXj4otmeqaUziPQPCiDqcydXkAJBk1Y node_ip=127.0.0.1 node_port=9710 client_ip=127.0.0.1 client_port=9711 alias=Node5 services=VALIDATOR")
                 .add_example("ledger node target=A5iWQVT3k8Zo9nXj4otmeqaUziPQPCiDqcydXkAJBk1Y alias=Node5 services=VALIDATOR")
                 .add_example("ledger node target=A5iWQVT3k8Zo9nXj4otmeqaUziPQPCiDqcydXkAJBk1Y alias=Node5 services=")
@@ -1221,7 +1221,7 @@ pub mod sign_multi_command {
     }
 }
 
-fn set_request_fees(request: &mut String, wallet_handle: i32, submitter_did: Option<&str>, fees_inputs: &Option<Vec<&str>>, fees_outputs: &Option<Vec<String>>, extra: Option<&str>) -> Result<Option<String>, ()> {
+pub fn set_request_fees(request: &mut String, wallet_handle: i32, submitter_did: Option<&str>, fees_inputs: &Option<Vec<&str>>, fees_outputs: &Option<Vec<String>>, extra: Option<&str>) -> Result<Option<String>, ()> {
     let mut payment_method: Option<String> = None;
     if let &Some(ref inputs) = fees_inputs {
         let inputs_json = parse_payment_inputs(&inputs)?;
@@ -1280,7 +1280,7 @@ fn parse_payment_outputs(outputs: &Vec<String>) -> Result<String, ()> {
 }
 
 
-fn parse_response_with_fees(response: &str, payment_method: Option<String>) -> Result<Option<Vec<serde_json::Value>>, ()> {
+pub fn parse_response_with_fees(response: &str, payment_method: Option<String>) -> Result<Option<Vec<serde_json::Value>>, ()> {
     let receipts = if let Some(method) = payment_method {
         Some(Payment::parse_response_with_fees(&method, &response)
             .map_err(|err| handle_payment_error(err, Some(&method)))
@@ -1291,7 +1291,7 @@ fn parse_response_with_fees(response: &str, payment_method: Option<String>) -> R
     Ok(receipts)
 }
 
-fn print_response_receipts(receipts: Option<Vec<serde_json::Value>>) -> Result<(), ()> {
+pub fn print_response_receipts(receipts: Option<Vec<serde_json::Value>>) -> Result<(), ()> {
     receipts.map(|receipt| {
         if !receipt.is_empty() {
             println_succ!("Following Receipts has been received.");
@@ -1430,7 +1430,6 @@ fn get_role_title(role: &serde_json::Value) -> serde_json::Value {
     serde_json::Value::String(match role.as_str() {
         Some("0") => "TRUSTEE",
         Some("2") => "STEWARD",
-        Some("100") => "TGB",
         Some("101") => "TRUST_ANCHOR",
         _ => "-"
     }.to_string())

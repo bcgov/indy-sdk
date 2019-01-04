@@ -3,6 +3,7 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate serde;
 extern crate nullpay;
+extern crate indyrs as indy;
 
 #[macro_use]
 extern crate lazy_static;
@@ -20,7 +21,7 @@ use utils::types::*;
 use utils::ledger;
 use utils::pool;
 use utils::did;
-use nullpay::ErrorCode;
+use indy::ErrorCode;
 
 use std::collections::HashMap;
 
@@ -983,6 +984,30 @@ mod medium_cases {
             let verify_txn_resp = ledger::submit_request(pool_handle, verify_txn_json.as_str()).unwrap();
             let res = payments::parse_verify_payment_response(payment_method.as_str(), verify_txn_resp.as_str());
             assert_eq!(res.unwrap_err(), ErrorCode::PaymentSourceDoesNotExistError);
+
+            pool::close(pool_handle).unwrap();
+            wallet::close_wallet(wallet_handle).unwrap();
+            test_utils::tear_down();
+        }
+    }
+
+    mod parse_payment_response {
+        use super::*;
+
+        #[test]
+        pub fn parse_response_with_fees_works_for_response_without_fees() {
+            test_utils::setup();
+            plugin::init_plugin();
+            let wallet_handle = wallet::create_and_open_wallet().unwrap();
+            let pool_handle = pool::create_and_open_pool_ledger(POOL_NAME).unwrap();
+
+            let (trustee_did, _) = did::create_and_store_my_did(wallet_handle, Some(TRUSTEE_SEED)).unwrap();
+            let (my_did, my_vk) = did::create_and_store_my_did(wallet_handle, None).unwrap();
+            let nym_req = ledger::build_nym_request(&trustee_did, &my_did, &my_vk, "aaa", "TRUSTEE").unwrap();
+
+            let response = ledger::sign_and_submit_request(pool_handle, wallet_handle, &trustee_did, &nym_req).unwrap();
+            let parsed_response = payments::parse_payment_response(PAYMENT_METHOD_NAME, response.as_str()).unwrap();
+            assert_eq!("{}", parsed_response);
 
             pool::close(pool_handle).unwrap();
             wallet::close_wallet(wallet_handle).unwrap();

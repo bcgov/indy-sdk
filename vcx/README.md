@@ -1,50 +1,41 @@
 # VCX
 
-libvcx is library on top of libindy which fully implements the credentials exchange.
+Libvcx is a c-callable library built on top of Libindy that provides a high-level credential exchange protocol. 
+It simplifies creation of agent applications and provides better agent-2-agent interoperability for [Hyperledger Indy](https://www.hyperledger.org/projects/hyperledger-indy)
+infrastructure.
 
-This library is currently in experimental state.
+**Note** This library is currently in an **experimental** state.
 
-## Linux
-1) Install rust and rustup (https://www.rust-lang.org/install.html).
-2) Install libindy_1.6.1 (https://repo.sovrin.org/sdk/deb/pool/xenial/stable/libi/libindy/)
-2) Install libnullpay_1.6.1 (https://repo.sovrin.org/sdk/deb/pool/xenial/stable/libn/libnullpay/)
-3) Clone this repo to your local machine.
-4) From the sdk/vcx/libvcx folder inside this local repository run the following commands to verify everything works:
-    ```
-    $ cargo build
-    $ cargo test
-    ```
-5) Currently developers are using intellij for IDE development (https://www.jetbrains.com/idea/download/) with the rust plugin (https://plugins.jetbrains.com/plugin/8182-rust).
+## Installing the VCX
+* VCX requires access to some Cloud Agent for full work. 
+[Here](https://github.com/hyperledger/indy-sdk/tree/master/vcx/dummy-cloud-agent/README.md) is the simple Agent that can be used.
+* VCX requires some payment plugin.
+[Here](https://github.com/hyperledger/indy-sdk/tree/master/libnullpay/README.md) is the simple plugin that can be used.
 
-"Everything is awesome when you're part of a team!" #TeamOneDirection
+### Ubuntu based distributions (Ubuntu 16.04)
+It is recommended to install the VCX packages with APT:
 
-# Debians and Artifacts
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68DB5E88
+    sudo add-apt-repository "deb https://repo.sovrin.org/sdk/deb xenial {release channel}"
+    sudo apt-get update
+    sudo apt-get install -y libvcx
 
-**`libvcx_<ver>_amd.deb`**
-- a debian that will install the .so library into /usr/lib, update `ldconfig`, and install provision script to `/usr/share/libvcx/`.
+{release channel} must be replaced with master, rc or stable to define corresponded release channel.
+Please See the section [Release channels](../README.md/#release-channels) for more details.
 
-**`vcx_<ver>.deb`**
-- an unintelligent debian package that puts the nodejs package contents into a global node_modules location.
-
-**`vcx<ver>.tgz`**
-- target for the `$npm install vcx<ver>.tgz`
-
-**`libvcx.tar.gz`**
-- simple archive of libvcx.so and provision python script.
-
-## OSX
+### OSX
 
 To build libvcx for OSX and iOS using scripts do the following steps --
-1) Add the following environment variables to your .bash_profile
-export PKG_CONFIG_ALLOW_CROSS=1
-export CARGO_INCREMENTAL=1
-export RUST_LOG=indy=trace
-export RUST_TEST_THREADS=1
-for i in `ls -t /usr/local/Cellar/openssl/`; do export OPENSSL_DIR=/usr/local/Cellar/openssl/$i; break; done
-export PYTHONPATH=/Users/[your_username]/[path_to_sdk]/vcx/libvcx/vcx-indy-sdk/wrappers/python:/Users/[your_username]/[path_to_sdk]/vcx/wrappers/python3:${PYTHONPATH}
-#it is important that the $HOME/.cargo/bin comes first in the PATH
-export PATH="$HOME/.cargo/bin:$PATH"
-export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/local/Cellar/zeromq/4.2.5/lib/pkgconfig:/usr/local/Cellar/libsodium/1.0.12/lib/pkgconfig
+1) Add the following environment variables to your .bash_profile  
+export PKG_CONFIG_ALLOW_CROSS=1  
+export CARGO_INCREMENTAL=1  
+export RUST_LOG=indy=trace  
+export RUST_TEST_THREADS=1  
+for i in `ls -t /usr/local/Cellar/openssl/`; do export OPENSSL_DIR=/usr/local/Cellar/openssl/$i; break; done  
+export PYTHONPATH=/Users/[your_username]/[path_to_sdk]/vcx/libvcx/vcx-indy-sdk/wrappers/python:/Users/[your_username]/[path_to_sdk]/vcx/wrappers/python3:${PYTHONPATH}  
+`# it is important that the $HOME/.cargo/bin comes first in the PATH`  
+export PATH="$HOME/.cargo/bin:$PATH"  
+export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/local/Cellar/zeromq/4.2.5/lib/pkgconfig:/usr/local/Cellar/libsodium/1.0.12/lib/pkgconfig  
 2) git clone this repository
 3) cd sdk/vcx/libvcx/build/macos
 4) ./mac.01.libindy.setup.sh
@@ -69,7 +60,7 @@ it should finish successfully.
 
 To build libvcx on your own you can follow these steps --
 1) Install rust and rustup (https://www.rust-lang.org/install.html).
-2) Install libindy (https://repo.evernym.com/libindy/).
+2) Install or build libindy (https://repo.evernym.com/libindy/).
     - As of now there is no distribution channel for OSX for LibIndy. [You have to build it manually.](https://github.com/hyperledger/indy-sdk/blob/master/doc/mac-build.md) 
     - Copy generated `libindy.dylib` file to `/usr/local/lib`
         - Or create a symlink in `/usr/local/lib` pointing to newly generated `libindy.dylib`, this will help in updating the libindy in future.
@@ -113,7 +104,7 @@ To build libvcx on your own you can follow these steps --
        
        If this seems too messy to you, it is recommended that ${HOME}/.cargo be removed entirely (as if you never followed install instructions found at https://www.rust-lang.org/install.html) and build/install rust and cargo from source. To build and install cargo from source, follow instructions found at: https://github.com/rust-lang/cargo
 
-## Android
+### Android
 1) Install rust and rustup (https://www.rust-lang.org/install.html).
 2) Clone this repo to your local machine.
 3) Install libindy (https://repo.evernym.com/libindy/).
@@ -124,5 +115,31 @@ To build libvcx on your own you can follow these steps --
 5) Run `android_build.sh aarm64` to build libvcx for aarm64 architecture.(Other architerctures will follow soon)
 6) Tests are not working on Android as of now.
 
+## How to build VCX from source
 
+## Linux 
+1) Install rust and rustup (https://www.rust-lang.org/install.html). 
+2) [Install Libindy](../README.md#installing-the-sdk) 
+3) Optionally [install Libnullpay](../libnullpay/README.md) to include payment functionality.
+3) Clone this repo to your local machine. 
+4) From the indy-sdk/vcx/libvcx folder inside this local repository run the following commands to verify everything works: 
+    ``` 
+    $ cargo build 
+    $ cargo test 
+    ``` 
+5) Currently developers are using intellij for IDE development (https://www.jetbrains.com/idea/download/) with the rust plugin (https://plugins.jetbrains.com/plugin/8182-rust). 
+ 
+## Wrappers documentation
 
+The following wrappers are tested and complete.
+
+* [Java](wrappers/java/README.md)
+* [Python](wrappers/python3/README.md)
+* [iOS](wrappers/ios/README.md)
+* [NodeJS](wrappers/node/README.md)
+
+## Getting started guide
+[The tutorial](docs/getting-started/getting-started.md) which introduces Libvcx and explains how the whole ecosystem works, and how the functions in the SDK can be used to construct rich clients.
+
+### Example use
+For the main workflow example check [demo](https://github.com/hyperledger/indy-sdk/tree/master/vcx/wrappers/python3/demo).

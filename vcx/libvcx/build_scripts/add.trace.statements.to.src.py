@@ -2,7 +2,6 @@
 # findLargeFiles.py - given a folder name, walk through its entire hierarchy
 #                   - print folders and files within each folder
 # python add.trace.statements.to.src.py /Users/iosbuild1/forge/work/code/evernym/sdk/vcx/libvcx/src
-# python add.trace.statements.to.src.py /Users/iosbuild1/forge/work/code/evernym/sdk/.macosbuild/vcx-indy-sdk/libnullpay/src
 # python add.trace.statements.to.src.py /Users/iosbuild1/forge/work/code/evernym/sdk/.macosbuild/vcx-indy-sdk/libindy/src
 
 import os
@@ -10,12 +9,12 @@ import sys
 
 # print(sys.argv)
 
-def recursive_walk(folder):
+def recursive_walk(folder, rustLogFunction):
     traceNumber = 0
     for folderName, subfolders, filenames in os.walk(folder):
         if subfolders:
             for subfolder in subfolders:
-                recursive_walk(subfolder)
+                recursive_walk(subfolder, rustLogFunction)
         print('\nFolder: ' + folderName)
         for filename in filenames:
             if (filename.endswith(".newrs")):
@@ -131,8 +130,8 @@ def recursive_walk(folder):
                     not previousLine.startswith("impl")
                 ):
                     traceNumber += 1
-                    copy.write("info!(\"TRACE[" + str(traceNumber) + "]: ABOVE LINE[" + str(fileLineNumber) + "]: " + trimmedLine.replace("\\","\\\\").replace("\"","\\\"").replace("{","{{").replace("}","}}") + " -- FILE: " + folderName + "/" + filename + "\");\n")
-                    #copy.write("match std::env::var(\"MOBILE_TRACE\") {Ok(val) => {info!(\"TRACE[" + str(traceNumber) + "]: ABOVE LINE[" + str(fileLineNumber) + "]: " + trimmedLine.replace("\\","\\\\").replace("\"","\\\"").replace("{","{{").replace("}","}}") + " -- FILE: " + folderName + "/" + filename + "\")}, Err(e) => {},}\n")
+                    copy.write(rustLogFunction + "!(\"TRACE[" + str(traceNumber) + "]: ABOVE LINE[" + str(fileLineNumber) + "]: " + trimmedLine.replace("\\","\\\\").replace("\"","\\\"").replace("{","{{").replace("}","}}") + " -- FILE: " + folderName + "/" + filename + "\");\n")
+                    #copy.write("match std::env::var(\"MOBILE_TRACE\") {Ok(val) => {" + rustLogFunction + "!(\"TRACE[" + str(traceNumber) + "]: ABOVE LINE[" + str(fileLineNumber) + "]: " + trimmedLine.replace("\\","\\\\").replace("\"","\\\"").replace("{","{{").replace("}","}}") + " -- FILE: " + folderName + "/" + filename + "\")}, Err(e) => {},}\n")
 
                 copy.write(line)
 
@@ -180,8 +179,8 @@ def recursive_walk(folder):
                     not previousLine.startswith("impl")
                 ):
                     traceNumber += 1
-                    copy.write("info!(\"TRACE[" + str(traceNumber) + "]: BELOW LINE[" + str(fileLineNumber) + "]: " + trimmedLine.replace("\\","\\\\").replace("\"","\\\"").replace("{","{{").replace("}","}}") + " -- FILE: " + folderName + "/" + filename + "\");\n")
-                    #copy.write("match std::env::var(\"MOBILE_TRACE\") {Ok(val) => {info!(\"TRACE[" + str(traceNumber) + "]: BELOW LINE[" + str(fileLineNumber) + "]: " + trimmedLine.replace("\\","\\\\").replace("\"","\\\"").replace("{","{{").replace("}","}}") + " -- FILE: " + folderName + "/" + filename + "\")}, Err(e) => {},}\n")
+                    copy.write(rustLogFunction + "!(\"TRACE[" + str(traceNumber) + "]: BELOW LINE[" + str(fileLineNumber) + "]: " + trimmedLine.replace("\\","\\\\").replace("\"","\\\"").replace("{","{{").replace("}","}}") + " -- FILE: " + folderName + "/" + filename + "\");\n")
+                    #copy.write("match std::env::var(\"MOBILE_TRACE\") {Ok(val) => {" + rustLogFunciton + "!(\"TRACE[" + str(traceNumber) + "]: BELOW LINE[" + str(fileLineNumber) + "]: " + trimmedLine.replace("\\","\\\\").replace("\"","\\\"").replace("{","{{").replace("}","}}") + " -- FILE: " + folderName + "/" + filename + "\")}, Err(e) => {},}\n")
 
                 if ( insideExternCurly == 1 and trimmedLine == "}" ):
                     insideExternCurly = 0
@@ -202,7 +201,7 @@ def recursive_walk(folder):
             copy.close()
             os.rename(folderName + '/' + filename + ".newrs", folderName + '/' + filename)
 
-recursive_walk(sys.argv[1])
+recursive_walk(sys.argv[1], sys.argv[2])
 
 # find vcx/libvcx/src -name "*.rs"|wc -l
 

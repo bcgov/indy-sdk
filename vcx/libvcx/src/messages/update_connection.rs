@@ -62,6 +62,8 @@ impl DeleteConnectionPayload {
 }
 impl DeleteConnection {
     pub fn create() -> DeleteConnection {
+        trace!("DeleteConnection::create_message >>>");
+
         DeleteConnection {
             to_did: String::new(),
             to_vk: String::new(),
@@ -72,6 +74,8 @@ impl DeleteConnection {
         }
     }
     pub fn send_secure(&mut self) -> Result<Vec<String>, u32> {
+        trace!("DeleteConnection::send >>>");
+
         let data = match self.msgpack() {
             Ok(x) => x,
             Err(x) => return Err(x),
@@ -97,8 +101,9 @@ impl DeleteConnection {
             return Ok(serde_json::to_string(&DeleteConnectionPayload::deserialize(data.to_owned()).unwrap()).unwrap())
         }
         let data = unbundle_from_agency(response.clone())?;
-        let response = DeleteConnectionPayload::deserialize(data[0].to_owned()).map_err(|e| e.to_error_code())?;
-        Ok(serde_json::to_string(&response).unwrap())
+        let response = DeleteConnectionPayload::deserialize(data[0].to_owned())
+            .map_err(|e| e.to_error_code())?;
+        serde_json::to_string(&response).or(Err(error::INVALID_JSON.code_num))
     }
 
     fn print_info(&self) {
@@ -131,7 +136,7 @@ impl GeneralMessage for DeleteConnection{
         if self.validate_rc != error::SUCCESS.code_num {
             return Err(self.validate_rc)
         }
-        let payload = encode::to_vec_named(&self.payload).unwrap();
+        let payload = encode::to_vec_named(&self.payload).or(Err(error::INVALID_JSON.code_num))?;
 
         let bundle = Bundled::create(payload);
 

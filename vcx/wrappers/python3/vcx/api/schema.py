@@ -1,6 +1,6 @@
 from ctypes import *
-from vcx.common import do_call, create_cb, error_message
-from vcx.error import VcxError, ErrorCode
+from vcx.common import do_call, create_cb
+from vcx.error import VcxError, ErrorCode, error_message
 from vcx.api.vcx_base import VcxBase
 
 import json
@@ -121,7 +121,7 @@ class Schema(VcxBase):
             schema.schema_id = await schema.get_schema_id()
             return schema
         except KeyError:
-            raise VcxError(ErrorCode.InvalidSchema, error_message(ErrorCode.InvalidSchema))
+            raise VcxError(ErrorCode.InvalidSchema)
 
     @staticmethod
     async def lookup(source_id: str, schema_id: str):

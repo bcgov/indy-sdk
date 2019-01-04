@@ -1,5 +1,6 @@
 #!/bin/sh
 
+set -e
 source ./shared.functions.sh
 
 START_DIR=$PWD
@@ -36,12 +37,13 @@ fi
 if [ "$CLEAN_BUILD" = "cleanbuild" ]; then
     cargo clean
     rm -rf ${BUILD_CACHE}/target
+    rm -rf ${BUILD_CACHE}/arch_libs
     # cargo update
-else
-    if [ -d ${BUILD_CACHE}/target ]; then
-        echo "Optimizing iOS build using folder: $(abspath ${BUILD_CACHE}/target)"
-        cp -rfp ${BUILD_CACHE}/target .
-    fi
+# else
+#     if [ -d ${BUILD_CACHE}/target ]; then
+#         echo "Optimizing iOS build using folder: $(abspath ${BUILD_CACHE}/target)"
+#         cp -rfp ${BUILD_CACHE}/target .
+#     fi
 fi
 
 git log -1 > $WORK_DIR/evernym.vcx-sdk.git.commit.log
@@ -69,17 +71,7 @@ do
     fi
 
     libtool="/usr/bin/libtool"
-    libsovtoken_dir="${BUILD_CACHE}/libsovtoken-ios/${LIBSOVTOKEN_VERSION}/libsovtoken"
     libindy_dir="${BUILD_CACHE}/libindy/${LIBINDY_VERSION}"
-
-    if [ -e ${libsovtoken_dir}/${target_arch}/libsovtoken.a ]; then
-        echo "${target_arch} libsovtoken architecture already extracted"
-    else
-        mkdir -p ${libsovtoken_dir}/${target_arch}
-        lipo -extract $target_arch ${libsovtoken_dir}/universal/libsovtoken.a -o ${libsovtoken_dir}/${target_arch}/libsovtoken.a
-        ${libtool} -static ${libsovtoken_dir}/${target_arch}/libsovtoken.a -o ${libsovtoken_dir}/${target_arch}/libsovtoken_libtool.a
-        mv ${libsovtoken_dir}/${target_arch}/libsovtoken_libtool.a ${libsovtoken_dir}/${target_arch}/libsovtoken.a
-    fi
 
     if [ -e ${libindy_dir}/${target_arch}/libindy.a ]; then
         echo "${target_arch} libindy architecture already extracted"
@@ -94,16 +86,15 @@ do
     export IOS_SODIUM_LIB=$WORK_DIR/libzmq-ios/libsodium-ios/dist/ios/lib/${target_arch}
     export IOS_ZMQ_LIB=$WORK_DIR/libzmq-ios/dist/ios/lib/${target_arch}
     export LIBINDY_DIR=${libindy_dir}/${target_arch}
-    export LIBSOVTOKEN_DIR=${libsovtoken_dir}/${target_arch}
 
-    cargo build --target "${target}" --release --no-default-features --features "ci sovtoken" 
+    cargo build --target "${target}" --release --no-default-features --features "ci"
     to_combine="${to_combine} ./target/${target}/release/libvcx.a"
 
 done
 mkdir -p ./target/universal/release
 lipo -create $to_combine -o ./target/universal/release/libvcx.a
 
-echo "Copying iOS target folder into directory: $(abspath "${BUILD_CACHE}")"
-cp -rfp ./target ${BUILD_CACHE}
+# echo "Copying iOS target folder into directory: $(abspath "${BUILD_CACHE}")"
+# cp -rfp ./target ${BUILD_CACHE}
 
 export OPENSSL_LIB_DIR=$OPENSSL_LIB_DIR_DARWIN

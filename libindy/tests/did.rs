@@ -14,7 +14,8 @@ extern crate serde_derive;
 extern crate serde_json;
 
 extern crate byteorder;
-extern crate indy;
+extern crate indyrs as indy;
+extern crate indyrs as api;
 extern crate indy_crypto;
 extern crate uuid;
 extern crate named_type;
@@ -23,9 +24,6 @@ extern crate rust_base58;
 extern crate time;
 extern crate serde;
 
-// Workaround to share some utils code based on indy sdk types between tests and indy sdk
-use indy::api as api;
-
 #[macro_use]
 mod utils;
 
@@ -33,7 +31,7 @@ use utils::{wallet, did, pool, ledger};
 use utils::constants::*;
 use utils::types::ResponseType;
 
-use indy::api::ErrorCode;
+use self::indy::ErrorCode;
 
 #[cfg(feature = "local_nodes_pool")]
 use std::thread;
@@ -493,6 +491,18 @@ mod high_cases {
         }
 
         #[test]
+        fn indy_get_my_did_metadata_works_with_temp_verkey() {
+            let (wallet_handle, did) = utils::setup_did();
+
+            did::set_did_metadata(wallet_handle, &did, METADATA).unwrap();
+            did::replace_keys_start(wallet_handle, &did, "{}").unwrap();
+
+            did::get_my_did_with_metadata(wallet_handle, &did).unwrap();
+
+            utils::tear_down_with_wallet(wallet_handle);
+        }
+
+        #[test]
         fn indy_get_my_did_metadata_works_for_unknown_did() {
             let wallet_handle = utils::setup_with_wallet();
 
@@ -527,6 +537,18 @@ mod high_cases {
 
             assert_eq!(my_did, DID_MY1);
             assert_eq!(my_verkey, VERKEY_MY1);
+
+            utils::tear_down_with_wallet(wallet_handle);
+        }
+
+        #[test]
+        fn indy_create_my_did_works_with_hex_seed() {
+            let wallet_handle = utils::setup_with_wallet();
+
+            let (my_did, my_verkey) = did::create_and_store_my_did(wallet_handle, Some("94a823a6387cdd30d8f7687d95710ebab84c6e277b724790a5b221440beb7df6")).unwrap();
+
+            assert_eq!(my_did, "HWvjYf77k1dqQAk6sE4gaS");
+            assert_eq!(my_verkey, "A16wi1xHBu5KT4SqNhZXrKZfoQbXJCbDozgSTJhUgu9x");
 
             utils::tear_down_with_wallet(wallet_handle);
         }

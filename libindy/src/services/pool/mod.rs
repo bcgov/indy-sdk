@@ -157,27 +157,18 @@ impl PoolService {
     }
 
     pub fn send_tx(&self, handle: i32, msg: &str) -> Result<i32, PoolError> {
-        let cmd_id: i32 = sequence::get_next_id();
-
-        let pools = self.open_pools.try_borrow().map_err(CommonError::from)?;
-        match pools.get(&handle) {
-            Some(ref pool) => self._send_msg(cmd_id, msg, &pool.cmd_socket, None, None)?,
-            None => return Err(PoolError::InvalidHandle(format!("No pool with requested handle {}", handle)))
-        }
-
-        Ok(cmd_id)
+        self.send_action(handle, msg, None, None)
     }
 
     pub fn send_action(&self, handle: i32, msg: &str, nodes: Option<&str>, timeout: Option<i32>) -> Result<i32, PoolError> {
-        let cmd_id: i32 = sequence::get_next_id();
-
         let pools = self.open_pools.try_borrow().map_err(CommonError::from)?;
-        match pools.get(&handle) {
-            Some(ref pool) => self._send_msg(cmd_id, msg, &pool.cmd_socket, nodes, timeout)?,
-            None => return Err(PoolError::InvalidHandle(format!("No pool with requested handle {}", handle)))
+        if let Some(ref pool) = pools.get(&handle) {
+            let cmd_id: i32 = sequence::get_next_id();
+            self._send_msg(cmd_id, msg, &pool.cmd_socket, nodes, timeout)?;
+            Ok(cmd_id)
+        } else {
+            Err(PoolError::InvalidHandle(format!("No pool with requested handle {}", handle)))
         }
-
-        Ok(cmd_id)
     }
 
     pub fn register_sp_parser(txn_type: &str,
@@ -213,15 +204,7 @@ impl PoolService {
     }
 
     pub fn refresh(&self, handle: i32) -> Result<i32, PoolError> {
-        let cmd_id: i32 = sequence::get_next_id();
-
-        let pools = self.open_pools.try_borrow().map_err(CommonError::from)?;
-        match pools.get(&handle) {
-            Some(ref pool) => self._send_msg(cmd_id, "refresh", &pool.cmd_socket, None, None)?,
-            None => return Err(PoolError::InvalidHandle(format!("No pool with requested handle {}", handle)))
-        };
-
-        Ok(cmd_id)
+        self.send_action(handle, "refresh", None, None)
     }
 
     fn _send_msg(&self, cmd_id: i32, msg: &str, socket: &Socket, nodes: Option<&str>, timeout: Option<i32>) -> Result<(), PoolError> {
@@ -273,7 +256,7 @@ mod tests {
         use super::*;
         use std::path;
         use api::ErrorCode;
-        use std::os::raw::c_char;
+        use libc::c_char;
 
         #[test]
         fn pool_service_new_works() {
@@ -543,7 +526,6 @@ mod tests {
 
         use services::pool::rust_base58::{FromBase58, ToBase58};
         use utils::crypto::ed25519_sign;
-        use std::thread;
         use super::*;
         use self::indy_crypto::bls::{Generator, SignKey, VerKey};
 
@@ -617,7 +599,7 @@ mod tests {
             }
         }
 
-        pub fn start(gt: &mut NodeTransactionV1) -> thread::JoinHandle<Vec<String>> {
+        pub fn start(gt: &mut NodeTransactionV1) -> zmq::Socket {
             let (vk, sk) = sodiumoxide::crypto::sign::ed25519::gen_keypair();
             let (vk, sk) = (ed25519_sign::PublicKey::from_slice(&vk[..]).unwrap(), ed25519_sign::SecretKey::from_slice(&sk[..]).unwrap());
             let pkc = ed25519_sign::vk_to_curve25519(&vk).expect("Invalid pkc");
@@ -638,25 +620,20 @@ mod tests {
 
             gt.txn.data.data.client_port = Some(parts[0].parse::<u64>().unwrap());
 
-            let handle = thread::spawn(move || {
-                let mut received_msgs: Vec<String> = Vec::new();
+            s
+        }
 
-                loop {
-                    let poll_res = s.poll(zmq::POLLIN, POLL_TIMEOUT).expect("poll");
-                    if poll_res == 1 {
-                        let v = s.recv_multipart(zmq::DONTWAIT).expect("recv mulp");
-                        trace!("Node emulator poll recv {:?}", v);
-                        s.send_multipart(&[v[0].as_slice(), "po".as_bytes()], zmq::DONTWAIT).expect("send mulp");
-                        received_msgs.push(String::from_utf8(v[1].clone()).unwrap());
-                    } else {
-                        warn!("Node emulator poll return {}", poll_res);
-                        break
-                    }
-                }
-
-                received_msgs
-            });
-            handle
+        pub fn next(s: &zmq::Socket) -> Option<String> {
+            let poll_res = s.poll(zmq::POLLIN, POLL_TIMEOUT).expect("poll");
+            if poll_res == 1 {
+                let v = s.recv_multipart(zmq::DONTWAIT).expect("recv mulp");
+                trace!("Node emulator poll recv {:?}", v);
+                s.send_multipart(&[v[0].as_slice(), "po".as_bytes()], zmq::DONTWAIT).expect("send mulp");
+                Some(String::from_utf8(v[1].clone()).unwrap())
+            } else {
+                warn!("Node emulator poll return {}", poll_res);
+                None
+            }
         }
     }
 }

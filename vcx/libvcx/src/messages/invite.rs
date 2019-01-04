@@ -37,6 +37,8 @@ struct SendMsgDetailPayload {
     #[serde(rename = "phoneNo")]
     #[serde(skip_serializing_if = "Option::is_none")]
     phone: Option<String>,
+    #[serde(rename = "includePublicDID")]
+    include_public_did: bool,
 }
 
 #[derive(Clone, Serialize, Debug, PartialEq, PartialOrd)]
@@ -77,6 +79,9 @@ pub struct SendInvite {
     validate_rc: u32,
     agent_did: String,
     agent_vk: String,
+    #[serde(rename = "publicDID")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    public_did: Option<String>,
 }
 
 #[derive(Clone, Serialize, Debug, PartialEq, PartialOrd)]
@@ -103,6 +108,9 @@ pub struct SenderDetail {
     pub logo_url: Option<String>,
     #[serde(rename = "verKey")]
     pub verkey: String,
+    #[serde(rename = "publicDID")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub public_did: Option<String>,
 }
 
 #[derive(Clone, Deserialize, Serialize, Debug, PartialEq, PartialOrd)]
@@ -158,6 +166,7 @@ impl InviteDetail {
                 did: String::new(),
                 logo_url: Some(String::new()),
                 verkey: String::new(),
+                public_did: None,
             },
             sender_agency_detail: SenderAgencyDetail {
                 did: String::new(),
@@ -173,6 +182,8 @@ impl InviteDetail {
 impl SendInvite{
 
     pub fn create() -> SendInvite {
+        trace!("SendInvite::create_message >>>");
+
         SendInvite {
             to_did: String::new(),
             to_vk: String::new(),
@@ -181,11 +192,14 @@ impl SendInvite{
                 msg_detail_payload: SendMsgDetailPayload {
                     msg_type: MsgType { name: "MSG_DETAIL".to_string(), ver: "1.0".to_string(), } ,
                     key_proof: KeyDlgProofPayload { agent_did: String::new(), agent_delegated_key: String::new(), signature: String::new() , } ,
-                    phone: None, } ,
+                    phone: None,
+                    include_public_did: false,
+                } ,
             },
             validate_rc: error::SUCCESS.code_num,
             agent_did: String::new(),
             agent_vk: String::new(),
+            public_did: None,
         }
     }
 
@@ -200,6 +214,14 @@ impl SendInvite{
                 self
             }
         }
+    }
+
+    pub fn public_did(&mut self, did: Option<String>) -> &mut Self{
+        if did.is_some() {
+            self.payload.msg_detail_payload.include_public_did = true;
+        }
+        self.public_did = did.clone();
+        self
     }
 
     pub fn phone_number(&mut self, phone_number: &Option<String>)-> &mut Self{
@@ -218,13 +240,15 @@ impl SendInvite{
 
     pub fn generate_signature(&mut self) -> Result<u32, u32> {
         let signature = format!("{}{}", self.payload.msg_detail_payload.key_proof.agent_did, self.payload.msg_detail_payload.key_proof.agent_delegated_key);
-        let signature = crypto::sign(wallet::get_wallet_handle(), &self.to_vk, signature.as_bytes())?;
+        let signature = crypto::sign(&self.to_vk, signature.as_bytes())?;
         let signature = base64::encode(&signature);
         self.payload.msg_detail_payload.key_proof.signature = signature.to_string();
         Ok(error::SUCCESS.code_num)
     }
 
     pub fn send_secure(&mut self) -> Result<Vec<String>, u32> {
+        trace!("SendInvite::send >>>");
+
         let data = match self.msgpack() {
             Ok(x) => x,
             Err(x) => return Err(x),
@@ -236,8 +260,9 @@ impl SendInvite{
         match httpclient::post_u8(&data) {
             Err(_) => return Err(error::POST_MSG_FAILURE.code_num),
             Ok(response) => {
-                let response = parse_response(response)?;
-                result.push(response);
+                let (invite, url) = parse_response(response)?;
+                result.push(invite);
+                result.push(url);
             },
         };
 
@@ -267,6 +292,8 @@ impl AcceptInvite{
         debug!("connection invitation details: {}", serde_json::to_string(&self.payload.msg_detail_payload).unwrap_or("failure".to_string()));
     }
     pub fn create() -> AcceptInvite {
+        trace!("AcceptInvite::create_message >>>");
+
         AcceptInvite {
             to_did: String::new(),
             to_vk: String::new(),
@@ -322,13 +349,15 @@ impl AcceptInvite{
 
     pub fn generate_signature(&mut self) -> Result<u32, u32> {
         let signature = format!("{}{}", self.payload.msg_detail_payload.key_proof.agent_did, self.payload.msg_detail_payload.key_proof.agent_delegated_key);
-        let signature = crypto::sign(wallet::get_wallet_handle(), &self.to_vk, signature.as_bytes())?;
+        let signature = crypto::sign(&self.to_vk, signature.as_bytes())?;
         let signature = base64::encode(&signature);
         self.payload.msg_detail_payload.key_proof.signature = signature.to_string();
         Ok(error::SUCCESS.code_num)
     }
 
     pub fn send_secure(&mut self) -> Result<String, u32> {
+        trace!("AcceptInvite::send >>>");
+
         let data = match self.msgpack() {
             Ok(x) => x,
             Err(x) => return Err(x),
@@ -371,8 +400,8 @@ impl GeneralMessage for SendInvite{
 
         self.generate_signature()?;
         debug!("connection invitation details: {}", serde_json::to_string(&self.payload.msg_detail_payload).unwrap_or("failure".to_string()));
-        let create = encode::to_vec_named(&self.payload.create_payload).unwrap();
-        let details = encode::to_vec_named(&self.payload.msg_detail_payload).unwrap();
+        let create = encode::to_vec_named(&self.payload.create_payload).or(Err(error::UNKNOWN_ERROR.code_num))?;
+        let details = encode::to_vec_named(&self.payload.msg_detail_payload).or(Err(error::UNKNOWN_ERROR.code_num))?;
 
         let mut bundle = Bundled::create(create);
         bundle.bundled.push(details);
@@ -407,8 +436,8 @@ impl GeneralMessage for AcceptInvite{
 
         self.generate_signature()?;
         debug!("connection invitation details: {}", serde_json::to_string(&self.payload.msg_detail_payload).unwrap_or("failure".to_string()));
-        let create = encode::to_vec_named(&self.payload.create_payload).unwrap();
-        let details = encode::to_vec_named(&self.payload.msg_detail_payload).unwrap();
+        let create = encode::to_vec_named(&self.payload.create_payload).or(Err(error::UNKNOWN_ERROR.code_num))?;
+        let details = encode::to_vec_named(&self.payload.msg_detail_payload).or(Err(error::UNKNOWN_ERROR.code_num))?;
 
         let mut bundle = Bundled::create(create);
         bundle.bundled.push(details);
@@ -419,7 +448,7 @@ impl GeneralMessage for AcceptInvite{
     }
 }
 
-fn parse_response(response: Vec<u8>) -> Result<String, u32> {
+fn parse_response(response: Vec<u8>) -> Result<(String, String), u32> {
     let data = unbundle_from_agency(response)?;
 
     if data.len() != 3 {
@@ -438,7 +467,7 @@ fn parse_response(response: Vec<u8>) -> Result<String, u32> {
 
     debug!("Invite Details: {:?}", response.invite_detail);
     match serde_json::to_string(&response.invite_detail) {
-        Ok(x) => Ok(x),
+        Ok(x) => Ok((x, response.url_to_invite_detail)),
         Err(_) => Err(error::INVALID_JSON.code_num),
     }
 }
@@ -484,19 +513,15 @@ pub fn parse_invitation_acceptance_details(payload: Vec<u8>) -> Result<SenderDet
 mod tests {
     use super::*;
     use messages::send_invite;
-    use utils::libindy::wallet;
     use utils::libindy::signus::create_and_store_my_did;
 
     #[test]
     fn test_send_invite_set_values_and_post(){
-        settings::set_defaults();
-        settings::set_config_value(settings::CONFIG_ENABLE_TEST_MODE, "false");
-        let my_wallet = wallet::init_wallet("test_send_invite_set_values_and_serialize_mine").unwrap();
-
-        let (user_did, user_vk) = create_and_store_my_did(my_wallet,None).unwrap();
-        let (agent_did, agent_vk) = create_and_store_my_did(my_wallet, Some(MY2_SEED)).unwrap();
-        let (my_did, my_vk) = create_and_store_my_did(my_wallet, Some(MY1_SEED)).unwrap();
-        let (agency_did, agency_vk) = create_and_store_my_did(my_wallet, Some(MY3_SEED)).unwrap();
+        init!("false");
+        let (user_did, user_vk) = create_and_store_my_did(None).unwrap();
+        let (agent_did, agent_vk) = create_and_store_my_did(Some(MY2_SEED)).unwrap();
+        let (my_did, my_vk) = create_and_store_my_did(Some(MY1_SEED)).unwrap();
+        let (agency_did, agency_vk) = create_and_store_my_did(Some(MY3_SEED)).unwrap();
 
         settings::set_config_value(settings::CONFIG_AGENCY_VERKEY, &agency_vk);
         settings::set_config_value(settings::CONFIG_REMOTE_TO_SDK_VERKEY, &agent_vk);
@@ -512,18 +537,15 @@ mod tests {
             .msgpack().unwrap();
 
         assert!(msg.len() > 0);
-
-        wallet::delete_wallet("test_send_invite_set_values_and_serialize_mine").unwrap();
     }
 
     #[test]
     fn test_parse_send_invite_response() {
-        settings::set_defaults();
-        settings::set_config_value(settings::CONFIG_ENABLE_TEST_MODE, "indy");
-
-        let result = parse_response(SEND_INVITE_RESPONSE.to_vec()).unwrap();
+        init!("indy");
+        let (result, url) = parse_response(SEND_INVITE_RESPONSE.to_vec()).unwrap();
 
         assert_eq!(result, INVITE_DETAIL_STRING);
+        assert_eq!(url, "http://localhost:9001/agency/invite/WRUzXXuFVTYkT8CjSZpFvT?uid=NjcwOWU");
     }
 
     #[test]
